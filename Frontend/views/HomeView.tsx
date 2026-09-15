@@ -29,11 +29,6 @@ export default function HomeView() {
       <section className="hero-section" id="hero">
         <HeroTechBackground />
         <div className="container hero-container">
-          <div className="badge-status">
-            <span className={`status-dot ${site.availableStatus ? '' : 'status-dot-busy'}`}></span>
-            <span>{site.availableStatus ? t.heroBadgeActive : t.heroBadgeBusy}</span>
-          </div>
-
           <h1 className="hero-title">
             {site.heroTitle1 || t.heroTitle1} <br />
             <span className="text-gradient">{site.heroTitleGrad || t.heroTitleGrad}</span>
