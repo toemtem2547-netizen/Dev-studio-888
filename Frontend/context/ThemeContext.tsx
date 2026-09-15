@@ -11,16 +11,16 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
+  theme: 'dark',
   toggleTheme: () => {},
   setTheme: () => {},
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('dark');
 
   useEffect(() => {
-    const saved = (localStorage.getItem('nexus_theme') as Theme) || 'light';
+    const saved = (localStorage.getItem('nexus_theme') as Theme) || 'dark';
     setThemeState(saved);
     if (saved === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');

@@ -27,11 +27,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th">
+    <html lang="th" data-theme="dark" style={{ backgroundColor: '#070B14', colorScheme: 'dark' }}>
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
+        <meta name="theme-color" content="#070B14" />
+        <meta name="color-scheme" content="dark" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function() {
+              try {
+                var saved = localStorage.getItem('nexus_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', saved);
+                if (saved === 'dark') {
+                  document.documentElement.style.backgroundColor = '#070B14';
+                }
+              } catch(e) {}
+            })()`,
+          }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -44,7 +59,7 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
       </head>
-      <body>
+      <body style={{ backgroundColor: '#070B14', color: '#F1F5F9' }}>
         <ThemeProvider>
           <LanguageProvider>
             <SettingsProvider>
