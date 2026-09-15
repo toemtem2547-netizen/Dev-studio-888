@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS STUDIO 888 — Xcode Ultra Device Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel-bg: rgba(15, 23, 42, 0.85);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.4);
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #090d16 0%, #030712 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Toolbar */
+    .top-bar {
+      height: 64px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-badge {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #60a5fa;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 1px;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .ctrl-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .ctrl-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .url-input-container {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px 12px;
+      width: 320px;
+      gap: 8px;
+    }
+
+    .url-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      width: 100%;
+      outline: none;
+    }
+
+    /* Main Simulator Stage */
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    /* Apple iPhone 16 Pro Frame */
+    .device-container {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center center;
+    }
+
+    .iphone-frame {
+      width: 412px;
+      height: 860px;
+      background: #020408;
+      border-radius: 56px;
+      padding: 13px;
+      position: relative;
+      box-shadow: 
+        0 0 0 4px #262a34,
+        0 0 0 7px #11141c,
+        0 25px 70px rgba(0, 0, 0, 0.8),
+        0 0 50px rgba(59, 130, 246, 0.15);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Hardware Buttons */
+    .iphone-frame::before {
+      content: '';
+      position: absolute;
+      left: -9px;
+      top: 140px;
+      height: 32px;
+      width: 4px;
+      background: #2a2e3b;
+      border-radius: 3px 0 0 3px;
+      box-shadow: 
+        0 50px 0 #2a2e3b,
+        0 95px 0 #2a2e3b;
+    }
+
+    .iphone-frame::after {
+      content: '';
+      position: absolute;
+      right: -9px;
+      top: 180px;
+      height: 65px;
+      width: 4px;
+      background: #2a2e3b;
+      border-radius: 0 3px 3px 0;
+    }
+
+    /* Screen Bezel */
+    .screen-wrapper {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: 46px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 32px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+    }
+
+    .island-camera {
+      width: 11px;
+      height: 11px;
+      background: #0d1624;
+      border-radius: 50%;
+      box-shadow: inset 0 0 3px #1e3a8a;
+    }
+
+    .island-sensor {
+      width: 8px;
+      height: 8px;
+      background: #080b12;
+      border-radius: 50%;
+    }
+
+    /* Live Web Frame */
+    .web-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #0B0F17;
+      display: block;
+    }
+
+    /* Home Indicator Bar */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 135px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* Tablet / iPad Mode */
+    .device-ipad .iphone-frame {
+      width: 768px;
+      height: 1024px;
+      border-radius: 36px;
+      padding: 18px;
+    }
+    .device-ipad .screen-wrapper {
+      border-radius: 24px;
+    }
+    .device-ipad .dynamic-island {
+      display: none;
+    }
+
+    /* Desktop Mode */
+    .device-desktop .iphone-frame {
+      width: 1200px;
+      height: 750px;
+      border-radius: 20px;
+      padding: 12px;
+    }
+    .device-desktop .screen-wrapper {
+      border-radius: 12px;
+    }
+    .device-desktop .dynamic-island {
+      display: none;
+    }
+    .device-desktop .home-indicator {
+      display: none;
+    }
+
+    /* Landscape Mode */
+    .landscape .iphone-frame {
+      width: 860px;
+      height: 412px;
+    }
+    .landscape .dynamic-island {
+      top: 50%;
+      left: 18px;
+      transform: translateY(-50%) rotate(90deg);
+    }
+    .landscape .home-indicator {
+      bottom: 50%;
+      right: 8px;
+      left: auto;
+      transform: translateY(50%) rotate(90deg);
+    }
+
+    /* Responsive Status Float */
+    .status-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 90;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation & Controls Bar -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="brand-logo">888</div>
+      <div>
+        <div class="brand-title">XCODE SIMULATOR</div>
+      </div>
+      <div class="brand-badge">NEXUS PRO</div>
+    </div>
+
+    <!-- Device Selector -->
+    <div class="controls-group">
+      <button class="ctrl-btn active" id="btn-iphone" onclick="setDevice('iphone')">
+        📱 iPhone 16 Pro
+      </button>
+      <button class="ctrl-btn" id="btn-ipad" onclick="setDevice('ipad')">
+        💻 iPad Pro
+      </button>
+      <button class="ctrl-btn" id="btn-desktop" onclick="setDevice('desktop')">
+        🖥️ Desktop
+      </button>
+    </div>
+
+    <!-- Rotation & Zoom Controls -->
+    <div class="controls-group">
+      <button class="ctrl-btn" id="btn-rotate" onclick="toggleOrientation()" title="Rotate Device">
+        🔄 หมุนจอ
+      </button>
+      <button class="ctrl-btn" onclick="setZoom(0.8)">80%</button>
+      <button class="ctrl-btn active" id="btn-z100" onclick="setZoom(1.0)">100%</button>
+      <button class="ctrl-btn" onclick="reloadFrame()" title="Reload Frame">
+        ⚡ รีโหลด
+      </button>
+    </div>
+
+    <!-- URL Input -->
+    <div class="url-input-container">
+      <span style="color: #60a5fa; font-size: 12px;">🔗</span>
+      <input 
+        type="text" 
+        id="url-bar" 
+        class="url-input" 
+        value="/" 
+        onkeydown="if(event.key==='Enter') loadUrl(this.value)"
+      />
+    </div>
+  </header>
+
+  <!-- Simulator Stage -->
+  <main class="stage">
+    <div class="device-container" id="deviceContainer">
+      <div class="iphone-frame" id="iphoneFrame">
+        <div class="screen-wrapper">
+          <!-- Dynamic Island -->
+          <div class="dynamic-island">
+            <div class="island-camera"></div>
+            <div class="island-sensor"></div>
+          </div>
+
+          <!-- Live Iframe -->
+          <iframe 
+            id="targetFrame" 
+            class="web-frame" 
+            src="/"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          ></iframe>
+
+          <!-- Home Indicator -->
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Status Float -->
+  <div class="status-float">
+    <div class="status-dot"></div>
+    <span>Live Studio Simulation • <b>Connected</b></span>
+  </div>
+
+  <script>
+    let currentDevice = 'iphone';
+    let isLandscape = false;
+    let currentZoom = 1.0;
+
+    function setDevice(device) {
+      currentDevice = device;
+      const container = document.getElementById('deviceContainer');
+      container.className = 'device-container device-' + device;
+      if (isLandscape) container.classList.add('landscape');
+
+      document.querySelectorAll('#btn-iphone, #btn-ipad, #btn-desktop').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + device).classList.add('active');
+
+      if (device === 'desktop') {
+        setZoom(0.75);
+      } else if (device === 'ipad') {
+        setZoom(0.85);
+      } else {
+        setZoom(1.0);
+      }
+    }
+
+    function toggleOrientation() {
+      if (currentDevice === 'desktop') return;
+      isLandscape = !isLandscape;
+      const container = document.getElementById('deviceContainer');
+      container.classList.toggle('landscape', isLandscape);
+      document.getElementById('btn-rotate').classList.toggle('active', isLandscape);
+    }
+
+    function setZoom(scale) {
+      currentZoom = scale;
+      const container = document.getElementById('deviceContainer');
+      container.style.transform = `scale(${scale})`;
+    }
+
+    function loadUrl(val) {
+      const frame = document.getElementById('targetFrame');
+      if (!val.startsWith('http') && !val.startsWith('/')) {
+        val = '/' + val;
+      }
+      frame.src = val;
+    }
+
+    function reloadFrame() {
+      const frame = document.getElementById('targetFrame');
+      frame.src = frame.src;
+    }
+
+    // Auto sync URL with current host
+    window.addEventListener('DOMContentLoaded', () => {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const frame = document.getElementById('targetFrame');
+      const urlBar = document.getElementById('url-bar');
+      frame.src = '/';
+      urlBar.value = window.location.origin + '/';
+    });
+  </script>
+</body>
+</html>
