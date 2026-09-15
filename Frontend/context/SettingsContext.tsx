@@ -135,7 +135,7 @@ interface SettingsContextType {
   updateContactSettings: (data: Partial<ContactSettings>) => void;
   updateSocialSettings: (data: Partial<SocialSettings>) => void;
   updateThemeSettings: (data: Partial<ThemeSettings>) => void;
-  updateEstimatorConfig: (config: Partial<EstimatorConfig>) => void;
+  updateEstimatorConfig: (config: Partial<EstimatorConfig>, skipApiCall?: boolean) => void;
   saveProjects: (projects: ProjectItem[]) => void;
 }
 
@@ -300,16 +300,40 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     applyThemeToDOM(next);
   };
 
-  const updateEstimatorConfig = async (config: Partial<EstimatorConfig>) => {
-    const next = { ...estimatorConfig, ...config };
+  const updateEstimatorConfig = async (config: Partial<EstimatorConfig>, skipApiCall = false) => {
+    // Deep merge: nested objects like basePrices/featurePrices must be merged properly
+    const next: EstimatorConfig = {
+      ...estimatorConfig,
+      ...config,
+      basePrices: {
+        ...estimatorConfig.basePrices,
+        ...(config.basePrices || {}),
+      },
+      featurePrices: {
+        ...estimatorConfig.featurePrices,
+        ...(config.featurePrices || {}),
+      },
+      customProjectTypes: config.customProjectTypes ?? estimatorConfig.customProjectTypes,
+      speedMultiplier: config.speedMultiplier ?? estimatorConfig.speedMultiplier,
+    };
+    // Immediately update UI and localStorage
     setEstimatorConfig(next);
     localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(next));
+    if (skipApiCall) return; // Skip API when called from handleSaveEstimatorSettings (already saved)
     try {
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estimatorConfig: next }),
       });
+      if (res.ok) {
+        const data = await res.json();
+        // Sync confirmed DB value back to state and localStorage
+        if (data.success && data.estimatorConfig) {
+          setEstimatorConfig(data.estimatorConfig);
+          localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(data.estimatorConfig));
+        }
+      }
     } catch (err) {
       console.error('[updateEstimatorConfig] API error:', err);
     }

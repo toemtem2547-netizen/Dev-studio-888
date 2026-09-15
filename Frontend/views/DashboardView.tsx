@@ -471,10 +471,27 @@ export default function DashboardView() {
     triggerToast('บันทึก Social Links เรียบร้อยแล้ว');
   };
 
-  const handleSaveEstimatorSettings = (e: React.FormEvent) => {
+  const handleSaveEstimatorSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateEstimatorConfig(estimatorForm);
-    triggerToast('บันทึกเรทราคาประเมินและส่วนลด/ความเร็วเรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🚀');
+    try {
+      // Save directly to API with full form data
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estimatorConfig: estimatorForm }),
+      });
+      const data = await res.json();
+      if (data.success && data.estimatorConfig) {
+        // Sync confirmed DB value to both local form and context (skipApiCall=true to avoid double-save)
+        setEstimatorForm(data.estimatorConfig);
+        localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(data.estimatorConfig));
+        updateEstimatorConfig(data.estimatorConfig, true);
+      }
+      triggerToast('บันทึกเรทราคาประเมินเรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🚀');
+    } catch (err) {
+      console.error('[handleSaveEstimatorSettings] Error:', err);
+      triggerToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้');
+    }
   };
 
   const handleSelectPreset = (preset: ThemePreset) => {
