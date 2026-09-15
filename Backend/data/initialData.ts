@@ -1,0 +1,115 @@
+import { ProjectItem, SiteSettings, ContactSettings, SocialSettings, LeadItem } from '../models';
+
+export const INITIAL_PROJECTS: ProjectItem[] = [
+  {
+    id: 'proj-nexus-bi',
+    title: 'Nexus Analytics SaaS',
+    category: 'saas',
+    catLabel: 'SaaS / Business Intelligence',
+    badge: 'Enterprise Platform',
+    kpi: '+180% ประสิทธิภาพ',
+    excerpt: 'แพลตฟอร์ม BI อัจฉริยะที่ประมวลผลข้อมูล Real-time กว่า 10 ล้านเรคคอร์ดต่อวัน พร้อมระบบคาดการณ์ด้วย AI',
+    image: '/assets/images/project_dashboard.jpg',
+    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'PostgreSQL', 'ClickHouse'],
+    client: 'Global Retail Enterprise Co., Ltd.',
+    duration: '4 เดือน (Phase 1–3)',
+    problem: 'ระบบเดิมทำงานช้า รองรับข้อมูลได้จำกัด รายงานล่าช้ากว่า 2 ชั่วโมง',
+    solution: 'สร้างสถาปัตยกรรม Micro-frontend ร่วมกับ Event-driven Streaming Data Pipeline',
+    results: 'ลดเวลาประมวลผลรายงานเหลือ 1.2 วินาที รองรับผู้ใช้พร้อมกันกว่า 5,000 คน',
+  },
+  {
+    id: 'proj-axel-luxury',
+    title: 'Axel & Co. Luxury Commerce',
+    category: 'ecommerce',
+    catLabel: 'E-Commerce / Headless',
+    badge: 'Headless Commerce',
+    kpi: '3.4x อัตรา Conversion',
+    excerpt: 'ร้านค้าออนไลน์แบบ Headless สำหรับแบรนด์แฟชั่นระดับไฮเอนด์ โหลดไวภายใน 0.8 วินาที พร้อมระบบ Virtual Try-On',
+    image: '/assets/images/project_ecommerce.jpg',
+    tags: ['React', 'Next.js', 'Shopify Storefront API', 'Stripe', 'Framer Motion'],
+    client: 'Axel Luxury Goods Ltd.',
+    duration: '6 สัปดาห์',
+    problem: 'เว็บไซต์เดิมโหลดช้า Bounce Rate สูงกว่า 60% ประสบการณ์บนมือถือไม่ตอบโจทย์',
+    solution: 'พัฒนา Headless Storefront ด้วย Next.js และเชื่อมต่อ Shopify Storefront API',
+    results: 'อัตรา Conversion เพิ่มขึ้น 340% และยอดสั่งซื้อเฉลี่ยต่อบิลโต 45%',
+  },
+  {
+    id: 'proj-aura-clinic',
+    title: 'Aura Clinic Management System',
+    category: 'booking',
+    catLabel: 'Booking / Healthcare',
+    badge: 'Healthcare Booking',
+    kpi: '99.8% ไม่มีการจองซ้ำ',
+    excerpt: 'ระบบจองคิวออนไลน์และเวชระเบียนดิจิทัลสำหรับคลินิกเสริมความงาม เชื่อมต่อ LINE OA แจ้งเตือนแบบอัตโนมัติ',
+    image: '/assets/images/project_booking.jpg',
+    tags: ['React', 'Node.js', 'PostgreSQL', 'LINE Messaging API', 'Redis'],
+    client: 'Aura Aesthetic Clinic Group',
+    duration: '8 สัปดาห์',
+    problem: 'การจองคิวซ้ำซ้อน ลูกค้าลืมเวลานัดหมาย สูญเสียรายได้กว่า 25%',
+    solution: 'พัฒนาระบบจองคิวแบบ Real-time Calendar Sync และระบบแจ้งเตือนอัตโนมัติ',
+    results: 'ลดอัตราการ No-show ลง 85% และเพิ่มประสิทธิภาพการทำงานของพนักงาน 50%',
+  },
+  {
+    id: 'proj-vault-fintech',
+    title: 'Vault8 Crypto & Wealth Management',
+    category: 'fintech',
+    catLabel: 'FinTech / Asset Management',
+    badge: 'Institutional Grade',
+    kpi: '$120M+ สินทรัพย์ภายใต้การจัดการ',
+    excerpt: 'แพลตฟอร์มบริหารสินทรัพย์ดิจิทัลระดับสถาบัน พร้อมระบบ Automated Rebalancing และการเข้ารหัสแบบ Multi-sig',
+    image: '/assets/images/project_fintech.jpg',
+    tags: ['Next.js', 'TypeScript', 'Web3.js', 'Rust', 'Go Microservices'],
+    client: 'Vault8 Capital Partners',
+    duration: '5 เดือน',
+    problem: 'ต้องการระบบจัดการสินทรัพย์ที่โปร่งใส มีความปลอดภัยระดับสูงสุด และประมวลผลทันที',
+    solution: 'สร้างสถาปัตยกรรมแบบ Hybrid On-chain/Off-chain ร่วมกับระบบ Multi-signature Vault',
+    results: 'ดูแลสินทรัพย์ปลอดภัย 100% ประมวลผลธุรกรรมเฉลี่ย 85ms',
+  },
+];
+
+export const INITIAL_SITE_SETTINGS: SiteSettings = {
+  title: 'NEXUS STUDIO 888',
+  tagline: 'Web Application & SaaS Engineering Studio',
+  description: 'ผู้เชี่ยวชาญด้านการพัฒนา Web Application, SaaS, E-Commerce และ Custom Software ระดับพรีเมียม ตอบโจทย์ทุกสเกลธุรกิจด้วยมาตรฐานระดับสากล',
+  statusText: 'พร้อมรับโปรเจกต์ใหม่ • ไตรมาสนี้',
+  techStack: 'Next.js 16 (App Router), React 19, TypeScript 5, Node.js, PostgreSQL',
+};
+
+export const INITIAL_CONTACT_SETTINGS: ContactSettings = {
+  email: 'contact@nexusstudio888.com',
+  phone: '02-888-8888',
+  location: '888 G Tower, Grand Rama 9, Bangkok 10310',
+  businessHours: 'จันทร์ - ศุกร์ 09:00 - 18:00 น.',
+};
+
+export const INITIAL_SOCIAL_SETTINGS: SocialSettings = {
+  github: 'https://github.com/nexus888',
+  linkedin: 'https://linkedin.com/company/nexus888',
+  line: 'https://line.me/R/ti/p/@nexus888',
+  facebook: 'https://facebook.com/nexusstudio888',
+};
+
+export const INITIAL_LEADS: LeadItem[] = [
+  {
+    id: 'lead-1',
+    name: 'คุณสมชาย วงศ์สวัสดิ์',
+    email: 'somchai@company.com',
+    phone: '081-234-5678',
+    projectType: 'SaaS Platform',
+    budget: '฿150,000 - ฿300,000',
+    message: 'ต้องการพัฒนาระบบ ERP สำหรับธุรกิจจัดจำหน่ายสินค้า 15 สาขา',
+    date: '2026-09-14 14:30',
+    status: 'new',
+  },
+  {
+    id: 'lead-2',
+    name: 'คุณแพรวา รัตนเจริญ',
+    email: 'praewa@boutique.co.th',
+    phone: '089-876-5432',
+    projectType: 'E-Commerce / Marketplace',
+    budget: '฿80,000 - ฿150,000',
+    message: 'ต้องการสร้างร้านค้าออนไลน์แบบ Headless รองรับระบบชำระเงินและคูปองส่วนลด',
+    date: '2026-09-14 11:15',
+    status: 'contacted',
+  },
+];

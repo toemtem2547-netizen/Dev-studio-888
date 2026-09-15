@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Lead {
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String?
+  projectType     String
+  budget          String   @default("0")
+  message         String?
+  status          String   @default("new")
+  estimateDetails String?
+  date            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Project {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  title        String
+  category     String
+  badge        String
+  kpi          String
+  img          String
+  excerpt      String
+  fullDesc     String?
+  client       String?
+  duration     String?
+  liveUrl      String?
+  featured     Boolean  @default(false)
+  tags         String   @default("[]")
+  deliverables String?  @default("[]")
+  stack        String?  @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Setting {
+  id             String   @id @default("site-config")
+  siteName       String   @default("DEV STUDIO 888")
+  siteTagline    String?
+  siteDesc       String?
+  siteTechStack  String?
+  email          String   @default("contact@nexusstudio888.com")
+  phone          String   @default("088-888-8888")
+  line           String   @default("@nexus888")
+  github         String?
+  linkedin       String?
+  facebook       String?
+  themePrimary   String   @default("#2563EB")
+  themeSecondary String   @default("#7C3AED")
+  themePreset    String   @default("sapphire")
+  updatedAt      DateTime @updatedAt
+}
+
+model EstimatorLog {
+  id          String   @id @default(uuid())
+  projectType String
+  features    String   @default("[]")
+  speed       String
+  totalPrice  Int
+  weeks       String
+  leadEmail   String?
+  createdAt   DateTime @default(now())
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String   @default("Admin")
+  role      String   @default("superadmin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
