@@ -549,6 +549,28 @@ h1, h2, h3, h4, h5 {
   font-weight: 600;
 }
 
+/* Hero Scene Indicator */
+.hero-scene-indicator {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-scene-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* Minimalist Logo-Only Cyber Marquee */
 .tech-marquee-wrapper {
   position: relative;
@@ -2309,6 +2331,9 @@ h1, h2, h3, h4, h5 {
    Responsive Breakpoints
    ========================================================================== */
 @media (max-width: 1024px) {
+  .hero-scene-indicator {
+    display: none !important;
+  }
   .hero-title {
     font-size: 2.8rem;
   }
@@ -2333,6 +2358,9 @@ h1, h2, h3, h4, h5 {
 }
 
 @media (max-width: 768px) {
+  .hero-scene-indicator {
+    display: none !important;
+  }
   .container {
     padding: 0 1rem;
   }
@@ -2405,13 +2433,16 @@ h1, h2, h3, h4, h5 {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+    position: relative;
+    z-index: 5;
   }
   .metric-card {
     padding: 1.15rem 0.75rem;
     border-radius: 12px;
   }
+  .metric-num,
   .metric-val {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     margin-bottom: 2px;
   }
   .metric-label {

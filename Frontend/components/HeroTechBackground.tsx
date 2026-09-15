@@ -382,29 +382,9 @@ export const HeroTechBackground: React.FC = () => {
         }}
       />
 
-      {/* 6. Subtle Automatic Scene Status Pulse Indicator (Informative & Sleek) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '18px',
-          right: '20px',
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-glass)',
-            padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
-            boxShadow: 'var(--shadow-sm)',
-            backdropFilter: 'blur(12px)',
-          }}
-        >
+      {/* 6. Subtle Automatic Scene Status Pulse Indicator (Informative & Sleek on Desktop) */}
+      <div className="hero-scene-indicator">
+        <div className="hero-scene-badge">
           <span
             style={{
               width: '7px',
