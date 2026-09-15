@@ -1,14 +1,38 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/Frontend/components/Navbar';
 import { Footer } from '@/Frontend/components/Footer';
 import { useSettings } from '@/Frontend/context/SettingsContext';
+import type { EstimatorConfig } from '@/types';
 
 export default function EstimatorView() {
   const router = useRouter();
-  const { estimatorConfig } = useSettings();
+  const { estimatorConfig: ctxConfig } = useSettings();
+
+  // Always fetch fresh config from API on mount (so dashboard changes reflect immediately)
+  const [liveConfig, setLiveConfig] = useState<EstimatorConfig | null>(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.success && data.estimatorConfig) {
+          setLiveConfig(data.estimatorConfig);
+          // Update localStorage so future loads use fresh data
+          localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(data.estimatorConfig));
+        }
+      } catch {
+        // Fallback to context data if API fails
+      }
+    };
+    fetchConfig();
+  }, []);
+
+  // Use fresh API data, fall back to context data (from localStorage), then hardcoded defaults
+  const estimatorConfig = liveConfig || ctxConfig;
 
   const [projectType, setProjectType] = useState<string>('webapp');
   const [features, setFeatures] = useState<string[]>(['auth', 'payment']);
@@ -41,9 +65,7 @@ export default function EstimatorView() {
     corporate: { standard: '2-3', express: '1-2', multiplier: speedMultiplier },
   };
 
-  const toggleFeature = (f: string) => {
-    setFeatures(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
-  };
+  const toggleFeature = (f: string) => setFeatures(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
 
   const getBasePrice = (type: string): number => {
     if (basePrices[type] !== undefined) {
