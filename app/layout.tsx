@@ -6,7 +6,7 @@ import { LanguageProvider } from '@/Frontend/context/LanguageContext';
 import { SettingsProvider } from '@/Frontend/context/SettingsContext';
 
 export const metadata: Metadata = {
-  title: 'NEXUS STUDIO 888 — Web Application & SaaS Engineering Studio',
+  title: 'DEV STUDIO 888 — Web Application & SaaS Engineering Studio',
   description: 'ผู้เชี่ยวชาญด้านการพัฒนา Web Application, SaaS, E-Commerce และ Custom Software ระดับพรีเมียม ตอบโจทย์ทุกสเกลธุรกิจด้วยมาตรฐานระดับสากล',
   icons: {
     icon: '/assets/images/favicon.svg',

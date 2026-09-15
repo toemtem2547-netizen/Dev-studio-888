@@ -549,7 +549,7 @@ export default function DashboardView() {
               <div className="dash-welcome-banner">
                 <div className="welcome-badge"><i className="fa-solid fa-sparkles"></i> ADMIN DASHBOARD V1.0</div>
                 <h2>ยินดีต้อนรับกลับครับผู้ดูแล 👋</h2>
-                <p>ระบบบริหารจัดการเว็บไซต์ NEXUS STUDIO 888 ติดตามสถิติ จัดการผลงาน และตอบกลับลูกค้าได้ครบจบในที่เดียว</p>
+                <p>ระบบบริหารจัดการเว็บไซต์ DEV STUDIO 888 ติดตามสถิติ จัดการผลงาน และตอบกลับลูกค้าได้ครบจบในที่เดียว</p>
               </div>
 
               <div className="dash-stats-grid">

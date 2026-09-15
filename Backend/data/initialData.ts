@@ -68,7 +68,7 @@ export const INITIAL_PROJECTS: ProjectItem[] = [
 ];
 
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
-  title: 'NEXUS STUDIO 888',
+  title: 'DEV STUDIO 888',
   tagline: 'Web Application & SaaS Engineering Studio',
   description: 'ผู้เชี่ยวชาญด้านการพัฒนา Web Application, SaaS, E-Commerce และ Custom Software ระดับพรีเมียม ตอบโจทย์ทุกสเกลธุรกิจด้วยมาตรฐานระดับสากล',
   statusText: 'พร้อมรับโปรเจกต์ใหม่ • ไตรมาสนี้',

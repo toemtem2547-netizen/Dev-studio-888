@@ -1,7 +1,7 @@
 {
-  "name": "nexus-dev888-showcase",
+  "name": "dev-studio-888",
   "version": "1.0.0",
-  "description": "NEXUS STUDIO 888 Web Application Showcase & Service Platform",
+  "description": "DEV STUDIO 888 Web Application Showcase & Service Platform",
   "main": "Backend/server.js",
   "scripts": {
     "dev": "next dev -p 3333",
@@ -10,7 +10,7 @@
     "postinstall": "prisma generate"
   },
   "keywords": [],
-  "author": "NEXUS STUDIO 888",
+  "author": "DEV STUDIO 888",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.19.3",

@@ -1,8 +1,8 @@
 import EstimatorView from '@/Frontend/views/EstimatorView';
 
 export const metadata = {
-  title: 'ระบบประเมินราคาโปรเจกต์อัจฉริยะ — NEXUS STUDIO 888',
-  description: 'คำนวณงบประมาณและระยะเวลาพัฒนา Web Application & SaaS เบื้องต้นได้ทันที',
+  title: 'ระบบประเมินราคาโปรเจกต์อัจฉริยะ — DEV STUDIO 888',
+  description: 'คำนวณงบประมาณและสเปกโปรเจกต์ Web App, SaaS, E-Commerce ได้แม่นยำทันใจ',
 };
 
 export default function EstimatorPage() {

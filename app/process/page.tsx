@@ -1,7 +1,7 @@
 import ProcessView from '@/Frontend/views/ProcessView';
 
 export const metadata = {
-  title: 'ขั้นตอนการทำงาน — NEXUS STUDIO 888',
+  title: 'ขั้นตอนการทำงาน — DEV STUDIO 888',
   description: 'กระบวนการทำงานระดับมาตรฐานสากลตั้งแต่ Requirement สู่ Production',
 };
 
