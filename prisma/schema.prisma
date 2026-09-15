@@ -59,6 +59,7 @@ model Setting {
   themePrimary   String   @default("#2563EB")
   themeSecondary String   @default("#7C3AED")
   themePreset    String   @default("sapphire")
+  estimatorConfig String? @default("{}")
   updatedAt      DateTime @updatedAt
 }
 

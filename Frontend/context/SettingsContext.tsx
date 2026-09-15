@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { SiteSettings, ContactSettings, SocialSettings, ProjectItem } from '@/types';
+import { SiteSettings, ContactSettings, SocialSettings, ProjectItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG } from '@/types';
 
 export interface ThemeSettings {
   primaryColor: string;
@@ -114,10 +114,12 @@ interface SettingsContextType {
   social: SocialSettings;
   projects: ProjectItem[];
   themeSettings: ThemeSettings;
+  estimatorConfig: EstimatorConfig;
   updateSiteSettings: (data: Partial<SiteSettings>) => void;
   updateContactSettings: (data: Partial<ContactSettings>) => void;
   updateSocialSettings: (data: Partial<SocialSettings>) => void;
   updateThemeSettings: (data: Partial<ThemeSettings>) => void;
+  updateEstimatorConfig: (config: Partial<EstimatorConfig>) => void;
   saveProjects: (projects: ProjectItem[]) => void;
 }
 
@@ -127,10 +129,12 @@ const SettingsContext = createContext<SettingsContextType>({
   social: defaultSocialSettings,
   projects: defaultProjects,
   themeSettings: defaultThemeSettings,
+  estimatorConfig: DEFAULT_ESTIMATOR_CONFIG,
   updateSiteSettings: () => {},
   updateContactSettings: () => {},
   updateSocialSettings: () => {},
   updateThemeSettings: () => {},
+  updateEstimatorConfig: () => {},
   saveProjects: () => {},
 });
 
@@ -140,6 +144,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [social, setSocial] = useState<SocialSettings>(defaultSocialSettings);
   const [projects, setProjects] = useState<ProjectItem[]>(defaultProjects);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
+  const [estimatorConfig, setEstimatorConfig] = useState<EstimatorConfig>(DEFAULT_ESTIMATOR_CONFIG);
 
   const applyThemeToDOM = (t: ThemeSettings) => {
     if (typeof document !== 'undefined') {
@@ -177,6 +182,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const parsed = JSON.parse(savedProjects);
         if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
       }
+
+      const savedEstimator = localStorage.getItem('nexus_dash_estimator_config');
+      if (savedEstimator) {
+        setEstimatorConfig(prev => ({ ...prev, ...JSON.parse(savedEstimator) }));
+      }
     } catch (e) {
       console.error('SettingsContext local cache error:', e);
     }
@@ -203,6 +213,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           if (settData.social) {
             setSocial(prev => ({ ...prev, ...settData.social }));
             localStorage.setItem('nexus_dash_settings_social', JSON.stringify(settData.social));
+          }
+          if (settData.estimatorConfig) {
+            setEstimatorConfig(prev => ({ ...prev, ...settData.estimatorConfig }));
+            localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(settData.estimatorConfig));
           }
         }
 
@@ -270,6 +284,21 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     applyThemeToDOM(next);
   };
 
+  const updateEstimatorConfig = async (config: Partial<EstimatorConfig>) => {
+    const next = { ...estimatorConfig, ...config };
+    setEstimatorConfig(next);
+    localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(next));
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estimatorConfig: next }),
+      });
+    } catch (err) {
+      console.error('[updateEstimatorConfig] API error:', err);
+    }
+  };
+
   const saveProjects = async (newProjects: ProjectItem[]) => {
     setProjects(newProjects);
     localStorage.setItem('nexus_dash_portfolio', JSON.stringify(newProjects));
@@ -296,10 +325,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         social,
         projects,
         themeSettings,
+        estimatorConfig,
         updateSiteSettings,
         updateContactSettings,
         updateSocialSettings,
         updateThemeSettings,
+        updateEstimatorConfig,
         saveProjects,
       }}
     >

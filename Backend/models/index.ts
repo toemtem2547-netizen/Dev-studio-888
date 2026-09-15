@@ -68,3 +68,40 @@ export interface AdminSession {
   token?: string;
   timestamp: number;
 }
+
+export interface EstimatorConfig {
+  basePrices: {
+    webapp: number;
+    dashboard: number;
+    ecommerce: number;
+    corporate: number;
+  };
+  featurePrices: {
+    auth: number;
+    payment: number;
+    notification: number;
+    export: number;
+    ai: number;
+    multilang: number;
+  };
+  speedMultiplier: number;
+}
+
+export const DEFAULT_ESTIMATOR_CONFIG: EstimatorConfig = {
+  basePrices: {
+    webapp: 45000,
+    dashboard: 55000,
+    ecommerce: 50000,
+    corporate: 35000,
+  },
+  featurePrices: {
+    auth: 10000,
+    payment: 15000,
+    notification: 8000,
+    export: 12000,
+    ai: 25000,
+    multilang: 9000,
+  },
+  speedMultiplier: 1.25,
+};
+

@@ -4,22 +4,24 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/Frontend/components/Navbar';
 import { Footer } from '@/Frontend/components/Footer';
+import { useSettings } from '@/Frontend/context/SettingsContext';
 
 export default function EstimatorView() {
   const router = useRouter();
+  const { estimatorConfig } = useSettings();
 
   const [projectType, setProjectType] = useState<'webapp' | 'dashboard' | 'ecommerce' | 'corporate'>('webapp');
   const [features, setFeatures] = useState<string[]>(['auth', 'payment']);
   const [timelineSpeed, setTimelineSpeed] = useState<'standard' | 'express'>('standard');
 
-  const basePrices = {
+  const basePrices = estimatorConfig?.basePrices || {
     webapp: 45000,
     dashboard: 55000,
     ecommerce: 50000,
     corporate: 35000,
   };
 
-  const featurePrices: Record<string, number> = {
+  const featurePrices = estimatorConfig?.featurePrices || {
     auth: 10000,
     payment: 15000,
     notification: 8000,
@@ -28,11 +30,13 @@ export default function EstimatorView() {
     multilang: 9000,
   };
 
+  const speedMultiplier = estimatorConfig?.speedMultiplier || 1.25;
+
   const timelineWeeks: Record<string, { standard: string; express: string; multiplier: number }> = {
-    webapp: { standard: '4-6', express: '2-3', multiplier: 1.25 },
-    dashboard: { standard: '5-7', express: '3-4', multiplier: 1.25 },
-    ecommerce: { standard: '4-6', express: '2-4', multiplier: 1.25 },
-    corporate: { standard: '2-3', express: '1-2', multiplier: 1.2 },
+    webapp: { standard: '4-6', express: '2-3', multiplier: speedMultiplier },
+    dashboard: { standard: '5-7', express: '3-4', multiplier: speedMultiplier },
+    ecommerce: { standard: '4-6', express: '2-4', multiplier: speedMultiplier },
+    corporate: { standard: '2-3', express: '1-2', multiplier: speedMultiplier },
   };
 
   const toggleFeature = (f: string) => {
@@ -40,15 +44,15 @@ export default function EstimatorView() {
   };
 
   // Calculate
-  let total = basePrices[projectType];
+  let total = basePrices[projectType] || 45000;
   features.forEach(f => {
-    total += (featurePrices[f] || 0);
+    total += (featurePrices[f as keyof typeof featurePrices] || 0);
   });
   if (timelineSpeed === 'express') {
-    total = Math.round(total * timelineWeeks[projectType].multiplier);
+    total = Math.round(total * (timelineWeeks[projectType]?.multiplier || speedMultiplier));
   }
 
-  const weeks = timelineWeeks[projectType][timelineSpeed];
+  const weeks = timelineWeeks[projectType]?.[timelineSpeed] || '4-6';
 
   const projectTypeLabels = {
     webapp: 'Custom Web Application',
@@ -251,7 +255,9 @@ export default function EstimatorView() {
                           <span className="feature-label">{item.label}</span>
                           <span className="feature-desc">{item.desc}</span>
                         </div>
-                        <span className="feature-tag">{item.price}</span>
+                        <span className="feature-tag">
+                          +{(featurePrices[item.id as keyof typeof featurePrices] || 0).toLocaleString()} ฿
+                        </span>
                         <div className="custom-check">
                           <i className="fa-solid fa-check"></i>
                         </div>

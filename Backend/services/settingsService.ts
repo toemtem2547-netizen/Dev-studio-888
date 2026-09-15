@@ -152,4 +152,35 @@ export class SettingsService {
       return INITIAL_SOCIAL_SETTINGS;
     }
   }
+
+  static async getEstimatorConfig(): Promise<any> {
+    try {
+      const setting = await this.getOrCreateSetting();
+      if (setting && setting.estimatorConfig && setting.estimatorConfig !== '{}') {
+        return JSON.parse(setting.estimatorConfig);
+      }
+      return null;
+    } catch (err) {
+      console.error('[SettingsService.getEstimatorConfig] Error:', err);
+      return null;
+    }
+  }
+
+  static async updateEstimatorConfig(config: any): Promise<any> {
+    try {
+      const configStr = JSON.stringify(config);
+      const updated = await prisma.setting.upsert({
+        where: { id: 'site-config' },
+        update: { estimatorConfig: configStr },
+        create: {
+          id: 'site-config',
+          estimatorConfig: configStr,
+        },
+      });
+      return JSON.parse(updated.estimatorConfig || '{}');
+    } catch (err) {
+      console.error('[SettingsService.updateEstimatorConfig] Error:', err);
+      return config;
+    }
+  }
 }
