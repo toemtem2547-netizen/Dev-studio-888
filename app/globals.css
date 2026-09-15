@@ -2432,22 +2432,26 @@ h1, h2, h3, h4, h5 {
 
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.55rem;
     position: relative;
     z-index: 5;
+    max-width: 440px;
+    margin: 0 auto;
   }
   .metric-card {
-    padding: 1.15rem 0.75rem;
+    padding: 0.85rem 0.65rem;
     border-radius: 12px;
   }
   .metric-num,
   .metric-val {
-    font-size: 1.65rem;
+    font-size: 1.45rem;
+    font-weight: 800;
     margin-bottom: 2px;
+    line-height: 1.15;
   }
   .metric-label {
-    font-size: 0.76rem;
-    line-height: 1.3;
+    font-size: 0.74rem;
+    line-height: 1.25;
   }
 
   .portfolio-grid {
@@ -2529,8 +2533,24 @@ h1, h2, h3, h4, h5 {
   .hero-subtitle {
     font-size: 0.85rem;
   }
+  .metrics-grid {
+    gap: 0.45rem;
+    max-width: 100%;
+  }
+  .metric-card {
+    padding: 0.7rem 0.45rem;
+    border-radius: 10px;
+  }
+  .metric-num,
   .metric-val {
-    font-size: 1.55rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 1px;
+    line-height: 1.1;
+  }
+  .metric-label {
+    font-size: 0.68rem;
+    line-height: 1.2;
   }
   .btn-lg {
     padding: 0.85rem 1.5rem;
