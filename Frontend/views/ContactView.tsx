@@ -45,41 +45,59 @@ export default function ContactView() {
     triggerToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone || !email) return;
 
     setSubmitting(true);
 
-    const newLead = {
-      id: 'lead-' + Date.now(),
+    const leadPayload = {
       name,
       phone,
       email,
       projectType: projectScope,
       budget: budgetRange,
-      timeline: 'ตามที่ลูกค้ากำหนด',
-      details: projectDetails,
-      status: 'new' as const,
-      date: new Date().toLocaleDateString('th-TH'),
+      message: projectDetails,
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem('nexus_dash_leads') || '[]');
-      existing.unshift(newLead);
-      localStorage.setItem('nexus_dash_leads', JSON.stringify(existing));
-    } catch (err) {
-      console.error(err);
-    }
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leadPayload),
+      });
+      const data = await res.json();
 
-    setTimeout(() => {
-      setSubmitting(false);
-      triggerToast('ส่งข้อมูลสำเร็จ! เราจะติดต่อกลับโดยเร็วที่สุด');
+      if (data.success && data.lead) {
+        try {
+          const existing = JSON.parse(localStorage.getItem('nexus_dash_leads') || '[]');
+          existing.unshift(data.lead);
+          localStorage.setItem('nexus_dash_leads', JSON.stringify(existing));
+        } catch {}
+      }
+      triggerToast('ส่งข้อมูลสำเร็จ! ข้อมูลบันทึกเข้าสู่ระบบเรียบร้อยแล้ว');
       setName('');
       setPhone('');
       setEmail('');
       setProjectDetails('');
-    }, 600);
+    } catch (err) {
+      console.error('[ContactView.handleSubmit] Error:', err);
+      // Fallback
+      const fallbackLead = {
+        id: 'lead-' + Date.now(),
+        ...leadPayload,
+        status: 'new' as const,
+        date: new Date().toLocaleDateString('th-TH'),
+      };
+      try {
+        const existing = JSON.parse(localStorage.getItem('nexus_dash_leads') || '[]');
+        existing.unshift(fallbackLead);
+        localStorage.setItem('nexus_dash_leads', JSON.stringify(existing));
+      } catch {}
+      triggerToast('ส่งข้อมูลสำเร็จ!');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

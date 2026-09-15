@@ -171,15 +171,28 @@ export default function DashboardView() {
       return;
     }
 
-    // Load leads
-    try {
-      const savedLeads = localStorage.getItem('nexus_dash_leads');
-      if (savedLeads) {
-        setLeads(JSON.parse(savedLeads));
+    // Load live leads from API
+    const loadLeadsFromApi = async () => {
+      try {
+        const res = await fetch('/api/leads');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.leads)) {
+          setLeads(data.leads);
+          localStorage.setItem('nexus_dash_leads', JSON.stringify(data.leads));
+        } else {
+          const savedLeads = localStorage.getItem('nexus_dash_leads');
+          if (savedLeads) setLeads(JSON.parse(savedLeads));
+        }
+      } catch (e) {
+        console.error('Failed to load leads from API, fallback to localStorage:', e);
+        try {
+          const savedLeads = localStorage.getItem('nexus_dash_leads');
+          if (savedLeads) setLeads(JSON.parse(savedLeads));
+        } catch {}
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+
+    loadLeadsFromApi();
 
     setSiteForm(site);
     setContactForm(contact);
@@ -240,8 +253,13 @@ export default function DashboardView() {
     triggerToast('บันทึกการตั้งค่าธีมและดีไซน์เรียบร้อยแล้ว ✨');
   };
 
-  const handleDeleteLead = (id: string) => {
+  const handleDeleteLead = async (id: string) => {
     if (confirm('ต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+      try {
+        await fetch(`/api/leads?id=${id}`, { method: 'DELETE' });
+      } catch (err) {
+        console.error('[handleDeleteLead] Error:', err);
+      }
       const updated = leads.filter(l => l.id !== id);
       setLeads(updated);
       localStorage.setItem('nexus_dash_leads', JSON.stringify(updated));

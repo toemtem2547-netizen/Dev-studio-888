@@ -151,6 +151,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
+    // 1. Initial load from localStorage (instant cache)
     try {
       const savedSite = localStorage.getItem('nexus_dash_settings_site');
       if (savedSite) setSite(prev => ({ ...prev, ...JSON.parse(savedSite) }));
@@ -177,26 +178,89 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
       }
     } catch (e) {
-      console.error('SettingsContext init error:', e);
+      console.error('SettingsContext local cache error:', e);
     }
+
+    // 2. Fetch live data from Database API
+    const fetchLiveData = async () => {
+      try {
+        const [settRes, projRes] = await Promise.all([
+          fetch('/api/settings'),
+          fetch('/api/projects'),
+        ]);
+        const settData = await settRes.json();
+        const projData = await projRes.json();
+
+        if (settData.success) {
+          if (settData.site) {
+            setSite(prev => ({ ...prev, ...settData.site }));
+            localStorage.setItem('nexus_dash_settings_site', JSON.stringify(settData.site));
+          }
+          if (settData.contact) {
+            setContact(prev => ({ ...prev, ...settData.contact }));
+            localStorage.setItem('nexus_dash_settings_contact', JSON.stringify(settData.contact));
+          }
+          if (settData.social) {
+            setSocial(prev => ({ ...prev, ...settData.social }));
+            localStorage.setItem('nexus_dash_settings_social', JSON.stringify(settData.social));
+          }
+        }
+
+        if (projData.success && Array.isArray(projData.projects) && projData.projects.length > 0) {
+          setProjects(projData.projects);
+          localStorage.setItem('nexus_dash_portfolio', JSON.stringify(projData.projects));
+        }
+      } catch (err) {
+        console.error('SettingsContext API fetch error:', err);
+      }
+    };
+
+    fetchLiveData();
   }, []);
 
-  const updateSiteSettings = (data: Partial<SiteSettings>) => {
+  const updateSiteSettings = async (data: Partial<SiteSettings>) => {
     const next = { ...site, ...data };
     setSite(next);
     localStorage.setItem('nexus_dash_settings_site', JSON.stringify(next));
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site: next }),
+      });
+    } catch (err) {
+      console.error('[updateSiteSettings] API error:', err);
+    }
   };
 
-  const updateContactSettings = (data: Partial<ContactSettings>) => {
+  const updateContactSettings = async (data: Partial<ContactSettings>) => {
     const next = { ...contact, ...data };
     setContact(next);
     localStorage.setItem('nexus_dash_settings_contact', JSON.stringify(next));
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact: next }),
+      });
+    } catch (err) {
+      console.error('[updateContactSettings] API error:', err);
+    }
   };
 
-  const updateSocialSettings = (data: Partial<SocialSettings>) => {
+  const updateSocialSettings = async (data: Partial<SocialSettings>) => {
     const next = { ...social, ...data };
     setSocial(next);
     localStorage.setItem('nexus_dash_settings_social', JSON.stringify(next));
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ social: next }),
+      });
+    } catch (err) {
+      console.error('[updateSocialSettings] API error:', err);
+    }
   };
 
   const updateThemeSettings = (data: Partial<ThemeSettings>) => {
@@ -206,9 +270,22 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     applyThemeToDOM(next);
   };
 
-  const saveProjects = (newProjects: ProjectItem[]) => {
+  const saveProjects = async (newProjects: ProjectItem[]) => {
     setProjects(newProjects);
     localStorage.setItem('nexus_dash_portfolio', JSON.stringify(newProjects));
+    // Sync latest added or updated project
+    if (newProjects.length > 0) {
+      const topProj = newProjects[0];
+      try {
+        await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(topProj),
+        });
+      } catch (err) {
+        console.error('[saveProjects] API error:', err);
+      }
+    }
   };
 
   return (
