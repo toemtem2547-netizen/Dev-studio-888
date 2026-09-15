@@ -27,22 +27,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" data-theme="dark" style={{ backgroundColor: '#070B14', colorScheme: 'dark' }}>
+    <html lang="th" data-theme="dark" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         />
-        <meta name="theme-color" content="#070B14" />
-        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#070B14" id="themeColorMeta" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function() {
               try {
-                var saved = localStorage.getItem('nexus_theme') || 'dark';
+                // ── Theme: default dark for first-time visitors ──
+                var saved = localStorage.getItem('nexus_theme');
+                if (!saved) {
+                  saved = 'dark';
+                  localStorage.setItem('nexus_theme', 'dark');
+                }
                 document.documentElement.setAttribute('data-theme', saved);
-                if (saved === 'dark') {
-                  document.documentElement.style.backgroundColor = '#070B14';
+                var meta = document.getElementById('themeColorMeta');
+                if (meta) {
+                  meta.content = saved === 'dark' ? '#070B14' : '#F8FAFC';
+                }
+
+                // ── First visit: redirect to home page ──
+                var isFirstVisit = !sessionStorage.getItem('nexus_visited');
+                if (isFirstVisit) {
+                  sessionStorage.setItem('nexus_visited', '1');
+                  var currentPath = window.location.pathname;
+                  // Only redirect if not already on home and not on login/api paths
+                  if (currentPath !== '/' && !currentPath.startsWith('/login') && !currentPath.startsWith('/api')) {
+                    window.location.replace('/');
+                  }
                 }
               } catch(e) {}
             })()`,
@@ -59,7 +75,7 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
       </head>
-      <body style={{ backgroundColor: '#070B14', color: '#F1F5F9' }}>
+      <body suppressHydrationWarning>
         <ThemeProvider>
           <LanguageProvider>
             <SettingsProvider>

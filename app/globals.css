@@ -91,6 +91,47 @@
   --ticker-bg: #0B1120;
 }
 
+/* ==========================================================================
+   Light Theme Explicit Overrides (Active when data-theme="light")
+   Reinforces :root defaults so [data-theme="light"] always wins over any
+   residual dark class or component-level override.
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-body: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFFFFF;
+  --bg-surface: #F1F5F9;
+  --bg-surface-subtle: #F8FAFC;
+  
+  --primary: #2563EB;
+  --primary-rgb: 37, 99, 235;
+  --primary-hover: #1D4ED8;
+  --primary-gradient: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  
+  --secondary: #7C3AED;
+  --secondary-light: #8B5CF6;
+  
+  --accent-pink: #E11D48;
+  --accent-green: #047857;
+  --accent-green-bg: #ECFDF5;
+  --accent-green-border: #A7F3D0;
+  
+  --text-main: #0F172A;
+  --text-heading: #0F172A;
+  --text-muted: #475569;
+  --text-sub: #64748B;
+  
+  --border-glass: #E2E8F0;
+  --border-focus: #3B82F6;
+  
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  --shadow-card-hover: 0 20px 35px -8px rgba(37, 99, 235, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(37, 99, 235, 0.3);
+  --glow-primary: 0 0 35px rgba(37, 99, 235, 0.2);
+  --navbar-bg: rgba(255, 255, 255, 0.88);
+  --ticker-bg: #FFFFFF;
+}
+
 /* Reset & Base with Strict Mobile Viewport Lock */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -2500,6 +2541,71 @@ h1, h2, h3, h4, h5 {
   .case-study-grid {
     grid-template-columns: 1fr;
   }
+
+  /* ── Estimator Mobile Fix ── */
+  .page-header {
+    padding: 100px 0 24px !important;
+  }
+  .page-header .hero-title {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .page-header .hero-subtitle {
+    font-size: 0.88rem !important;
+    padding: 0 0.25rem !important;
+  }
+  .estimator-group {
+    padding: 1.4rem 1.1rem;
+  }
+  /* Feature checkbox card — stack icon + text row, then price+check row */
+  .feature-checkbox {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    align-items: center;
+  }
+  .feature-icon-box {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+  .feature-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .feature-label {
+    font-size: 0.87rem;
+    white-space: normal;
+    line-height: 1.35;
+  }
+  .feature-desc {
+    font-size: 0.74rem;
+    white-space: normal;
+    line-height: 1.35;
+  }
+  .feature-tag {
+    font-size: 0.75rem;
+    padding: 3px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-right: 0.25rem;
+  }
+  .custom-check {
+    flex-shrink: 0;
+  }
+  /* Speed option cards on mobile */
+  .speed-content {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  .speed-title {
+    font-size: 0.88rem;
+  }
+  .speed-desc {
+    font-size: 0.78rem;
+  }
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2.2rem;
@@ -2639,6 +2745,49 @@ h1, h2, h3, h4, h5 {
   .btn-lg {
     padding: 0.85rem 1.5rem;
     font-size: 0.92rem;
+  }
+
+  /* ── Estimator 480px extra tightening ── */
+  .page-header {
+    padding: 90px 0 20px !important;
+  }
+  .page-header .hero-title {
+    font-size: 1.55rem !important;
+    line-height: 1.3 !important;
+  }
+  .estimator-group {
+    padding: 1.1rem 0.9rem;
+    border-radius: 14px;
+  }
+  .feature-checkbox {
+    padding: 0.8rem 0.85rem;
+    gap: 0.65rem;
+  }
+  .feature-icon-box {
+    width: 34px;
+    height: 34px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+  .feature-tag {
+    font-size: 0.72rem;
+    padding: 2px 6px;
+  }
+  .custom-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+  .estimator-summary-card {
+    padding: 1.2rem 1rem;
+    border-radius: 14px;
+  }
+  .price-val {
+    font-size: 2rem;
+  }
+  .btn-apply-spec {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.95rem;
   }
 }
 

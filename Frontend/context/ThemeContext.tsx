@@ -22,21 +22,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const saved = (localStorage.getItem('nexus_theme') as Theme) || 'dark';
     setThemeState(saved);
-    if (saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
+    document.documentElement.setAttribute('data-theme', saved);
+    const meta = document.getElementById('themeColorMeta') as HTMLMetaElement | null;
+    if (meta) meta.content = saved === 'dark' ? '#070B14' : '#F8FAFC';
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('nexus_theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
+    document.documentElement.setAttribute('data-theme', newTheme);
+    const meta = document.getElementById('themeColorMeta') as HTMLMetaElement | null;
+    if (meta) meta.content = newTheme === 'dark' ? '#070B14' : '#F8FAFC';
   };
 
   const toggleTheme = () => {
