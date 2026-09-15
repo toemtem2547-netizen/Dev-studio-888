@@ -421,16 +421,32 @@ export default function DashboardView() {
     setSiteForm(site);
     setContactForm(contact);
     setSocialForm(social);
-    if (estimatorConfig) {
-      setEstimatorForm(estimatorConfig);
-    }
     if (themeSettings) {
       setPrimaryColor(themeSettings.primaryColor);
       setSecondaryColor(themeSettings.secondaryColor);
       setFontHeading(themeSettings.fontHeading);
       setFontBody(themeSettings.fontBody);
     }
-  }, [site, contact, social, themeSettings, estimatorConfig, router]);
+  }, [site, contact, social, themeSettings, router]);
+
+  // Sync estimatorForm only on first load from context (not on every save)
+  const estimatorInitialized = React.useRef(false);
+  useEffect(() => {
+    if (!estimatorInitialized.current && estimatorConfig) {
+      // Only sync once we have real data from DB (not just the in-memory default)
+      // A sign of real DB data: basePrices.webapp differs from DEFAULT (45000), OR localStorage has saved data
+      const isFromDB =
+        estimatorConfig.basePrices?.webapp !== 45000 ||
+        estimatorConfig.basePrices?.dashboard !== 55000 ||
+        estimatorConfig.basePrices?.ecommerce !== 50000 ||
+        (estimatorConfig.customProjectTypes && estimatorConfig.customProjectTypes.length > 0) ||
+        !!localStorage.getItem('nexus_dash_estimator_config');
+      if (isFromDB) {
+        setEstimatorForm(estimatorConfig);
+        estimatorInitialized.current = true;
+      }
+    }
+  }, [estimatorConfig]);
 
   const handleLogout = () => {
     localStorage.removeItem('nexus_admin_session');
