@@ -37,6 +37,22 @@ const defaultSocialSettings: SocialSettings = {
 const defaultProjects: ProjectItem[] = [
   {
     id: '1',
+    title: 'ARIT Web Subject Guide - RMU Library Portal',
+    category: 'saas',
+    catLabel: 'EdTech & Academic Library Information Portal',
+    badge: 'Academic Portal',
+    kpi: 'รวบรวม 947 ทรัพยากร 117 สาขา ค้นคว้างานวิจัยได้เร็วขึ้นกว่า 80%',
+    excerpt: 'ระบบแนะนำแหล่งสืบค้นทรัพยากรสารสนเทศ สำนักวิทยบริการฯ มรภ.มหาสารคาม รวบรวมหนังสือ ฐานข้อมูลงานวิจัย e-Books 117 สาขา',
+    image: '/assets/images/project_arit_guide.jpg',
+    tags: ['React', 'TypeScript', 'Tailwind CSS', 'RMU OPAC', 'TDC Database', 'ProQuest API', 'Vercel'],
+    client: 'สำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏมหาสารคาม (ARIT RMU)',
+    duration: '4 สัปดาห์',
+    problem: 'นักศึกษาและคณาจารย์กว่า 117 สาขาวิชา ประสบปัญหาในการค้นคว้าแหล่งข้อมูลทางวิชาการและงานวิจัย เนื่องจากแหล่งสืบค้น วารสาร ฐานข้อมูลออนไลน์ (OPAC, TDC, ProQuest, EBSCO, ScienceDirect) กระจัดกระจายและเข้าถึงได้ยาก',
+    solution: 'ออกแบบและพัฒนาระบบ ARIT Web Subject Guide ที่จัดหมวดหมู่ทรัพยากรสารสนเทศตามสาขาวิชาและคณะแบบครบวงจร (Subject Guide Architecture) พร้อมระบบค้นหาอัจฉริยะ (Instant Subject Search) และ Direct Resource Access เชื่อมตรงสู่ฐานข้อมูลงานวิจัยระดับสากล',
+    results: 'เข้าถึงทรัพยากรสารสนเทศได้สะดวกรวดเร็วในคลิกเดียว ลดเวลาสืบค้นงานวิจัยลง 80% และรองรับทราฟฟิกค้นคว้ากว่า 1,000+ รายการต่อวัน',
+  },
+  {
+    id: '2',
     title: 'Nexus Executive Analytics & KPI Platform',
     category: 'saas',
     catLabel: 'Enterprise SaaS & Business Intelligence',
@@ -52,7 +68,7 @@ const defaultProjects: ProjectItem[] = [
     results: '+180% ประสิทธิภาพการตัดสินใจ และลดเวลาทำรีพอร์ตลง 85%',
   },
   {
-    id: '2',
+    id: '3',
     title: 'Axel & Co. Luxury Curated E-Commerce',
     category: 'ecommerce',
     catLabel: 'High-End Retail & Lifestyle Store',
@@ -68,7 +84,7 @@ const defaultProjects: ProjectItem[] = [
     results: '+240% อัตราการแปลงเป็นยอดขาย (Conversion Rate) และคะแนนรีวิว 4.9/5',
   },
   {
-    id: '3',
+    id: '4',
     title: 'Aura Clinic & Specialist Appointment Hub',
     category: 'booking',
     catLabel: 'Medical Clinic & Specialist Booking Platform',
@@ -84,7 +100,7 @@ const defaultProjects: ProjectItem[] = [
     results: 'ลดอัตราการเบี้ยวนัด (No-Show) ลง 92% และลดภาระงานแอดมินกว่า 70%',
   },
   {
-    id: '4',
+    id: '5',
     title: 'Nexus Wealth & Crypto Portfolio Tracker',
     category: 'fintech',
     catLabel: 'FinTech & Real-Time Asset Management Platform',

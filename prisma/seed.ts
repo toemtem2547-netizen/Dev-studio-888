@@ -4,6 +4,29 @@ const prisma = new PrismaClient();
 
 const INITIAL_PROJECTS = [
   {
+    slug: 'arit-web-subject-guide-rmu',
+    title: 'ARIT Web Subject Guide - RMU Library Portal',
+    category: 'saas',
+    badge: 'EdTech & Academic Library Information Portal',
+    kpi: 'รวบรวม 947 ทรัพยากร 117 สาขา ค้นคว้างานวิจัยได้เร็วขึ้นกว่า 80%',
+    img: '/assets/images/project_arit_guide.jpg',
+    excerpt: 'ระบบแนะนำแหล่งสืบค้นทรัพยากรสารสนเทศ สำนักวิทยบริการฯ มรภ.มหาสารคาม รวบรวมหนังสือ ฐานข้อมูลงานวิจัย e-Books 117 สาขา',
+    fullDesc: 'ออกแบบและพัฒนาระบบ ARIT Web Subject Guide ที่จัดหมวดหมู่ทรัพยากรสารสนเทศตามสาขาวิชาและคณะแบบครบวงจร (Subject Guide Architecture) พร้อมระบบค้นหาอัจฉริยะ (Instant Subject Search) และ Direct Resource Access เชื่อมตรงสู่ฐานข้อมูลงานวิจัยระดับสากล',
+    client: 'สำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏมหาสารคาม (ARIT RMU)',
+    duration: '4 สัปดาห์',
+    liveUrl: 'https://arit-web-subject-guide-m76n.vercel.app/home',
+    featured: true,
+    tags: JSON.stringify(['React', 'TypeScript', 'Tailwind CSS', 'RMU OPAC', 'TDC Database', 'ProQuest API', 'Vercel']),
+    deliverables: JSON.stringify([
+      'ระบบค้นหาและกรองทรัพยากรสารสนเทศ 117 สาขาวิชาแบบ Real-time',
+      'ศูนย์รวมฐานข้อมูลงานวิจัยสากลและวิทยานิพนธ์ไทย (TDC, ProQuest, EBSCO, ScienceDirect)',
+      'ระบบเชื่อมโยง RMU OPAC & Single Sign-On Access',
+      'UI/UX ออกแบบตามหลัก Responsive & Accessibility',
+      'Dashboard สถิติการเข้าชมและการใช้งานทรัพยากรยอดนิยม',
+    ]),
+    stack: JSON.stringify(['React', 'TypeScript', 'Tailwind CSS', 'Vite', 'Vercel', 'REST API']),
+  },
+  {
     slug: 'nexus-analytics-platform',
     title: 'Nexus Executive Analytics & KPI Platform',
     category: 'saas',
@@ -135,11 +158,10 @@ async function main() {
   });
 
   // 3. Seed Projects
+  await prisma.project.deleteMany({});
   for (const proj of INITIAL_PROJECTS) {
-    await prisma.project.upsert({
-      where: { slug: proj.slug },
-      update: proj,
-      create: proj,
+    await prisma.project.create({
+      data: proj,
     });
   }
 

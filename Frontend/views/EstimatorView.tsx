@@ -10,9 +10,11 @@ export default function EstimatorView() {
   const router = useRouter();
   const { estimatorConfig } = useSettings();
 
-  const [projectType, setProjectType] = useState<'webapp' | 'dashboard' | 'ecommerce' | 'corporate'>('webapp');
+  const [projectType, setProjectType] = useState<string>('webapp');
   const [features, setFeatures] = useState<string[]>(['auth', 'payment']);
   const [timelineSpeed, setTimelineSpeed] = useState<'standard' | 'express'>('standard');
+
+  const customProjectTypes = estimatorConfig?.customProjectTypes || [];
 
   const basePrices = estimatorConfig?.basePrices || {
     webapp: 45000,
@@ -43,8 +45,26 @@ export default function EstimatorView() {
     setFeatures(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
   };
 
+  const getBasePrice = (type: string): number => {
+    if (basePrices[type] !== undefined) {
+      return basePrices[type];
+    }
+    const custom = customProjectTypes.find(c => c.id === type);
+    if (custom) return custom.price;
+    return 45000;
+  };
+
+  const getProjectName = (type: string): string => {
+    if (type === 'webapp') return 'Custom Web Application';
+    if (type === 'dashboard') return 'Enterprise Dashboard & CRM';
+    if (type === 'ecommerce') return 'E-Commerce & Booking';
+    if (type === 'corporate') return 'Corporate Showcase Website';
+    const custom = customProjectTypes.find(c => c.id === type);
+    return custom ? custom.name : type;
+  };
+
   // Calculate
-  let total = basePrices[projectType] || 45000;
+  let total = getBasePrice(projectType);
   features.forEach(f => {
     total += (featurePrices[f as keyof typeof featurePrices] || 0);
   });
@@ -52,14 +72,7 @@ export default function EstimatorView() {
     total = Math.round(total * (timelineWeeks[projectType]?.multiplier || speedMultiplier));
   }
 
-  const weeks = timelineWeeks[projectType]?.[timelineSpeed] || '4-6';
-
-  const projectTypeLabels = {
-    webapp: 'Custom Web Application',
-    dashboard: 'Enterprise Dashboard & CRM',
-    ecommerce: 'E-Commerce & Booking',
-    corporate: 'Corporate Showcase Website',
-  };
+  const weeks = timelineWeeks[projectType]?.[timelineSpeed] || (timelineSpeed === 'express' ? '2-4' : '4-6');
 
   const handleApplySpec = () => {
     sessionStorage.setItem('nexus_est_type', projectType);
@@ -165,6 +178,38 @@ export default function EstimatorView() {
                       <div className="option-sub">เว็บไซต์ภาพลักษณ์องค์กรระดับพรีเมียม โหลดเร็ว รองรับ SEO</div>
                     </div>
                   </label>
+
+                  {customProjectTypes.map((custom) => {
+                    const colorStyles: Record<string, { color: string; bg: string }> = {
+                      blue: { color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.12)' },
+                      purple: { color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.12)' },
+                      emerald: { color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
+                      amber: { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.12)' },
+                      rose: { color: '#F43F5E', bg: 'rgba(244, 63, 94, 0.12)' },
+                      cyan: { color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.12)' },
+                    };
+                    const cStyle = colorStyles[custom.color] || colorStyles.blue;
+                    const isSelected = projectType === custom.id;
+                    return (
+                      <label
+                        key={custom.id}
+                        className={`option-card ${isSelected ? 'active' : ''}`}
+                        onClick={() => setProjectType(custom.id)}
+                      >
+                        <input type="radio" name="projectType" value={custom.id} checked={isSelected} readOnly />
+                        <div className="option-content">
+                          <div className="option-header-row">
+                            <div className="option-icon" style={{ color: cStyle.color, background: cStyle.bg }}>
+                              <i className={`fa-solid ${custom.icon || 'fa-cubes'}`}></i>
+                            </div>
+                            <div className="option-radio-dot"></div>
+                          </div>
+                          <div className="option-name">{custom.name}</div>
+                          <div className="option-sub">{custom.desc || `เริ่มต้น ฿${(custom.price || 0).toLocaleString()}`}</div>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -338,7 +383,7 @@ export default function EstimatorView() {
               <div className="summary-breakdown">
                 <h4>สิ่งที่คุณจะได้รับพร้อมส่งมอบ:</h4>
                 <ul className="breakdown-list" id="breakdownList">
-                  <li><i className="fa-solid fa-circle-check"></i> <span>{projectTypeLabels[projectType]}</span></li>
+                  <li><i className="fa-solid fa-circle-check"></i> <span>{getProjectName(projectType)}</span></li>
                   <li><i className="fa-solid fa-circle-check"></i> <span>UI/UX Design ระดับพรีเมียม (Figma)</span></li>
                   <li><i className="fa-solid fa-circle-check"></i> <span>สิทธิ์ความเป็นเจ้าของ Source Code 100%</span></li>
                   <li><i className="fa-solid fa-circle-check"></i> <span>รับประกันดูแลระบบฟรี 1 ปีเต็ม</span></li>

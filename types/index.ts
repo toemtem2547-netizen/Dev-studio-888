@@ -64,13 +64,24 @@ export interface LeadItem {
   estimatedPrice?: string;
 }
 
+export interface CustomProjectType {
+  id: string;
+  name: string;
+  desc?: string;
+  price: number;
+  icon?: string;
+  color?: string;
+}
+
 export interface EstimatorConfig {
   basePrices: {
     webapp: number;
     dashboard: number;
     ecommerce: number;
     corporate: number;
+    [key: string]: number;
   };
+  customProjectTypes?: CustomProjectType[];
   featurePrices: {
     auth: number;
     payment: number;
@@ -78,6 +89,7 @@ export interface EstimatorConfig {
     export: number;
     ai: number;
     multilang: number;
+    [key: string]: number;
   };
   speedMultiplier: number;
 }
@@ -89,6 +101,7 @@ export const DEFAULT_ESTIMATOR_CONFIG: EstimatorConfig = {
     ecommerce: 50000,
     corporate: 35000,
   },
+  customProjectTypes: [],
   featurePrices: {
     auth: 10000,
     payment: 15000,

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/Frontend/context/ThemeContext';
 import { useSettings } from '@/Frontend/context/SettingsContext';
-import { ProjectItem, LeadItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG } from '@/types';
+import { ProjectItem, LeadItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG, CustomProjectType } from '@/types';
 
 export interface ThemePreset {
   id: string;
@@ -147,12 +147,32 @@ export default function DashboardView() {
   const [portfolioCategoryFilter, setPortfolioCategoryFilter] = useState('all');
   const [portfolioSearch, setPortfolioSearch] = useState('');
 
-  // Project Modal State
+  // Project Modal State & Image Upload
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
+  const [projectImageMode, setProjectImageMode] = useState<'upload' | 'url'>('upload');
+  const [isUploadingProjectImg, setIsUploadingProjectImg] = useState(false);
+  const [isDraggingProjectImg, setIsDraggingProjectImg] = useState(false);
+  const projectFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Add Custom Project Type Modal State
+  const [showAddProjectTypeModal, setShowAddProjectTypeModal] = useState(false);
+  const [newProjectType, setNewProjectType] = useState<{
+    name: string;
+    desc: string;
+    price: number;
+    icon: string;
+    color: string;
+  }>({
+    name: '',
+    desc: '',
+    price: 65000,
+    icon: 'fa-mobile-screen',
+    color: 'blue',
+  });
 
   // Estimator Live Simulator State (Dashboard Interactive Test Drive)
-  const [simType, setSimType] = useState<'webapp' | 'dashboard' | 'ecommerce' | 'corporate'>('webapp');
+  const [simType, setSimType] = useState<string>('webapp');
   const [simFeatures, setSimFeatures] = useState<string[]>(['auth', 'payment']);
   const [simSpeed, setSimSpeed] = useState<boolean>(false);
 
@@ -161,32 +181,86 @@ export default function DashboardView() {
     setTimeout(() => setToastMsg(''), 3000);
   };
 
+  const handleProjectImageUpload = async (file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      triggerToast('กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, WebP)');
+      return;
+    }
+
+    setIsUploadingProjectImg(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        if (editingProject) {
+          setEditingProject({ ...editingProject, image: data.url });
+        }
+        triggerToast('อัปโหลดรูปภาพสำเร็จ!');
+      } else {
+        // Fallback to FileReader base64
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64 = e.target?.result as string;
+          if (editingProject && base64) {
+            setEditingProject({ ...editingProject, image: base64 });
+            triggerToast('อัปโหลดรูปภาพสำเร็จ');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch {
+      // Fallback to FileReader base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        if (editingProject && base64) {
+          setEditingProject({ ...editingProject, image: base64 });
+          triggerToast('อัปโหลดรูปภาพสำเร็จ');
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingProjectImg(false);
+    }
+  };
+
   const handleApplyPricingPreset = (presetType: 'standard' | 'enterprise' | 'startup') => {
     if (presetType === 'standard') {
-      setEstimatorForm({
-        basePrices: { webapp: 70000, dashboard: 95000, ecommerce: 85000, corporate: 45000 },
-        featurePrices: { auth: 10000, payment: 15000, notification: 8000, export: 7000, ai: 25000, multilang: 12000 },
+      setEstimatorForm(prev => ({
+        ...prev,
+        basePrices: { ...prev.basePrices, webapp: 70000, dashboard: 95000, ecommerce: 85000, corporate: 45000 },
+        featurePrices: { ...prev.featurePrices, auth: 10000, payment: 15000, notification: 8000, export: 7000, ai: 25000, multilang: 12000 },
         speedMultiplier: 1.25,
-      });
+      }));
       triggerToast('โหลดชุดราคาแนะนำ: Standard SaaS & Web App สำเร็จ');
     } else if (presetType === 'enterprise') {
-      setEstimatorForm({
-        basePrices: { webapp: 120000, dashboard: 160000, ecommerce: 140000, corporate: 80000 },
-        featurePrices: { auth: 20000, payment: 25000, notification: 15000, export: 15000, ai: 45000, multilang: 25000 },
+      setEstimatorForm(prev => ({
+        ...prev,
+        basePrices: { ...prev.basePrices, webapp: 120000, dashboard: 160000, ecommerce: 140000, corporate: 80000 },
+        featurePrices: { ...prev.featurePrices, auth: 20000, payment: 25000, notification: 15000, export: 15000, ai: 45000, multilang: 25000 },
         speedMultiplier: 1.35,
-      });
+      }));
       triggerToast('โหลดชุดราคาแนะนำ: Enterprise Corporate & High-Ticket สำเร็จ');
     } else if (presetType === 'startup') {
-      setEstimatorForm({
-        basePrices: { webapp: 45000, dashboard: 60000, ecommerce: 55000, corporate: 29000 },
-        featurePrices: { auth: 7000, payment: 10000, notification: 5000, export: 5000, ai: 18000, multilang: 8000 },
+      setEstimatorForm(prev => ({
+        ...prev,
+        basePrices: { ...prev.basePrices, webapp: 45000, dashboard: 60000, ecommerce: 55000, corporate: 29000 },
+        featurePrices: { ...prev.featurePrices, auth: 7000, payment: 10000, notification: 5000, export: 5000, ai: 18000, multilang: 8000 },
         speedMultiplier: 1.20,
-      });
+      }));
       triggerToast('โหลดชุดราคาแนะนำ: Startup & SME Lean สำเร็จ');
     }
   };
 
-  const adjustBasePrice = (key: keyof EstimatorConfig['basePrices'], delta: number) => {
+  const adjustBasePrice = (key: string, delta: number) => {
     setEstimatorForm(prev => ({
       ...prev,
       basePrices: {
@@ -204,6 +278,103 @@ export default function DashboardView() {
         [key]: Math.max(0, (prev.featurePrices[key] || 0) + delta),
       },
     }));
+  };
+
+  const handleAddCustomProjectType = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProjectType.name.trim()) {
+      triggerToast('กรุณากรอกชื่อประเภทโปรเจกต์');
+      return;
+    }
+    const newId = 'custom_' + Date.now();
+    const item: CustomProjectType = {
+      id: newId,
+      name: newProjectType.name.trim(),
+      desc: newProjectType.desc.trim() || 'ประเภทโปรเจกต์ที่กำหนดเอง',
+      price: Number(newProjectType.price) || 0,
+      icon: newProjectType.icon || 'fa-cubes',
+      color: newProjectType.color || 'blue',
+    };
+    const currentCustom = estimatorForm?.customProjectTypes || [];
+    const updatedForm: EstimatorConfig = {
+      ...estimatorForm,
+      customProjectTypes: [...currentCustom, item],
+      basePrices: {
+        ...estimatorForm.basePrices,
+        [newId]: item.price,
+      },
+    };
+    setEstimatorForm(updatedForm);
+    updateEstimatorConfig(updatedForm);
+    setNewProjectType({
+      name: '',
+      desc: '',
+      price: 65000,
+      icon: 'fa-mobile-screen',
+      color: 'blue',
+    });
+    setShowAddProjectTypeModal(false);
+    triggerToast(`เพิ่มประเภทโปรเจกต์ "${item.name}" และซิงค์ระบบเรียบร้อย 🚀`);
+  };
+
+  const handleDeleteCustomProjectType = (id: string, name: string) => {
+    if (!confirm(`คุณต้องการลบประเภทโปรเจกต์ "${name}" ใช่หรือไม่?`)) return;
+    const currentCustom = estimatorForm?.customProjectTypes || [];
+    const updatedCustom = currentCustom.filter(c => c.id !== id);
+    const updatedBasePrices = { ...estimatorForm.basePrices };
+    delete updatedBasePrices[id];
+    const updatedForm: EstimatorConfig = {
+      ...estimatorForm,
+      customProjectTypes: updatedCustom,
+      basePrices: updatedBasePrices,
+    };
+    setEstimatorForm(updatedForm);
+    updateEstimatorConfig(updatedForm);
+    if (simType === id) {
+      setSimType('webapp');
+    }
+    triggerToast(`ลบประเภทโปรเจกต์ "${name}" สำเร็จ`);
+  };
+
+  const adjustCustomBasePrice = (id: string, delta: number) => {
+    setEstimatorForm(prev => {
+      const currentCustom = prev?.customProjectTypes || [];
+      const updatedCustom = currentCustom.map(c => {
+        if (c.id === id) {
+          const newPrice = Math.max(0, (c.price || 0) + delta);
+          return { ...c, price: newPrice };
+        }
+        return c;
+      });
+      return {
+        ...prev,
+        customProjectTypes: updatedCustom,
+        basePrices: {
+          ...prev.basePrices,
+          [id]: Math.max(0, (prev.basePrices[id] || 0) + delta),
+        },
+      };
+    });
+  };
+
+  const updateCustomPriceDirect = (id: string, newPrice: number) => {
+    setEstimatorForm(prev => {
+      const currentCustom = prev?.customProjectTypes || [];
+      const updatedCustom = currentCustom.map(c => {
+        if (c.id === id) {
+          return { ...c, price: newPrice };
+        }
+        return c;
+      });
+      return {
+        ...prev,
+        customProjectTypes: updatedCustom,
+        basePrices: {
+          ...prev.basePrices,
+          [id]: newPrice,
+        },
+      };
+    });
   };
 
   useEffect(() => {
@@ -944,9 +1115,19 @@ export default function DashboardView() {
                     <div className="dash-pricing-left-col">
                       {/* Group 1: Base Project Prices */}
                       <div className="dash-pricing-card-group">
-                        <div className="dash-pricing-group-title">
-                          <i className="fa-solid fa-cubes" style={{ color: 'var(--primary)' }}></i>
-                          <span>1. ราคาเริ่มต้นประเภทโปรเจกต์หลัก (Base Architecture Rates)</span>
+                        <div className="dash-pricing-group-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-solid fa-cubes" style={{ color: 'var(--primary)' }}></i>
+                            <span>1. ราคาเริ่มต้นประเภทโปรเจกต์หลัก (Base Architecture Rates)</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary"
+                            onClick={() => setShowAddProjectTypeModal(true)}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer' }}
+                          >
+                            <i className="fa-solid fa-plus"></i> เพิ่มประเภทโปรเจกต์
+                          </button>
                         </div>
 
                         <div className="dash-pricing-cards-grid">
@@ -1089,6 +1270,54 @@ export default function DashboardView() {
                               </div>
                             </div>
                           </div>
+
+                          {/* 1.X Dynamically Added Custom Project Types */}
+                          {(estimatorForm?.customProjectTypes || []).map((customItem) => (
+                            <div key={customItem.id} className="dash-pricing-item-card" style={{ position: 'relative', border: '1px solid rgba(var(--primary-rgb), 0.35)' }}>
+                              <div className="dash-pricing-card-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                  <div className={`dash-pricing-card-icon ${customItem.color || 'blue'}`}>
+                                    <i className={`fa-solid ${customItem.icon || 'fa-cubes'}`}></i>
+                                  </div>
+                                  <div className="dash-pricing-card-titles">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                      <h4>{customItem.name}</h4>
+                                      <span style={{ fontSize: '0.68rem', padding: '2px 6px', background: 'rgba(var(--primary-rgb), 0.15)', color: 'var(--primary)', borderRadius: '4px', fontWeight: 700 }}>Custom</span>
+                                    </div>
+                                    <p>{customItem.desc || 'ประเภทโปรเจกต์กำหนดเอง'}</p>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="dash-btn-icon-danger"
+                                  title="ลบประเภทโปรเจกต์นี้"
+                                  onClick={() => handleDeleteCustomProjectType(customItem.id, customItem.name)}
+                                  style={{ padding: '4px 8px', fontSize: '0.82rem' }}
+                                >
+                                  <i className="fa-solid fa-trash"></i>
+                                </button>
+                              </div>
+                              <div>
+                                <div className="dash-pricing-input-box">
+                                  <span className="dash-pricing-currency-prefix">฿</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="1000"
+                                    className="dash-pricing-number-input"
+                                    value={estimatorForm?.basePrices?.[customItem.id] ?? customItem.price ?? 0}
+                                    onChange={e => updateCustomPriceDirect(customItem.id, Number(e.target.value) || 0)}
+                                    required
+                                  />
+                                </div>
+                                <div className="dash-pricing-stepper-btns">
+                                  <button type="button" className="dash-stepper-btn" onClick={() => adjustCustomBasePrice(customItem.id, -5000)}>-5k</button>
+                                  <button type="button" className="dash-stepper-btn" onClick={() => adjustCustomBasePrice(customItem.id, 5000)}>+5k</button>
+                                  <button type="button" className="dash-stepper-btn" onClick={() => adjustCustomBasePrice(customItem.id, 10000)}>+10k</button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
@@ -1396,12 +1625,17 @@ export default function DashboardView() {
                           <select
                             className="dash-select"
                             value={simType}
-                            onChange={e => setSimType(e.target.value as any)}
+                            onChange={e => setSimType(e.target.value)}
                           >
                             <option value="webapp">Custom Web App (฿{(estimatorForm?.basePrices?.webapp || 0).toLocaleString()})</option>
                             <option value="dashboard">Dashboard &amp; CRM (฿{(estimatorForm?.basePrices?.dashboard || 0).toLocaleString()})</option>
                             <option value="ecommerce">E-Commerce (฿{(estimatorForm?.basePrices?.ecommerce || 0).toLocaleString()})</option>
                             <option value="corporate">Corporate Website (฿{(estimatorForm?.basePrices?.corporate || 0).toLocaleString()})</option>
+                            {(estimatorForm?.customProjectTypes || []).map(c => (
+                              <option key={c.id} value={c.id}>
+                                {c.name} (฿{(estimatorForm?.basePrices?.[c.id] ?? c.price ?? 0).toLocaleString()})
+                              </option>
+                            ))}
                           </select>
                         </div>
 
@@ -1885,7 +2119,7 @@ export default function DashboardView() {
                   <label>ชื่อผลงาน (Project Title)</label>
                   <input
                     type="text"
-                    value={editingProject.title}
+                    value={editingProject.title || ''}
                     onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
                     required
                   />
@@ -1894,7 +2128,7 @@ export default function DashboardView() {
                   <label>หมวดหมู่ (Category)</label>
                   <select
                     className="dash-select"
-                    value={editingProject.category}
+                    value={editingProject.category || 'saas'}
                     onChange={e => {
                       const cat = e.target.value;
                       let label = 'SaaS / Business Intelligence';
@@ -1933,21 +2167,136 @@ export default function DashboardView() {
                 </div>
               </div>
 
+              {/* Project Image: File Upload from PC/Mobile + URL Input */}
               <div className="dash-form-group">
-                <label>URL รูปภาพผลงาน (Image URL)</label>
-                <input
-                  type="text"
-                  value={editingProject.image}
-                  onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
-                  required
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ margin: 0, fontWeight: 600 }}>รูปภาพผลงาน (Project Image)</label>
+                  <div className="dash-image-mode-toggle" style={{ margin: 0 }}>
+                    <button
+                      type="button"
+                      className={`dash-image-mode-btn ${projectImageMode === 'upload' ? 'active' : ''}`}
+                      onClick={() => setProjectImageMode('upload')}
+                    >
+                      <i className="fa-solid fa-cloud-arrow-up"></i>
+                      <span>อัปโหลดจากเครื่อง/มือถือ</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`dash-image-mode-btn ${projectImageMode === 'url' ? 'active' : ''}`}
+                      onClick={() => setProjectImageMode('url')}
+                    >
+                      <i className="fa-solid fa-link"></i>
+                      <span>ระบุลิงก์ URL</span>
+                    </button>
+                  </div>
+                </div>
+
+                {projectImageMode === 'upload' ? (
+                  <div className="dash-image-upload-zone" key="upload-zone-wrapper">
+                    <input
+                      key="project-file-upload-input"
+                      type="file"
+                      ref={projectFileInputRef}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleProjectImageUpload(file);
+                        e.target.value = '';
+                      }}
+                    />
+
+                    {editingProject.image ? (
+                      <div className="dash-image-preview-box">
+                        <img
+                          src={editingProject.image}
+                          alt="Project Preview"
+                          className="dash-image-preview-img"
+                        />
+                        <div className="dash-image-preview-overlay">
+                          <button
+                            type="button"
+                            className="dash-image-btn-change"
+                            onClick={() => projectFileInputRef.current?.click()}
+                            disabled={isUploadingProjectImg}
+                          >
+                            <i className="fa-solid fa-camera"></i>
+                            <span>{isUploadingProjectImg ? 'กำลังอัปโหลด...' : 'เปลี่ยนรูป'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="dash-image-btn-remove"
+                            onClick={() => setEditingProject({ ...editingProject, image: '' })}
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                            <span>ลบ</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`dash-image-dropzone ${isDraggingProjectImg ? 'dragover' : ''}`}
+                        onClick={() => projectFileInputRef.current?.click()}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDraggingProjectImg(true);
+                        }}
+                        onDragLeave={() => setIsDraggingProjectImg(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDraggingProjectImg(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) handleProjectImageUpload(file);
+                        }}
+                      >
+                        <div className="dash-image-dropzone-icon">
+                          {isUploadingProjectImg ? (
+                            <i className="fa-solid fa-spinner fa-spin"></i>
+                          ) : (
+                            <i className="fa-solid fa-cloud-arrow-up"></i>
+                          )}
+                        </div>
+                        <span className="dash-image-dropzone-title">
+                          {isUploadingProjectImg ? 'กำลังประมวลผลรูปภาพ...' : 'คลิกหรือลากไฟล์ภาพมาวางที่นี่'}
+                        </span>
+                        <span className="dash-image-dropzone-sub">
+                          รองรับ JPG, PNG, WebP จากคอมพิวเตอร์ หรือเลือกจากคลังภาพ/กล้องมือถือ
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div key="url-input-wrapper">
+                    <input
+                      key="project-url-text-input"
+                      type="text"
+                      value={editingProject.image || ''}
+                      onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
+                      placeholder="/assets/images/project_example.jpg หรือ https://..."
+                      required
+                    />
+                    {editingProject.image && (
+                      <div className="dash-image-preview-box" style={{ marginTop: '10px', maxHeight: '160px' }}>
+                        <img
+                          src={editingProject.image}
+                          alt="Preview"
+                          className="dash-image-preview-img"
+                          style={{ maxHeight: '160px' }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="dash-form-group">
                 <label>คำอธิบายสรุปย่อ (Excerpt)</label>
                 <textarea
                   rows={2}
-                  value={editingProject.excerpt}
+                  value={editingProject.excerpt || ''}
                   onChange={e => setEditingProject({ ...editingProject, excerpt: e.target.value })}
                   required
                 />
@@ -1997,6 +2346,124 @@ export default function DashboardView() {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   <i className="fa-solid fa-floppy-disk"></i> บันทึกผลงาน
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============ MODAL: ADD CUSTOM PROJECT TYPE ============ */}
+      {showAddProjectTypeModal && (
+        <div className="dash-modal-overlay active">
+          <div className="dash-modal" style={{ maxWidth: '540px' }}>
+            <div className="dash-modal-header">
+              <h3>
+                <i className="fa-solid fa-plus-circle" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
+                เพิ่มประเภทโปรเจกต์ใหม่ (Add Project Type)
+              </h3>
+              <button className="dash-modal-close" onClick={() => setShowAddProjectTypeModal(false)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleAddCustomProjectType} className="dash-modal-body" style={{ padding: '24px' }}>
+              <div className="dash-form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>ชื่อประเภทโปรเจกต์ <span style={{ color: '#EF4444' }}>*</span></label>
+                <input
+                  type="text"
+                  value={newProjectType.name}
+                  onChange={e => setNewProjectType({ ...newProjectType, name: e.target.value })}
+                  placeholder="เช่น Mobile Application (iOS & Android), AI SaaS Product"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                  required
+                />
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>คำอธิบายสั้นๆ (Tagline / Description)</label>
+                <input
+                  type="text"
+                  value={newProjectType.desc}
+                  onChange={e => setNewProjectType({ ...newProjectType, desc: e.target.value })}
+                  placeholder="เช่น แอปพลิเคชันมือถือแบบ Native & Cross-Platform รองรับ Store"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                />
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>ราคาเริ่มต้นมาตรฐาน (Base Starting Price) <span style={{ color: '#EF4444' }}>*</span></label>
+                <div className="dash-pricing-input-box">
+                  <span className="dash-pricing-currency-prefix">฿</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    className="dash-pricing-number-input"
+                    value={newProjectType.price}
+                    onChange={e => setNewProjectType({ ...newProjectType, price: Number(e.target.value) || 0 })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>เลือกไอคอนประจำประเภท (Icon)</label>
+                <div className="dash-icon-picker-grid">
+                  {[
+                    { icon: 'fa-mobile-screen', label: 'Mobile App' },
+                    { icon: 'fa-robot', label: 'AI Automation' },
+                    { icon: 'fa-wand-magic-sparkles', label: 'SaaS Tool' },
+                    { icon: 'fa-bolt', label: 'Landing Page' },
+                    { icon: 'fa-shield-halved', label: 'Security/Fin' },
+                    { icon: 'fa-diagram-project', label: 'Workflow' },
+                    { icon: 'fa-gamepad', label: 'Interactive/3D' },
+                    { icon: 'fa-layer-group', label: 'Platform' },
+                  ].map(opt => (
+                    <button
+                      key={opt.icon}
+                      type="button"
+                      className={`dash-icon-option ${newProjectType.icon === opt.icon ? 'active' : ''}`}
+                      onClick={() => setNewProjectType({ ...newProjectType, icon: opt.icon })}
+                    >
+                      <i className={`fa-solid ${opt.icon}`}></i>
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="dash-form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>โทนสีไอคอน (Accent Color)</label>
+                <div className="dash-color-picker-row">
+                  {[
+                    { color: 'blue', hex: '#2563EB', label: 'Blue' },
+                    { color: 'purple', hex: '#7C3AED', label: 'Purple' },
+                    { color: 'emerald', hex: '#059669', label: 'Emerald' },
+                    { color: 'cyan', hex: '#0891B2', label: 'Cyan' },
+                    { color: 'pink', hex: '#E11D48', label: 'Pink' },
+                    { color: 'amber', hex: '#D97706', label: 'Amber' },
+                  ].map(c => (
+                    <button
+                      key={c.color}
+                      type="button"
+                      className={`dash-color-dot-btn ${newProjectType.color === c.color ? 'active' : ''}`}
+                      style={{ background: c.hex }}
+                      onClick={() => setNewProjectType({ ...newProjectType, color: c.color })}
+                      title={c.label}
+                    >
+                      {newProjectType.color === c.color && <i className="fa-solid fa-check"></i>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="dash-modal-actions" style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddProjectTypeModal(false)}>
+                  ยกเลิก
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '10px 24px', fontWeight: 700 }}>
+                  <i className="fa-solid fa-plus-circle"></i> บันทึกและเพิ่มประเภทโปรเจกต์
                 </button>
               </div>
             </form>
