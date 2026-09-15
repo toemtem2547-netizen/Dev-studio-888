@@ -151,9 +151,59 @@ export default function DashboardView() {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
 
+  // Estimator Live Simulator State (Dashboard Interactive Test Drive)
+  const [simType, setSimType] = useState<'webapp' | 'dashboard' | 'ecommerce' | 'corporate'>('webapp');
+  const [simFeatures, setSimFeatures] = useState<string[]>(['auth', 'payment']);
+  const [simSpeed, setSimSpeed] = useState<boolean>(false);
+
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(''), 3000);
+  };
+
+  const handleApplyPricingPreset = (presetType: 'standard' | 'enterprise' | 'startup') => {
+    if (presetType === 'standard') {
+      setEstimatorForm({
+        basePrices: { webapp: 70000, dashboard: 95000, ecommerce: 85000, corporate: 45000 },
+        featurePrices: { auth: 10000, payment: 15000, notification: 8000, export: 7000, ai: 25000, multilang: 12000 },
+        speedMultiplier: 1.25,
+      });
+      triggerToast('โหลดชุดราคาแนะนำ: Standard SaaS & Web App สำเร็จ');
+    } else if (presetType === 'enterprise') {
+      setEstimatorForm({
+        basePrices: { webapp: 120000, dashboard: 160000, ecommerce: 140000, corporate: 80000 },
+        featurePrices: { auth: 20000, payment: 25000, notification: 15000, export: 15000, ai: 45000, multilang: 25000 },
+        speedMultiplier: 1.35,
+      });
+      triggerToast('โหลดชุดราคาแนะนำ: Enterprise Corporate & High-Ticket สำเร็จ');
+    } else if (presetType === 'startup') {
+      setEstimatorForm({
+        basePrices: { webapp: 45000, dashboard: 60000, ecommerce: 55000, corporate: 29000 },
+        featurePrices: { auth: 7000, payment: 10000, notification: 5000, export: 5000, ai: 18000, multilang: 8000 },
+        speedMultiplier: 1.20,
+      });
+      triggerToast('โหลดชุดราคาแนะนำ: Startup & SME Lean สำเร็จ');
+    }
+  };
+
+  const adjustBasePrice = (key: keyof EstimatorConfig['basePrices'], delta: number) => {
+    setEstimatorForm(prev => ({
+      ...prev,
+      basePrices: {
+        ...prev.basePrices,
+        [key]: Math.max(0, (prev.basePrices[key] || 0) + delta),
+      },
+    }));
+  };
+
+  const adjustFeaturePrice = (key: keyof EstimatorConfig['featurePrices'], delta: number) => {
+    setEstimatorForm(prev => ({
+      ...prev,
+      featurePrices: {
+        ...prev.featurePrices,
+        [key]: Math.max(0, (prev.featurePrices[key] || 0) + delta),
+      },
+    }));
   };
 
   useEffect(() => {
@@ -839,253 +889,621 @@ export default function DashboardView() {
             </section>
           )}
 
-          {/* ============ SETTINGS: ESTIMATOR PRICING ============ */}
-          {activeSection === 'settings-estimator' && (
-            <section className="dash-section active" id="sec-settings-estimator">
-              <div className="dash-section-header">
-                <div>
-                  <h2><i className="fa-solid fa-coins" style={{ color: 'var(--primary)' }}></i> ตั้งค่าราคาประเมิน (Estimator Pricing Configurator)</h2>
-                  <p>กำหนดราคาเริ่มต้นแต่ละสถาปัตยกรรม, ราคาฟังก์ชันเสริม และตัวคูณงานเร่งด่วน โดยข้อมูลจะส่งผลต่อหน้าคำนวณราคาแบบ Real-time</p>
-                </div>
-              </div>
+          {/* ============ SETTINGS: ESTIMATOR PRICING (ULTRA-PREMIUM UI) ============ */}
+          {activeSection === 'settings-estimator' && (() => {
+            const currentBasePrice = estimatorForm?.basePrices?.[simType] || 0;
+            const currentFeaturesPrice = simFeatures.reduce((sum, fKey) => {
+              return sum + (estimatorForm?.featurePrices?.[fKey as keyof typeof estimatorForm.featurePrices] || 0);
+            }, 0);
+            const simSubtotal = currentBasePrice + currentFeaturesPrice;
+            const simFinal = simSpeed ? Math.round(simSubtotal * (estimatorForm?.speedMultiplier || 1.25)) : simSubtotal;
 
-              <form className="dash-form" onSubmit={handleSaveEstimatorSettings}>
-                {/* 1. Base Prices */}
-                <div className="dash-card" style={{ marginBottom: '24px' }}>
-                  <div className="dash-card-header">
-                    <h3><i className="fa-solid fa-cubes" style={{ color: 'var(--primary)' }}></i> ราคาประเภทโปรเจกต์หลัก (Base Project Prices - THB)</h3>
+            return (
+              <section className="dash-section active" id="sec-settings-estimator">
+                {/* Header Banner */}
+                <div className="dash-pricing-header-banner">
+                  <div className="dash-pricing-header-info">
+                    <h2>
+                      <i className="fa-solid fa-calculator" style={{ color: 'var(--primary)' }}></i>
+                      ตั้งค่าราคาประเมิน (Estimator Pricing Configurator)
+                    </h2>
+                    <p>
+                      กำหนดเรทราคาโปรเจกต์หลักและโมดูลฟังก์ชันเสริม ข้อมูลจะถูกซิงค์ไปยังหน้าคำนวณราคาแบบ Real-time ทันที
+                    </p>
                   </div>
-                  <div style={{ padding: '20px 24px' }}>
-                    <div className="dash-form-row">
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-code"></i> Custom Web Application (เริ่มต้น)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1000"
-                          value={estimatorForm?.basePrices?.webapp || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            basePrices: { ...estimatorForm.basePrices, webapp: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคาปัจจุบัน: <strong>฿{(estimatorForm?.basePrices?.webapp || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-chart-pie"></i> Enterprise Dashboard &amp; CRM (เริ่มต้น)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1000"
-                          value={estimatorForm?.basePrices?.dashboard || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            basePrices: { ...estimatorForm.basePrices, dashboard: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคาปัจจุบัน: <strong>฿{(estimatorForm?.basePrices?.dashboard || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="dash-form-row">
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-cart-shopping"></i> E-Commerce &amp; Booking (เริ่มต้น)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1000"
-                          value={estimatorForm?.basePrices?.ecommerce || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            basePrices: { ...estimatorForm.basePrices, ecommerce: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคาปัจจุบัน: <strong>฿{(estimatorForm?.basePrices?.ecommerce || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-globe"></i> Corporate Showcase Website (เริ่มต้น)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1000"
-                          value={estimatorForm?.basePrices?.corporate || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            basePrices: { ...estimatorForm.basePrices, corporate: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคาปัจจุบัน: <strong>฿{(estimatorForm?.basePrices?.corporate || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                    </div>
+                  <div className="dash-pricing-presets-bar">
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>ชุดราคาแนะนำ:</span>
+                    <button
+                      type="button"
+                      className="dash-preset-btn"
+                      onClick={() => handleApplyPricingPreset('standard')}
+                    >
+                      <i className="fa-solid fa-layer-group" style={{ color: '#3B82F6' }}></i> Standard SaaS
+                    </button>
+                    <button
+                      type="button"
+                      className="dash-preset-btn"
+                      onClick={() => handleApplyPricingPreset('enterprise')}
+                    >
+                      <i className="fa-solid fa-crown" style={{ color: '#F59E0B' }}></i> Enterprise High-End
+                    </button>
+                    <button
+                      type="button"
+                      className="dash-preset-btn"
+                      onClick={() => handleApplyPricingPreset('startup')}
+                    >
+                      <i className="fa-solid fa-rocket" style={{ color: '#10B981' }}></i> Startup Lean
+                    </button>
                   </div>
                 </div>
 
-                {/* 2. Feature Add-on Prices */}
-                <div className="dash-card" style={{ marginBottom: '24px' }}>
-                  <div className="dash-card-header">
-                    <h3><i className="fa-solid fa-puzzle-piece" style={{ color: 'var(--primary)' }}></i> ราคาฟังก์ชันเสริม (Add-on Feature Prices - THB)</h3>
-                  </div>
-                  <div style={{ padding: '20px 24px' }}>
-                    <div className="dash-form-row">
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-shield-halved"></i> ระบบสมาชิก &amp; สิทธิ์การใช้งาน (Auth, Login, RBAC)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.auth || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, auth: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.auth || 0).toLocaleString()}</strong>
-                        </span>
+                {/* Main 2-Column Container */}
+                <form onSubmit={handleSaveEstimatorSettings}>
+                  <div className="dash-pricing-container">
+                    {/* Left Column: Configuration Cards */}
+                    <div className="dash-pricing-left-col">
+                      {/* Group 1: Base Project Prices */}
+                      <div className="dash-pricing-card-group">
+                        <div className="dash-pricing-group-title">
+                          <i className="fa-solid fa-cubes" style={{ color: 'var(--primary)' }}></i>
+                          <span>1. ราคาเริ่มต้นประเภทโปรเจกต์หลัก (Base Architecture Rates)</span>
+                        </div>
+
+                        <div className="dash-pricing-cards-grid">
+                          {/* 1.1 Custom Web App */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon blue">
+                                <i className="fa-solid fa-code"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>Custom Web App</h4>
+                                <p>เว็บแอปพลิเคชันระบบเฉพาะทาง</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="1000"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.basePrices?.webapp || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    basePrices: { ...estimatorForm.basePrices, webapp: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('webapp', -5000)}>-5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('webapp', 5000)}>+5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('webapp', 10000)}>+10k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 1.2 Enterprise Dashboard */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon purple">
+                                <i className="fa-solid fa-chart-pie"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>Enterprise Dashboard &amp; CRM</h4>
+                                <p>แดชบอร์ดบริหาร สถิติ &amp; CRM</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="1000"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.basePrices?.dashboard || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    basePrices: { ...estimatorForm.basePrices, dashboard: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('dashboard', -5000)}>-5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('dashboard', 5000)}>+5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('dashboard', 10000)}>+10k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 1.3 E-Commerce */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon emerald">
+                                <i className="fa-solid fa-cart-shopping"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>E-Commerce &amp; Booking</h4>
+                                <p>ร้านค้าออนไลน์และระบบนัดหมาย</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="1000"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.basePrices?.ecommerce || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    basePrices: { ...estimatorForm.basePrices, ecommerce: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('ecommerce', -5000)}>-5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('ecommerce', 5000)}>+5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('ecommerce', 10000)}>+10k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 1.4 Corporate Showcase */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon cyan">
+                                <i className="fa-solid fa-globe"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>Corporate Showcase Website</h4>
+                                <p>เว็บองค์กรพรีเมียม โหลดเร็ว &amp; SEO</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="1000"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.basePrices?.corporate || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    basePrices: { ...estimatorForm.basePrices, corporate: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('corporate', -5000)}>-5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('corporate', 5000)}>+5k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustBasePrice('corporate', 10000)}>+10k</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-credit-card"></i> ระบบชำระเงินอัตโนมัติ (PromptPay QR, Credit Card, Gateway)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.payment || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, payment: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.payment || 0).toLocaleString()}</strong>
-                        </span>
+
+                      {/* Group 2: Add-on Feature Prices */}
+                      <div className="dash-pricing-card-group">
+                        <div className="dash-pricing-group-title">
+                          <i className="fa-solid fa-puzzle-piece" style={{ color: 'var(--primary)' }}></i>
+                          <span>2. ราคาฟังก์ชันและโมดูลเสริม (Add-on Feature Rates)</span>
+                        </div>
+
+                        <div className="dash-pricing-cards-grid">
+                          {/* 2.1 Auth */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon blue">
+                                <i className="fa-solid fa-shield-halved"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>ระบบสมาชิก &amp; สิทธิ์ (Auth &amp; RBAC)</h4>
+                                <p>Login, Register, Role-Based Access</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.auth || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, auth: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('auth', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('auth', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('auth', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2.2 Payment */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon emerald">
+                                <i className="fa-solid fa-credit-card"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>ชำระเงินอัตโนมัติ (Payment Gateway)</h4>
+                                <p>PromptPay QR, บัตรเครดิต, ใบเสร็จ</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.payment || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, payment: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('payment', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('payment', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('payment', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2.3 Notification */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon amber">
+                                <i className="fa-solid fa-bell"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>ระบบแจ้งเตือน (LINE &amp; Email)</h4>
+                                <p>LINE Official Notify, Email Auto-Alert</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.notification || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, notification: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('notification', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('notification', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('notification', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2.4 Export */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon rose">
+                                <i className="fa-solid fa-file-invoice"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>ส่งออกรายงาน (PDF &amp; Excel)</h4>
+                                <p>Auto-generate PDF Report &amp; Excel</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.export || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, export: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('export', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('export', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('export', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2.5 AI Copilot */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon purple">
+                                <i className="fa-solid fa-brain"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>AI Copilot &amp; Chatbot</h4>
+                                <p>OpenAI / Claude LLM System Integration</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.ai || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, ai: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('ai', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('ai', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('ai', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2.6 Multilingual */}
+                          <div className="dash-pricing-item-card">
+                            <div className="dash-pricing-card-head">
+                              <div className="dash-pricing-card-icon cyan">
+                                <i className="fa-solid fa-language"></i>
+                              </div>
+                              <div className="dash-pricing-card-titles">
+                                <h4>ระบบหลายภาษา (Multilingual)</h4>
+                                <p>รองรับสลับภาษา TH / EN / CN</p>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="dash-pricing-input-box">
+                                <span className="dash-pricing-currency-prefix">+฿</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="500"
+                                  className="dash-pricing-number-input"
+                                  value={estimatorForm?.featurePrices?.multilang || 0}
+                                  onChange={e => setEstimatorForm({
+                                    ...estimatorForm,
+                                    featurePrices: { ...estimatorForm.featurePrices, multilang: Number(e.target.value) || 0 }
+                                  })}
+                                  required
+                                />
+                              </div>
+                              <div className="dash-pricing-stepper-btns">
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('multilang', -1000)}>-1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('multilang', 1000)}>+1k</button>
+                                <button type="button" className="dash-stepper-btn" onClick={() => adjustFeaturePrice('multilang', 5000)}>+5k</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Group 3: Speed Multiplier */}
+                      <div className="dash-pricing-card-group">
+                        <div className="dash-pricing-group-title">
+                          <i className="fa-solid fa-bolt" style={{ color: '#F59E0B' }}></i>
+                          <span>3. ตัวคูณงานเร่งด่วน (Express Speed Multiplier)</span>
+                        </div>
+
+                        <div className="dash-speed-card">
+                          <div className="dash-speed-info">
+                            <div className="dash-speed-badge-box">
+                              <div className="dash-speed-val">{estimatorForm?.speedMultiplier || 1.25}x</div>
+                              <div className="dash-speed-markup">+{Math.round(((estimatorForm?.speedMultiplier || 1.25) - 1) * 100)}% สำหรับงานด่วน</div>
+                            </div>
+                            <div>
+                              <h4 style={{ fontWeight: 700, color: 'var(--text-heading)', marginBottom: '4px' }}>
+                                อัตราคิดเพิ่มเมื่อลูกค้าเลือกความเร็ว "ด่วนพิเศษ"
+                              </h4>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                ระบบจะคูณตัวเลขนี้กับราคารวมสุทธิเมื่อลูกค้าเลือกส่งมอบแบบ Fast Track
+                              </p>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <input
+                              type="range"
+                              min="1.0"
+                              max="2.0"
+                              step="0.05"
+                              value={estimatorForm?.speedMultiplier || 1.25}
+                              onChange={e => setEstimatorForm({
+                                ...estimatorForm,
+                                speedMultiplier: Number(e.target.value) || 1.25
+                              })}
+                              style={{ width: '160px', accentColor: '#F59E0B', cursor: 'pointer' }}
+                            />
+                            <div className="dash-pricing-input-box" style={{ width: '90px' }}>
+                              <input
+                                type="number"
+                                min="1.0"
+                                max="3.0"
+                                step="0.05"
+                                className="dash-pricing-number-input"
+                                style={{ textAlign: 'center' }}
+                                value={estimatorForm?.speedMultiplier || 1.25}
+                                onChange={e => setEstimatorForm({
+                                  ...estimatorForm,
+                                  speedMultiplier: Number(e.target.value) || 1.25
+                                })}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="dash-form-row">
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-bell"></i> ระบบแจ้งเตือน (LINE Official Notify / Email Gateway)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.notification || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, notification: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.notification || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-file-invoice"></i> ส่งออกรายงาน (PDF Auto-Generate &amp; Excel Export)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.export || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, export: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.export || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                    </div>
+                    {/* Right Column: Interactive Live Simulator Test Drive */}
+                    <div className="dash-pricing-right-col">
+                      <div className="dash-simulator-widget">
+                        <div className="dash-simulator-head">
+                          <h3>
+                            <i className="fa-solid fa-wand-magic-sparkles" style={{ color: 'var(--primary)' }}></i>
+                            จำลองคำนวณราคาจริง
+                          </h3>
+                          <span className="dash-simulator-pill">Live Preview</span>
+                        </div>
 
-                    <div className="dash-form-row">
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-brain"></i> AI Copilot &amp; Assistant (OpenAI / Claude LLM Integration)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.ai || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, ai: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.ai || 0).toLocaleString()}</strong>
-                        </span>
-                      </div>
-                      <div className="dash-form-group">
-                        <label><i className="fa-solid fa-language"></i> รองรับหลายภาษา (Multilingual System TH / EN / CN)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="500"
-                          value={estimatorForm?.featurePrices?.multilang || 0}
-                          onChange={e => setEstimatorForm({
-                            ...estimatorForm,
-                            featurePrices: { ...estimatorForm.featurePrices, multilang: Number(e.target.value) || 0 }
-                          })}
-                          required
-                        />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                          ราคา: <strong>+฿{(estimatorForm?.featurePrices?.multilang || 0).toLocaleString()}</strong>
-                        </span>
+                        {/* Calculated Price Display */}
+                        <div className="dash-simulator-calc-box">
+                          <div className="dash-simulator-calc-label">งบประมาณประเมินโดยประมาณ</div>
+                          <div className="dash-simulator-calc-price">
+                            ฿{simFinal.toLocaleString()}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            {simSpeed ? '⚡ รวมค่าบริการส่งมอบด่วนพิเศษแล้ว' : '⏱️ ระยะเวลาพัฒนามาตรฐาน'}
+                          </div>
+                        </div>
+
+                        {/* Project Type Selector */}
+                        <div className="dash-simulator-select-group">
+                          <label>ประเภทโปรเจกต์ทดสอบ:</label>
+                          <select
+                            className="dash-select"
+                            value={simType}
+                            onChange={e => setSimType(e.target.value as any)}
+                          >
+                            <option value="webapp">Custom Web App (฿{(estimatorForm?.basePrices?.webapp || 0).toLocaleString()})</option>
+                            <option value="dashboard">Dashboard &amp; CRM (฿{(estimatorForm?.basePrices?.dashboard || 0).toLocaleString()})</option>
+                            <option value="ecommerce">E-Commerce (฿{(estimatorForm?.basePrices?.ecommerce || 0).toLocaleString()})</option>
+                            <option value="corporate">Corporate Website (฿{(estimatorForm?.basePrices?.corporate || 0).toLocaleString()})</option>
+                          </select>
+                        </div>
+
+                        {/* Add-on Feature Checkboxes */}
+                        <div className="dash-simulator-select-group">
+                          <label>เลือกฟังก์ชันเสริม:</label>
+                          <div className="dash-simulator-features-list">
+                            {[
+                              { id: 'auth', name: 'ระบบสมาชิก & RBAC', price: estimatorForm?.featurePrices?.auth || 0 },
+                              { id: 'payment', name: 'ชำระเงินอัตโนมัติ', price: estimatorForm?.featurePrices?.payment || 0 },
+                              { id: 'notification', name: 'แจ้งเตือน LINE / Email', price: estimatorForm?.featurePrices?.notification || 0 },
+                              { id: 'export', name: 'ส่งออก PDF / Excel', price: estimatorForm?.featurePrices?.export || 0 },
+                              { id: 'ai', name: 'AI Copilot & Chatbot', price: estimatorForm?.featurePrices?.ai || 0 },
+                              { id: 'multilang', name: 'ระบบหลายภาษา (TH/EN)', price: estimatorForm?.featurePrices?.multilang || 0 },
+                            ].map(feat => {
+                              const isChecked = simFeatures.includes(feat.id);
+                              return (
+                                <div
+                                  key={feat.id}
+                                  className={`dash-sim-feature-toggle ${isChecked ? 'active' : ''}`}
+                                  onClick={() => {
+                                    if (isChecked) {
+                                      setSimFeatures(simFeatures.filter(f => f !== feat.id));
+                                    } else {
+                                      setSimFeatures([...simFeatures, feat.id]);
+                                    }
+                                  }}
+                                >
+                                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', margin: 0, color: 'inherit' }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => {}}
+                                    />
+                                    <span>{feat.name}</span>
+                                  </label>
+                                  <span style={{ fontWeight: 700, fontSize: '0.78rem' }}>+฿{feat.price.toLocaleString()}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Express Speed Toggle */}
+                        <div
+                          className={`dash-sim-feature-toggle ${simSpeed ? 'active' : ''}`}
+                          style={{ marginBottom: '20px' }}
+                          onClick={() => setSimSpeed(!simSpeed)}
+                        >
+                          <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', margin: 0, color: 'inherit' }}>
+                            <input
+                              type="checkbox"
+                              checked={simSpeed}
+                              onChange={() => {}}
+                            />
+                            <span>⚡ ส่งมอบด่วนพิเศษ ({estimatorForm?.speedMultiplier || 1.25}x)</span>
+                          </label>
+                          <span style={{ fontWeight: 700, fontSize: '0.78rem', color: '#F59E0B' }}>
+                            {simSpeed ? 'เปิดใช้งาน' : 'ปิด'}
+                          </span>
+                        </div>
+
+                        <Link
+                          href="/estimator"
+                          target="_blank"
+                          className="btn btn-secondary"
+                          style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem' }}
+                        >
+                          <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                          เปิดหน้าคำนวณราคาของลูกค้าจริง
+                        </Link>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* 3. Speed Multiplier */}
-                <div className="dash-card" style={{ marginBottom: '24px' }}>
-                  <div className="dash-card-header">
-                    <h3><i className="fa-solid fa-bolt" style={{ color: '#F59E0B' }}></i> ตัวคูณงานเร่งด่วน (Express Speed Multiplier)</h3>
-                  </div>
-                  <div style={{ padding: '20px 24px' }}>
-                    <div className="dash-form-group" style={{ maxWidth: '450px' }}>
-                      <label>ตัวคูณราคาเมื่อลูกค้าเลือกระยะเวลาเร่งด่วน (เช่น 1.25 คือคิดเพิ่ม 25%)</label>
-                      <input
-                        type="number"
-                        min="1.0"
-                        max="3.0"
-                        step="0.05"
-                        value={estimatorForm?.speedMultiplier || 1.25}
-                        onChange={e => setEstimatorForm({
-                          ...estimatorForm,
-                          speedMultiplier: Number(e.target.value) || 1.25
-                        })}
-                        required
-                      />
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', display: 'block' }}>
-                        ค่าปัจจุบัน: <strong>{estimatorForm?.speedMultiplier || 1.25}x</strong> (+{Math.round(((estimatorForm?.speedMultiplier || 1.25) - 1) * 100)}% เมื่อเลือกส่งมอบด่วนพิเศษ)
-                      </span>
+                  {/* Sticky Floating Save Action Bar */}
+                  <div className="dash-sticky-action-bar">
+                    <div className="dash-sticky-action-info">
+                      <i className="fa-solid fa-shield-halved" style={{ color: '#10B981' }}></i>
+                      <span>ซิงค์ตรงกับฐานข้อมูล Supabase Cloud PostgreSQL Real-time</span>
+                    </div>
+                    <div className="dash-sticky-action-btns">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => handleApplyPricingPreset('standard')}
+                      >
+                        <i className="fa-solid fa-rotate-left"></i> รีเซ็ตเป็นค่ามาตรฐาน
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        style={{ padding: '12px 32px', fontSize: '1rem', fontWeight: 700, boxShadow: '0 4px 20px rgba(37, 99, 235, 0.4)' }}
+                      >
+                        <i className="fa-solid fa-floppy-disk"></i> บันทึกและซิงค์ทันที 🚀
+                      </button>
                     </div>
                   </div>
-                </div>
-
-                <div className="dash-form-actions" style={{ marginTop: '20px' }}>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '12px 28px', fontSize: '1rem' }}>
-                    <i className="fa-solid fa-floppy-disk"></i> บันทึกเรทราคาและซิงค์ทันที
-                  </button>
-                </div>
-              </form>
-            </section>
-          )}
+                </form>
+              </section>
+            );
+          })()}
 
           {/* ============ SETTINGS: SITE ============ */}
           {activeSection === 'settings-site' && (
