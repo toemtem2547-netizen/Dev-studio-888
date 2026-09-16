@@ -248,46 +248,67 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fetchLiveData();
   }, []);
 
-  const updateSiteSettings = async (data: Partial<SiteSettings>) => {
+  const updateSiteSettings = async (data: any) => {
     const next = { ...site, ...data };
     setSite(next);
     localStorage.setItem('nexus_dash_settings_site', JSON.stringify(next));
     try {
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ site: next }),
       });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && result.site) {
+          setSite(result.site);
+          localStorage.setItem('nexus_dash_settings_site', JSON.stringify(result.site));
+        }
+      }
     } catch (err) {
       console.error('[updateSiteSettings] API error:', err);
     }
   };
 
-  const updateContactSettings = async (data: Partial<ContactSettings>) => {
+  const updateContactSettings = async (data: any) => {
     const next = { ...contact, ...data };
     setContact(next);
     localStorage.setItem('nexus_dash_settings_contact', JSON.stringify(next));
     try {
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contact: next }),
       });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && result.contact) {
+          setContact(result.contact);
+          localStorage.setItem('nexus_dash_settings_contact', JSON.stringify(result.contact));
+        }
+      }
     } catch (err) {
       console.error('[updateContactSettings] API error:', err);
     }
   };
 
-  const updateSocialSettings = async (data: Partial<SocialSettings>) => {
+  const updateSocialSettings = async (data: any) => {
     const next = { ...social, ...data };
     setSocial(next);
     localStorage.setItem('nexus_dash_settings_social', JSON.stringify(next));
     try {
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ social: next }),
       });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && result.social) {
+          setSocial(result.social);
+          localStorage.setItem('nexus_dash_settings_social', JSON.stringify(result.social));
+        }
+      }
     } catch (err) {
       console.error('[updateSocialSettings] API error:', err);
     }
@@ -301,20 +322,27 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateEstimatorConfig = async (config: Partial<EstimatorConfig>, skipApiCall = false) => {
-    // Deep merge: nested objects like basePrices/featurePrices must be merged properly
     const next: EstimatorConfig = {
-      ...estimatorConfig,
-      ...config,
       basePrices: {
-        ...estimatorConfig.basePrices,
+        webapp: 45000,
+        dashboard: 55000,
+        ecommerce: 50000,
+        corporate: 35000,
+        ...estimatorConfig?.basePrices,
         ...(config.basePrices || {}),
       },
       featurePrices: {
-        ...estimatorConfig.featurePrices,
+        auth: 10000,
+        payment: 15000,
+        notification: 8000,
+        export: 12000,
+        ai: 25000,
+        multilang: 9000,
+        ...estimatorConfig?.featurePrices,
         ...(config.featurePrices || {}),
       },
-      customProjectTypes: config.customProjectTypes ?? estimatorConfig.customProjectTypes,
-      speedMultiplier: config.speedMultiplier ?? estimatorConfig.speedMultiplier,
+      customProjectTypes: config.customProjectTypes ?? estimatorConfig?.customProjectTypes ?? [],
+      speedMultiplier: config.speedMultiplier ?? estimatorConfig?.speedMultiplier ?? 1.25,
     };
     // Immediately update UI and localStorage
     setEstimatorConfig(next);
@@ -328,7 +356,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
       if (res.ok) {
         const data = await res.json();
-        // Sync confirmed DB value back to state and localStorage
         if (data.success && data.estimatorConfig) {
           setEstimatorConfig(data.estimatorConfig);
           localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(data.estimatorConfig));

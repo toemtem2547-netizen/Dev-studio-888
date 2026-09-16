@@ -441,22 +441,37 @@ export default function DashboardView() {
     router.push('/login');
   };
 
-  const handleSaveSiteSettings = (e: React.FormEvent) => {
+  const handleSaveSiteSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSiteSettings(siteForm);
-    triggerToast('บันทึกข้อมูลเว็บไซต์และภาษาที่ใช้พัฒนาเรียบร้อยแล้ว');
+    try {
+      await updateSiteSettings(siteForm);
+      triggerToast('บันทึกข้อมูลเว็บไซต์เรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🚀');
+    } catch (err) {
+      console.error('[handleSaveSiteSettings] Error:', err);
+      triggerToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้');
+    }
   };
 
-  const handleSaveContactSettings = (e: React.FormEvent) => {
+  const handleSaveContactSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateContactSettings(contactForm);
-    triggerToast('บันทึกข้อมูลติดต่อเรียบร้อยแล้ว');
+    try {
+      await updateContactSettings(contactForm);
+      triggerToast('บันทึกช่องทางติดต่อเรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🚀');
+    } catch (err) {
+      console.error('[handleSaveContactSettings] Error:', err);
+      triggerToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้');
+    }
   };
 
-  const handleSaveSocialSettings = (e: React.FormEvent) => {
+  const handleSaveSocialSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSocialSettings(socialForm);
-    triggerToast('บันทึก Social Links เรียบร้อยแล้ว');
+    try {
+      await updateSocialSettings(socialForm);
+      triggerToast('บันทึก Social Links เรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🚀');
+    } catch (err) {
+      console.error('[handleSaveSocialSettings] Error:', err);
+      triggerToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้');
+    }
   };
 
   const handleSaveEstimatorSettings = async (e: React.FormEvent) => {
