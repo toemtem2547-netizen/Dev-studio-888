@@ -1184,7 +1184,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="1000"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.basePrices?.webapp ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1223,7 +1223,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="1000"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.basePrices?.dashboard ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1262,7 +1262,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="1000"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.basePrices?.ecommerce ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1301,7 +1301,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="1000"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.basePrices?.corporate ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1355,7 +1355,7 @@ export default function DashboardView() {
                                   <input
                                     type="number"
                                     min="0"
-                                    step="1000"
+                                    step="any"
                                     className="dash-pricing-number-input"
                                     value={estimatorForm?.basePrices?.[customItem.id] ?? customItem.price ?? ''}
                                     onFocus={e => e.target.select()}
@@ -1399,7 +1399,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.auth ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1438,7 +1438,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.payment ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1477,7 +1477,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.notification ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1516,7 +1516,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.export ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1555,7 +1555,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.ai ?? ''}
                                   onFocus={e => e.target.select()}
@@ -1594,7 +1594,7 @@ export default function DashboardView() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="500"
+                                  step="any"
                                   className="dash-pricing-number-input"
                                   value={estimatorForm?.featurePrices?.multilang ?? ''}
                                   onFocus={e => e.target.select()}
