@@ -149,12 +149,7 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-code"></i></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', background: 'rgba(37, 99, 235, 0.12)', padding: '2px 8px', borderRadius: '6px' }}>
-                            เริ่มต้น ฿{(basePrices.webapp ?? 45000).toLocaleString()}
-                          </span>
-                          <div className="option-radio-dot"></div>
-                        </div>
+                        <div className="option-radio-dot"></div>
                       </div>
                       <div className="option-name">Custom Web Application</div>
                       <div className="option-sub">ระบบเว็บแอปพลิเคชันเฉพาะทาง ออกแบบตามกระบวนการทำงานจริง</div>
@@ -169,12 +164,7 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-chart-pie"></i></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', background: 'rgba(37, 99, 235, 0.12)', padding: '2px 8px', borderRadius: '6px' }}>
-                            เริ่มต้น ฿{(basePrices.dashboard ?? 55000).toLocaleString()}
-                          </span>
-                          <div className="option-radio-dot"></div>
-                        </div>
+                        <div className="option-radio-dot"></div>
                       </div>
                       <div className="option-name">Enterprise Dashboard &amp; CRM</div>
                       <div className="option-sub">แดชบอร์ดบริหาร สถิติเรียลไทม์ และระบบติดตามงานทีมขาย</div>
@@ -189,12 +179,7 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-cart-shopping"></i></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', background: 'rgba(37, 99, 235, 0.12)', padding: '2px 8px', borderRadius: '6px' }}>
-                            เริ่มต้น ฿{(basePrices.ecommerce ?? 50000).toLocaleString()}
-                          </span>
-                          <div className="option-radio-dot"></div>
-                        </div>
+                        <div className="option-radio-dot"></div>
                       </div>
                       <div className="option-name">E-Commerce &amp; Booking</div>
                       <div className="option-sub">ร้านค้าออนไลน์ ตะกร้าสินค้า และระบบนัดหมายจองบริการ</div>
@@ -209,12 +194,7 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-globe"></i></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', background: 'rgba(37, 99, 235, 0.12)', padding: '2px 8px', borderRadius: '6px' }}>
-                            เริ่มต้น ฿{(basePrices.corporate ?? 35000).toLocaleString()}
-                          </span>
-                          <div className="option-radio-dot"></div>
-                        </div>
+                        <div className="option-radio-dot"></div>
                       </div>
                       <div className="option-name">Corporate Showcase Website</div>
                       <div className="option-sub">เว็บไซต์ภาพลักษณ์องค์กรระดับพรีเมียม โหลดเร็ว รองรับ SEO</div>
@@ -232,7 +212,6 @@ export default function EstimatorView() {
                     };
                     const cStyle = colorStyles[custom.color] || colorStyles.blue;
                     const isSelected = projectType === custom.id;
-                    const cPrice = basePrices[custom.id] ?? custom.price ?? 0;
                     return (
                       <label
                         key={custom.id}
@@ -245,15 +224,10 @@ export default function EstimatorView() {
                             <div className="option-icon" style={{ color: cStyle.color, background: cStyle.bg }}>
                               <i className={`fa-solid ${custom.icon || 'fa-cubes'}`}></i>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: cStyle.color, background: cStyle.bg, padding: '2px 8px', borderRadius: '6px' }}>
-                                เริ่มต้น ฿{cPrice.toLocaleString()}
-                              </span>
-                              <div className="option-radio-dot"></div>
-                            </div>
+                            <div className="option-radio-dot"></div>
                           </div>
                           <div className="option-name">{custom.name}</div>
-                          <div className="option-sub">{custom.desc || 'ประเภทโปรเจกต์กำหนดเอง'}</div>
+                          <div className="option-sub">{custom.desc || `เริ่มต้น ฿${(custom.price || 0).toLocaleString()}`}</div>
                         </div>
                       </label>
                     );
@@ -278,42 +252,42 @@ export default function EstimatorView() {
                       icon: 'fa-shield-halved',
                       label: 'ระบบสมาชิก & สิทธิ์การใช้งาน',
                       desc: 'Auth, Login, Role-Based Permissions (RBAC)',
-                      priceVal: featurePrices.auth ?? 10000,
+                      price: '+10,000 ฿'
                     },
                     {
                       id: 'payment',
                       icon: 'fa-credit-card',
                       label: 'ระบบชำระเงินอัตโนมัติ',
                       desc: 'PromptPay QR, Credit Card, ใบเสร็จอัตโนมัติ',
-                      priceVal: featurePrices.payment ?? 15000,
+                      price: '+15,000 ฿'
                     },
                     {
                       id: 'notification',
                       icon: 'fa-bell',
                       label: 'ระบบแจ้งเตือนอัตโนมัติ',
                       desc: 'LINE Official Account, Email, SMS Notify',
-                      priceVal: featurePrices.notification ?? 8000,
+                      price: '+8,000 ฿'
                     },
                     {
                       id: 'export',
                       icon: 'fa-file-excel',
                       label: 'ระบบออกเอกสาร PDF & Excel',
                       desc: 'พิมพ์ใบเสนอราคา, ใบแจ้งหนี้, Export รายงาน',
-                      priceVal: featurePrices.export ?? 12000,
+                      price: '+12,000 ฿'
                     },
                     {
                       id: 'ai',
                       icon: 'fa-robot',
                       label: 'AI Copilot & Smart Chatbot',
                       desc: 'ระบบผู้ช่วย AI วิเคราะห์ข้อมูลและตอบลูกค้า 24/7',
-                      priceVal: featurePrices.ai ?? 25000,
+                      price: '+25,000 ฿'
                     },
                     {
                       id: 'multilang',
                       icon: 'fa-language',
                       label: 'รองรับหลายภาษา (Multi-language)',
                       desc: 'สลับภาษา TH, EN, CN พร้อมระบบจัดการคำแปล',
-                      priceVal: featurePrices.multilang ?? 9000,
+                      price: '+9,000 ฿'
                     }
                   ].map((item) => {
                     const isSelected = features.includes(item.id);
@@ -422,27 +396,7 @@ export default function EstimatorView() {
                   <span id="estimatedPrice">{total.toLocaleString()}</span>
                   <span className="currency">บาท (THB)</span>
                 </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)', marginTop: '8px', borderTop: '1px dashed var(--border-glass)', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>ราคาเริ่มต้นโปรเจกต์:</span>
-                    <strong style={{ color: 'var(--text-heading)' }}>฿{getBasePrice(projectType).toLocaleString()}</strong>
-                  </div>
-                  {features.length > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ฟังก์ชันเสริม ({features.length} รายการ):</span>
-                      <strong style={{ color: 'var(--primary)' }}>
-                        +฿{features.reduce((sum, f) => sum + (featurePrices[f as keyof typeof featurePrices] || 0), 0).toLocaleString()}
-                      </strong>
-                    </div>
-                  )}
-                  {timelineSpeed === 'express' && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#F59E0B' }}>
-                      <span>⚡ ส่งมอบด่วนพิเศษ:</span>
-                      <strong>{speedMultiplier}x</strong>
-                    </div>
-                  )}
-                </div>
-                <div className="timeline-val" style={{ marginTop: '8px' }}>
+                <div className="timeline-val">
                   <i className="fa-regular fa-clock"></i>
                   <span>ระยะเวลาพัฒนา: <strong id="estimatedWeeks">{weeks}</strong> สัปดาห์</span>
                 </div>
