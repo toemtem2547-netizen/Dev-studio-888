@@ -1791,21 +1791,29 @@ export default function DashboardView() {
                   {/* Sticky Floating Save Action Bar */}
                   <div className="dash-sticky-action-bar">
                     <div className="dash-sticky-action-info">
-                      <i className="fa-solid fa-shield-halved" style={{ color: '#10B981' }}></i>
-                      <span>ซิงค์ตรงกับฐานข้อมูล Supabase Cloud PostgreSQL Real-time</span>
+                      <div className="dash-bar-status-chip">
+                        <span className="dash-bar-ping-wrap">
+                          <span className="dash-bar-ping-ring"></span>
+                          <span className="dash-bar-ping-dot"></span>
+                        </span>
+                        <i className="fa-solid fa-cloud"></i>
+                        <span>REALTIME SYNC</span>
+                      </div>
+                      <span className="dash-bar-info-text">
+                        ซิงค์ตรงกับฐานข้อมูล <strong className="dash-bar-highlight">Supabase Cloud PostgreSQL</strong> Real-time
+                      </span>
                     </div>
                     <div className="dash-sticky-action-btns">
                       <button
                         type="button"
-                        className="btn btn-secondary"
+                        className="dash-bar-btn dash-bar-reset-btn"
                         onClick={() => handleApplyPricingPreset('standard')}
                       >
                         <i className="fa-solid fa-rotate-left"></i> รีเซ็ตเป็นค่ามาตรฐาน
                       </button>
                       <button
                         type="submit"
-                        className="btn btn-primary"
-                        style={{ padding: '12px 32px', fontSize: '1rem', fontWeight: 700, boxShadow: '0 4px 20px rgba(37, 99, 235, 0.4)' }}
+                        className="dash-bar-btn dash-bar-save-btn"
                       >
                         <i className="fa-solid fa-floppy-disk"></i> บันทึกและซิงค์ทันที 🚀
                       </button>
