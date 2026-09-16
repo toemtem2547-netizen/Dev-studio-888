@@ -1186,11 +1186,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="1000"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.basePrices?.webapp || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    basePrices: { ...estimatorForm.basePrices, webapp: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.basePrices?.webapp ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      basePrices: { ...prev?.basePrices, webapp: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1221,11 +1225,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="1000"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.basePrices?.dashboard || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    basePrices: { ...estimatorForm.basePrices, dashboard: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.basePrices?.dashboard ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      basePrices: { ...prev?.basePrices, dashboard: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1256,11 +1264,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="1000"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.basePrices?.ecommerce || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    basePrices: { ...estimatorForm.basePrices, ecommerce: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.basePrices?.ecommerce ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      basePrices: { ...prev?.basePrices, ecommerce: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1291,11 +1303,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="1000"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.basePrices?.corporate || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    basePrices: { ...estimatorForm.basePrices, corporate: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.basePrices?.corporate ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      basePrices: { ...prev?.basePrices, corporate: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1341,8 +1357,9 @@ export default function DashboardView() {
                                     min="0"
                                     step="1000"
                                     className="dash-pricing-number-input"
-                                    value={estimatorForm?.basePrices?.[customItem.id] ?? customItem.price ?? 0}
-                                    onChange={e => updateCustomPriceDirect(customItem.id, Number(e.target.value) || 0)}
+                                    value={estimatorForm?.basePrices?.[customItem.id] ?? customItem.price ?? ''}
+                                    onFocus={e => e.target.select()}
+                                    onChange={e => updateCustomPriceDirect(customItem.id, e.target.value === '' ? 0 : Number(e.target.value))}
                                     required
                                   />
                                 </div>
@@ -1384,11 +1401,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.auth || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, auth: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.auth ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, auth: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1419,11 +1440,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.payment || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, payment: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.payment ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, payment: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1454,11 +1479,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.notification || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, notification: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.notification ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, notification: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1489,11 +1518,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.export || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, export: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.export ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, export: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1524,11 +1557,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.ai || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, ai: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.ai ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, ai: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
@@ -1559,11 +1596,15 @@ export default function DashboardView() {
                                   min="0"
                                   step="500"
                                   className="dash-pricing-number-input"
-                                  value={estimatorForm?.featurePrices?.multilang || 0}
-                                  onChange={e => setEstimatorForm({
-                                    ...estimatorForm,
-                                    featurePrices: { ...estimatorForm.featurePrices, multilang: Number(e.target.value) || 0 }
-                                  })}
+                                  value={estimatorForm?.featurePrices?.multilang ?? ''}
+                                  onFocus={e => e.target.select()}
+                                  onChange={e => {
+                                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setEstimatorForm(prev => ({
+                                      ...prev,
+                                      featurePrices: { ...prev?.featurePrices, multilang: isNaN(val) ? 0 : val }
+                                    }));
+                                  }}
                                   required
                                 />
                               </div>
