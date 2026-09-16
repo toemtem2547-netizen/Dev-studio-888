@@ -173,7 +173,7 @@ export default function DashboardView() {
 
   // Estimator Live Simulator State (Dashboard Interactive Test Drive)
   const [simType, setSimType] = useState<string>('webapp');
-  const [simFeatures, setSimFeatures] = useState<string[]>(['auth', 'payment']);
+  const [simFeatures, setSimFeatures] = useState<string[]>([]);
   const [simSpeed, setSimSpeed] = useState<boolean>(false);
 
   const triggerToast = (msg: string) => {
