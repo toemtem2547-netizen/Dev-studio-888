@@ -35,7 +35,7 @@ export default function EstimatorView() {
   const estimatorConfig = liveConfig || ctxConfig;
 
   const [projectType, setProjectType] = useState<string>('webapp');
-  const [features, setFeatures] = useState<string[]>(['auth', 'payment']);
+  const [features, setFeatures] = useState<string[]>([]);
   const [timelineSpeed, setTimelineSpeed] = useState<'standard' | 'express'>('standard');
 
   const customProjectTypes = estimatorConfig?.customProjectTypes || [];
@@ -149,7 +149,10 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-code"></i></div>
-                        <div className="option-radio-dot"></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="option-price-tag">เริ่มต้น ฿{(basePrices.webapp ?? 45000).toLocaleString()}</span>
+                          <div className="option-radio-dot"></div>
+                        </div>
                       </div>
                       <div className="option-name">Custom Web Application</div>
                       <div className="option-sub">ระบบเว็บแอปพลิเคชันเฉพาะทาง ออกแบบตามกระบวนการทำงานจริง</div>
@@ -164,7 +167,10 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-chart-pie"></i></div>
-                        <div className="option-radio-dot"></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="option-price-tag">เริ่มต้น ฿{(basePrices.dashboard ?? 55000).toLocaleString()}</span>
+                          <div className="option-radio-dot"></div>
+                        </div>
                       </div>
                       <div className="option-name">Enterprise Dashboard &amp; CRM</div>
                       <div className="option-sub">แดชบอร์ดบริหาร สถิติเรียลไทม์ และระบบติดตามงานทีมขาย</div>
@@ -179,7 +185,10 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-cart-shopping"></i></div>
-                        <div className="option-radio-dot"></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="option-price-tag">เริ่มต้น ฿{(basePrices.ecommerce ?? 50000).toLocaleString()}</span>
+                          <div className="option-radio-dot"></div>
+                        </div>
                       </div>
                       <div className="option-name">E-Commerce &amp; Booking</div>
                       <div className="option-sub">ร้านค้าออนไลน์ ตะกร้าสินค้า และระบบนัดหมายจองบริการ</div>
@@ -194,7 +203,10 @@ export default function EstimatorView() {
                     <div className="option-content">
                       <div className="option-header-row">
                         <div className="option-icon"><i className="fa-solid fa-globe"></i></div>
-                        <div className="option-radio-dot"></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="option-price-tag">เริ่มต้น ฿{(basePrices.corporate ?? 35000).toLocaleString()}</span>
+                          <div className="option-radio-dot"></div>
+                        </div>
                       </div>
                       <div className="option-name">Corporate Showcase Website</div>
                       <div className="option-sub">เว็บไซต์ภาพลักษณ์องค์กรระดับพรีเมียม โหลดเร็ว รองรับ SEO</div>
@@ -224,7 +236,10 @@ export default function EstimatorView() {
                             <div className="option-icon" style={{ color: cStyle.color, background: cStyle.bg }}>
                               <i className={`fa-solid ${custom.icon || 'fa-cubes'}`}></i>
                             </div>
-                            <div className="option-radio-dot"></div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className="option-price-tag">เริ่มต้น ฿{(custom.price || 0).toLocaleString()}</span>
+                              <div className="option-radio-dot"></div>
+                            </div>
                           </div>
                           <div className="option-name">{custom.name}</div>
                           <div className="option-sub">{custom.desc || `เริ่มต้น ฿${(custom.price || 0).toLocaleString()}`}</div>
