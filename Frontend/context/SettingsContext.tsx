@@ -209,6 +209,27 @@ function hexToRgb(hex: string): string {
 
       if (t.fontHeading) root.style.setProperty('--font-heading', `'${t.fontHeading}', 'Prompt', sans-serif`);
       if (t.fontBody) root.style.setProperty('--font-body', `'${t.fontBody}', 'Prompt', sans-serif`);
+
+      let styleEl = document.getElementById('early-theme-override') as HTMLStyleElement | null;
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'early-theme-override';
+        document.head.appendChild(styleEl);
+      }
+      styleEl.innerHTML = `:root, [data-theme="dark"], [data-theme="light"] {
+        --primary: ${pColor} !important;
+        --secondary: ${sColor} !important;
+        --primary-rgb: ${pRgb} !important;
+        --secondary-rgb: ${sRgb} !important;
+        --primary-hover: ${pColor} !important;
+        --secondary-light: ${sColor} !important;
+        --primary-gradient: linear-gradient(135deg, ${pColor} 0%, ${sColor} 100%) !important;
+        --border-focus: ${pColor} !important;
+        --glow-primary: 0 0 35px rgba(${pRgb}, 0.25) !important;
+        --shadow-card-hover: 0 20px 45px -5px rgba(${pRgb}, 0.25), 0 0 0 1.5px ${pColor} !important;
+        ${t.fontHeading ? `--font-heading: '${t.fontHeading}', 'Prompt', sans-serif !important;` : ''}
+        ${t.fontBody ? `--font-body: '${t.fontBody}', 'Prompt', sans-serif !important;` : ''}
+      }`;
     }
   };
 

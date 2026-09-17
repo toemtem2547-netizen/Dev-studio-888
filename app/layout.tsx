@@ -35,13 +35,11 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         />
         <meta name="theme-color" content="#070B14" id="themeColorMeta" />
-        <Script
-          id="theme-visited-init"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `(function() {
               try {
-                // ── 1. Theme: default dark for first-time visitors ──
+                // 1. Theme: default dark for first-time visitors
                 var saved = localStorage.getItem('nexus_theme');
                 if (!saved) {
                   saved = 'dark';
@@ -53,32 +51,45 @@ export default function RootLayout({
                   meta.content = saved === 'dark' ? '#070B14' : '#F8FAFC';
                 }
 
-                // ── 2. Restore Custom Theme Colors & Fonts immediately to prevent FOUC ──
+                // 2. Synchronously inject high-priority CSS override style tag before any CSS is painted
                 var savedCustomTheme = localStorage.getItem('nexus_dash_settings_theme');
                 if (savedCustomTheme) {
                   var t = JSON.parse(savedCustomTheme);
-                  if (t) {
-                    var pColor = t.primaryColor || '#2563EB';
+                  if (t && t.primaryColor) {
+                    var pColor = t.primaryColor;
                     var sColor = t.secondaryColor || '#7C3AED';
 
-                    function hex2rgb(hex) {
-                      if (!hex) return '37, 99, 235';
-                      var clean = hex.replace('#', '').trim();
-                      var r = 37, g = 99, b = 235;
-                      if (clean.length === 6) {
-                        r = parseInt(clean.substring(0, 2), 16);
-                        g = parseInt(clean.substring(2, 4), 16);
-                        b = parseInt(clean.substring(4, 6), 16);
-                      } else if (clean.length === 3) {
-                        r = parseInt(clean[0] + clean[0], 16);
-                        g = parseInt(clean[1] + clean[1], 16);
-                        b = parseInt(clean[2] + clean[2], 16);
-                      }
-                      return (isNaN(r) || isNaN(g) || isNaN(b)) ? '37, 99, 235' : (r + ', ' + g + ', ' + b);
-                    }
+                    var cleanP = pColor.replace('#', '').trim();
+                    var cleanS = sColor.replace('#', '').trim();
+                    var r1 = parseInt(cleanP.substring(0, 2), 16) || 37;
+                    var g1 = parseInt(cleanP.substring(2, 4), 16) || 99;
+                    var b1 = parseInt(cleanP.substring(4, 6), 16) || 235;
+                    var r2 = parseInt(cleanS.substring(0, 2), 16) || 124;
+                    var g2 = parseInt(cleanS.substring(2, 4), 16) || 58;
+                    var b2 = parseInt(cleanS.substring(4, 6), 16) || 237;
 
-                    var pRgb = hex2rgb(pColor);
-                    var sRgb = hex2rgb(sColor);
+                    var pRgb = r1 + ', ' + g1 + ', ' + b1;
+                    var sRgb = r2 + ', ' + g2 + ', ' + b2;
+
+                    var css = ':root, [data-theme="dark"], [data-theme="light"] {' +
+                      '--primary: ' + pColor + ' !important;' +
+                      '--secondary: ' + sColor + ' !important;' +
+                      '--primary-rgb: ' + pRgb + ' !important;' +
+                      '--secondary-rgb: ' + sRgb + ' !important;' +
+                      '--primary-hover: ' + pColor + ' !important;' +
+                      '--secondary-light: ' + sColor + ' !important;' +
+                      '--primary-gradient: linear-gradient(135deg, ' + pColor + ' 0%, ' + sColor + ' 100%) !important;' +
+                      '--border-focus: ' + pColor + ' !important;' +
+                      '--glow-primary: 0 0 35px rgba(' + pRgb + ', 0.25) !important;' +
+                      '--shadow-card-hover: 0 20px 45px -5px rgba(' + pRgb + ', 0.25), 0 0 0 1.5px ' + pColor + ' !important;' +
+                      (t.fontHeading ? '--font-heading: "' + t.fontHeading + '", "Prompt", sans-serif !important;' : '') +
+                      (t.fontBody ? '--font-body: "' + t.fontBody + '", "Prompt", sans-serif !important;' : '') +
+                      '}';
+
+                    var styleEl = document.createElement('style');
+                    styleEl.id = 'early-theme-override';
+                    styleEl.innerHTML = css;
+                    document.head.appendChild(styleEl);
 
                     var root = document.documentElement;
                     root.style.setProperty('--primary', pColor);
@@ -91,13 +102,10 @@ export default function RootLayout({
                     root.style.setProperty('--border-focus', pColor);
                     root.style.setProperty('--glow-primary', '0 0 35px rgba(' + pRgb + ', 0.25)');
                     root.style.setProperty('--shadow-card-hover', '0 20px 45px -5px rgba(' + pRgb + ', 0.25), 0 0 0 1.5px ' + pColor);
-
-                    if (t.fontHeading) root.style.setProperty('--font-heading', "'" + t.fontHeading + "', 'Prompt', sans-serif");
-                    if (t.fontBody) root.style.setProperty('--font-body', "'" + t.fontBody + "', 'Prompt', sans-serif");
                   }
                 }
 
-                // ── 3. First visit: redirect to home page ──
+                // 3. First visit redirect
                 var isFirstVisit = !sessionStorage.getItem('nexus_visited');
                 if (isFirstVisit) {
                   sessionStorage.setItem('nexus_visited', '1');
