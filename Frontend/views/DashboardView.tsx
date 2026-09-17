@@ -128,26 +128,7 @@ export default function DashboardView() {
     saveProjects,
   } = useSettings();
 
-  const [activeSection, setActiveSection] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#', '');
-      const saved = localStorage.getItem('nexus_dash_active_section');
-      const valid = [
-        'overview',
-        'portfolio',
-        'messages',
-        'estimator-logs',
-        'settings-estimator',
-        'settings-site',
-        'settings-contact',
-        'settings-social',
-        'settings-theme',
-      ];
-      if (hash && valid.includes(hash)) return hash;
-      if (saved && valid.includes(saved)) return saved;
-    }
-    return 'overview';
-  });
+  const [activeSection, setActiveSection] = useState<string>('overview');
 
   const switchSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -175,11 +156,23 @@ export default function DashboardView() {
         'settings-social',
         'settings-theme',
       ];
+
+      // Restore saved section after client hydration
+      const hash = window.location.hash.replace('#', '');
+      const saved = localStorage.getItem('nexus_dash_active_section');
+      let target = 'overview';
+      if (hash && validSections.includes(hash)) target = hash;
+      else if (saved && validSections.includes(saved)) target = saved;
+
+      if (target !== 'overview') {
+        setActiveSection(target);
+      }
+
       const handleHashChange = () => {
-        const hash = window.location.hash.replace('#', '');
-        if (hash && validSections.includes(hash)) {
-          setActiveSection(hash);
-          localStorage.setItem('nexus_dash_active_section', hash);
+        const h = window.location.hash.replace('#', '');
+        if (h && validSections.includes(h)) {
+          setActiveSection(h);
+          localStorage.setItem('nexus_dash_active_section', h);
         }
       };
 

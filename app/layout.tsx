@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import './dashboard.css';
 import { ThemeProvider } from '@/Frontend/context/ThemeContext';
@@ -34,7 +35,9 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         />
         <meta name="theme-color" content="#070B14" id="themeColorMeta" />
-        <script
+        <Script
+          id="theme-visited-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function() {
               try {
