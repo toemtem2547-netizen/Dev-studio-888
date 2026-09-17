@@ -162,12 +162,43 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [estimatorConfig, setEstimatorConfig] = useState<EstimatorConfig>(DEFAULT_ESTIMATOR_CONFIG);
 
+function hexToRgb(hex: string): string {
+  if (!hex) return '37, 99, 235';
+  const clean = hex.replace('#', '').trim();
+  let r = 37, g = 99, b = 235;
+  if (clean.length === 6) {
+    r = parseInt(clean.substring(0, 2), 16);
+    g = parseInt(clean.substring(2, 4), 16);
+    b = parseInt(clean.substring(4, 6), 16);
+  } else if (clean.length === 3) {
+    r = parseInt(clean[0] + clean[0], 16);
+    g = parseInt(clean[1] + clean[1], 16);
+    b = parseInt(clean[2] + clean[2], 16);
+  }
+  return isNaN(r) || isNaN(g) || isNaN(b) ? '37, 99, 235' : `${r}, ${g}, ${b}`;
+}
+
   const applyThemeToDOM = (t: ThemeSettings) => {
     if (typeof document !== 'undefined') {
-      document.documentElement.style.setProperty('--primary', t.primaryColor);
-      document.documentElement.style.setProperty('--secondary', t.secondaryColor);
-      document.documentElement.style.setProperty('--font-heading', `'${t.fontHeading}', sans-serif`);
-      document.documentElement.style.setProperty('--font-body', `'${t.fontBody}', sans-serif`);
+      const root = document.documentElement;
+      const pColor = t.primaryColor || '#2563EB';
+      const sColor = t.secondaryColor || '#7C3AED';
+      const pRgb = hexToRgb(pColor);
+      const sRgb = hexToRgb(sColor);
+
+      root.style.setProperty('--primary', pColor);
+      root.style.setProperty('--secondary', sColor);
+      root.style.setProperty('--primary-rgb', pRgb);
+      root.style.setProperty('--secondary-rgb', sRgb);
+      root.style.setProperty('--primary-hover', pColor);
+      root.style.setProperty('--secondary-light', sColor);
+      root.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${pColor} 0%, ${sColor} 100%)`);
+      root.style.setProperty('--border-focus', pColor);
+      root.style.setProperty('--glow-primary', `0 0 35px rgba(${pRgb}, 0.25)`);
+      root.style.setProperty('--shadow-card-hover', `0 20px 45px -5px rgba(${pRgb}, 0.25), 0 0 0 1.5px ${pColor}`);
+
+      if (t.fontHeading) root.style.setProperty('--font-heading', `'${t.fontHeading}', 'Prompt', sans-serif`);
+      if (t.fontBody) root.style.setProperty('--font-body', `'${t.fontBody}', 'Prompt', sans-serif`);
     }
   };
 
