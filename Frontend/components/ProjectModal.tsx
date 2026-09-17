@@ -9,9 +9,8 @@ interface ProjectModalProps {
 }
 
 export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
-  if (!project) return null;
-
   const allImages = React.useMemo(() => {
+    if (!project) return [];
     if (project.images && project.images.length > 0) {
       // Ensure project.image is included
       const list = [...project.images];
@@ -29,6 +28,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
   React.useEffect(() => {
     setActiveImgIdx(0);
   }, [project]);
+
+  if (!project) return null;
 
   const currentImage = allImages[activeImgIdx] || project.image;
 
