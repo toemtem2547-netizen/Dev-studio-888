@@ -128,7 +128,65 @@ export default function DashboardView() {
     saveProjects,
   } = useSettings();
 
-  const [activeSection, setActiveSection] = useState<string>('overview');
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      const saved = localStorage.getItem('nexus_dash_active_section');
+      const valid = [
+        'overview',
+        'portfolio',
+        'messages',
+        'estimator-logs',
+        'settings-estimator',
+        'settings-site',
+        'settings-contact',
+        'settings-social',
+        'settings-theme',
+      ];
+      if (hash && valid.includes(hash)) return hash;
+      if (saved && valid.includes(saved)) return saved;
+    }
+    return 'overview';
+  });
+
+  const switchSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    setSidebarOpen(false);
+    try {
+      localStorage.setItem('nexus_dash_active_section', sectionId);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `#${sectionId}`);
+      }
+    } catch (e) {
+      console.error('Failed to save active section:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const validSections = [
+        'overview',
+        'portfolio',
+        'messages',
+        'estimator-logs',
+        'settings-estimator',
+        'settings-site',
+        'settings-contact',
+        'settings-social',
+        'settings-theme',
+      ];
+      const handleHashChange = () => {
+        const hash = window.location.hash.replace('#', '');
+        if (hash && validSections.includes(hash)) {
+          setActiveSection(hash);
+          localStorage.setItem('nexus_dash_active_section', hash);
+        }
+      };
+
+      window.addEventListener('hashchange', handleHashChange);
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
+  }, []);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
 
@@ -703,7 +761,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'overview' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('overview'); setSidebarOpen(false); }}
+            onClick={() => switchSection('overview')}
           >
             <i className="fa-solid fa-chart-pie"></i>
             <span>ภาพรวม</span>
@@ -711,7 +769,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'portfolio' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('portfolio'); setSidebarOpen(false); }}
+            onClick={() => switchSection('portfolio')}
           >
             <i className="fa-solid fa-briefcase"></i>
             <span>จัดการผลงาน</span>
@@ -719,7 +777,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'messages' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('messages'); setSidebarOpen(false); }}
+            onClick={() => switchSection('messages')}
           >
             <i className="fa-regular fa-envelope"></i>
             <span>ข้อความ</span>
@@ -728,7 +786,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'estimator-logs' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('estimator-logs'); setSidebarOpen(false); }}
+            onClick={() => switchSection('estimator-logs')}
           >
             <i className="fa-solid fa-calculator"></i>
             <span>ประเมินราคา</span>
@@ -740,7 +798,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'settings-estimator' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('settings-estimator'); setSidebarOpen(false); }}
+            onClick={() => switchSection('settings-estimator')}
           >
             <i className="fa-solid fa-coins"></i>
             <span>ตั้งค่าราคาประเมิน</span>
@@ -748,7 +806,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'settings-site' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('settings-site'); setSidebarOpen(false); }}
+            onClick={() => switchSection('settings-site')}
           >
             <i className="fa-solid fa-globe"></i>
             <span>ข้อมูลเว็บไซต์</span>
@@ -756,7 +814,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'settings-contact' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('settings-contact'); setSidebarOpen(false); }}
+            onClick={() => switchSection('settings-contact')}
           >
             <i className="fa-solid fa-phone"></i>
             <span>ช่องทางติดต่อ</span>
@@ -764,7 +822,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'settings-social' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('settings-social'); setSidebarOpen(false); }}
+            onClick={() => switchSection('settings-social')}
           >
             <i className="fa-solid fa-share-nodes"></i>
             <span>Social Links</span>
@@ -772,7 +830,7 @@ export default function DashboardView() {
           <button
             type="button"
             className={`dash-nav-item ${activeSection === 'settings-theme' ? 'active' : ''}`}
-            onClick={() => { setActiveSection('settings-theme'); setSidebarOpen(false); }}
+            onClick={() => switchSection('settings-theme')}
           >
             <i className="fa-solid fa-palette"></i>
             <span>ธีมและดีไซน์</span>
@@ -893,7 +951,7 @@ export default function DashboardView() {
                   <h3><i className="fa-solid fa-bolt" style={{ color: '#F59E0B' }}></i> เมนูด่วน (Quick Actions)</h3>
                 </div>
                 <div className="dash-quick-actions">
-                  <div className="dash-quick-card action-add" onClick={() => setActiveSection('portfolio')}>
+                  <div className="dash-quick-card action-add" onClick={() => switchSection('portfolio')}>
                     <div className="action-icon"><i className="fa-solid fa-plus"></i></div>
                     <div className="action-details">
                       <h4>เพิ่มผลงานใหม่</h4>
@@ -902,7 +960,7 @@ export default function DashboardView() {
                     <i className="fa-solid fa-chevron-right action-arrow"></i>
                   </div>
 
-                  <div className="dash-quick-card action-msg" onClick={() => setActiveSection('messages')}>
+                  <div className="dash-quick-card action-msg" onClick={() => switchSection('messages')}>
                     <div className="action-icon"><i className="fa-solid fa-inbox"></i></div>
                     <div className="action-details">
                       <h4>ดูข้อความลูกค้า</h4>
@@ -911,7 +969,7 @@ export default function DashboardView() {
                     <i className="fa-solid fa-chevron-right action-arrow"></i>
                   </div>
 
-                  <div className="dash-quick-card action-settings" onClick={() => setActiveSection('settings-site')}>
+                  <div className="dash-quick-card action-settings" onClick={() => switchSection('settings-site')}>
                     <div className="action-icon"><i className="fa-solid fa-sliders"></i></div>
                     <div className="action-details">
                       <h4>ตั้งค่าเว็บไซต์</h4>
@@ -935,7 +993,7 @@ export default function DashboardView() {
               <div className="dash-card">
                 <div className="dash-card-header">
                   <h3><i className="fa-regular fa-envelope"></i> ข้อความล่าสุด</h3>
-                  <button className="btn btn-sm btn-glass" onClick={() => setActiveSection('messages')}>ดูทั้งหมด</button>
+                  <button className="btn btn-sm btn-glass" onClick={() => switchSection('messages')}>ดูทั้งหมด</button>
                 </div>
                 <div className="dash-card-body" id="overviewRecentMsgs">
                   {leads.length === 0 ? (
