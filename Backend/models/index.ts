@@ -7,6 +7,7 @@ export interface ProjectItem {
   kpi: string;
   excerpt: string;
   image: string;
+  images?: string[];
   tags: string[];
   client: string;
   duration: string;

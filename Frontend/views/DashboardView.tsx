@@ -277,55 +277,106 @@ export default function DashboardView() {
     });
   };
 
-  const handleProjectImageUpload = async (file: File) => {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
+  const handleProjectImagesUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (fileArray.length === 0) {
       triggerToast('กรุณาเลือกไฟล์รูปภาพเท่านั้น (JPG, PNG, WebP)');
       return;
     }
 
     setIsUploadingProjectImg(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
+    const newImageUrls: string[] = [];
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (data.success && data.url) {
-        if (editingProject) {
-          setEditingProject({ ...editingProject, image: data.url });
+    for (const file of fileArray) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          newImageUrls.push(data.url);
+        } else {
+          const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve((e.target?.result as string) || '');
+            reader.readAsDataURL(file);
+          });
+          if (base64) newImageUrls.push(base64);
         }
-        triggerToast('อัปโหลดรูปภาพสำเร็จ!');
-      } else {
-        // Fallback to FileReader base64
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const base64 = e.target?.result as string;
-          if (editingProject && base64) {
-            setEditingProject({ ...editingProject, image: base64 });
-            triggerToast('อัปโหลดรูปภาพสำเร็จ');
-          }
-        };
-        reader.readAsDataURL(file);
+      } catch {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve((e.target?.result as string) || '');
+          reader.readAsDataURL(file);
+        });
+        if (base64) newImageUrls.push(base64);
       }
-    } catch {
-      // Fallback to FileReader base64
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        if (editingProject && base64) {
-          setEditingProject({ ...editingProject, image: base64 });
-          triggerToast('อัปโหลดรูปภาพสำเร็จ');
-        }
-      };
-      reader.readAsDataURL(file);
-    } finally {
-      setIsUploadingProjectImg(false);
     }
+
+    setIsUploadingProjectImg(false);
+
+    if (newImageUrls.length > 0 && editingProject) {
+      setEditingProject(prev => {
+        if (!prev) return null;
+        const currentImages = prev.images && prev.images.length > 0
+          ? prev.images
+          : (prev.image ? [prev.image] : []);
+        const combined = [...currentImages, ...newImageUrls];
+        return {
+          ...prev,
+          image: prev.image || combined[0],
+          images: combined,
+        };
+      });
+      triggerToast(`เพิ่มรูปภาพสำเร็จ (${newImageUrls.length} รูป) ✨`);
+    }
+  };
+
+  const handleAddImageUrlInput = (url: string) => {
+    if (!url.trim() || !editingProject) return;
+    setEditingProject(prev => {
+      if (!prev) return null;
+      const currentImages = prev.images && prev.images.length > 0
+        ? prev.images
+        : (prev.image ? [prev.image] : []);
+      const combined = [...currentImages, url.trim()];
+      return {
+        ...prev,
+        image: prev.image || combined[0],
+        images: combined,
+      };
+    });
+    triggerToast('เพิ่มลิงก์รูปภาพเรียบร้อย ✨');
+  };
+
+  const handleSetCoverImage = (imgUrl: string) => {
+    if (!editingProject) return;
+    setEditingProject({
+      ...editingProject,
+      image: imgUrl,
+    });
+    triggerToast('ตั้งค่าเป็นรูปภาพปกหลักเรียบร้อย 👑');
+  };
+
+  const handleRemoveProjectImage = (imgIndex: number) => {
+    if (!editingProject) return;
+    const currentImages = editingProject.images && editingProject.images.length > 0
+      ? editingProject.images
+      : (editingProject.image ? [editingProject.image] : []);
+    const targetUrl = currentImages[imgIndex];
+    const updated = currentImages.filter((_, idx) => idx !== imgIndex);
+    const newCover = editingProject.image === targetUrl
+      ? (updated[0] || '')
+      : editingProject.image;
+    setEditingProject({
+      ...editingProject,
+      image: newCover,
+      images: updated,
+    });
+    triggerToast('ลบรูปภาพเรียบร้อย');
   };
 
   const handleApplyPricingPreset = (presetType: 'standard' | 'enterprise' | 'startup') => {
@@ -2418,10 +2469,23 @@ export default function DashboardView() {
                 </div>
               </div>
 
-              {/* Project Image: File Upload from PC/Mobile + URL Input */}
+              {/* Project Image: Multi-Image Upload from PC/Mobile + URL Input */}
               <div className="dash-form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ margin: 0, fontWeight: 600 }}>รูปภาพผลงาน (Project Image)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ margin: 0, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-images" style={{ color: 'var(--primary)' }}></i>
+                    รูปภาพผลงาน (รองรับการอัปโหลดหลายรูป)
+                    {(() => {
+                      const imgs = editingProject.images && editingProject.images.length > 0
+                        ? editingProject.images
+                        : (editingProject.image ? [editingProject.image] : []);
+                      return imgs.length > 0 ? (
+                        <span style={{ fontSize: '0.78rem', background: 'rgba(var(--primary-rgb), 0.15)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                          ทั้งหมด {imgs.length} รูป
+                        </span>
+                      ) : null;
+                    })()}
+                  </label>
                   <div className="dash-image-mode-toggle" style={{ margin: 0 }}>
                     <button
                       type="button"
@@ -2429,7 +2493,7 @@ export default function DashboardView() {
                       onClick={() => setProjectImageMode('upload')}
                     >
                       <i className="fa-solid fa-cloud-arrow-up"></i>
-                      <span>อัปโหลดจากเครื่อง/มือถือ</span>
+                      <span>อัปโหลดไฟล์จากเครื่อง</span>
                     </button>
                     <button
                       type="button"
@@ -2437,11 +2501,124 @@ export default function DashboardView() {
                       onClick={() => setProjectImageMode('url')}
                     >
                       <i className="fa-solid fa-link"></i>
-                      <span>ระบุลิงก์ URL</span>
+                      <span>เพิ่มด้วย URL</span>
                     </button>
                   </div>
                 </div>
 
+                {/* Multi-Image Gallery Grid if images exist */}
+                {(() => {
+                  const currentImages = editingProject.images && editingProject.images.length > 0
+                    ? editingProject.images
+                    : (editingProject.image ? [editingProject.image] : []);
+
+                  if (currentImages.length === 0) return null;
+
+                  return (
+                    <div style={{ marginBottom: '14px' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginBottom: '8px', display: 'block' }}>
+                        💡 คลิกที่ <strong style={{ color: 'var(--primary)' }}>"ตั้งเป็นรูปปก"</strong> เพื่อกำหนดรูปหลักที่จะโชว์บนการ์ดผลงาน
+                      </span>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))',
+                        gap: '10px',
+                        background: 'var(--bg-surface)',
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-glass)',
+                      }}>
+                        {currentImages.map((imgUrl, idx) => {
+                          const isCover = editingProject.image === imgUrl || (!editingProject.image && idx === 0);
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                position: 'relative',
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                border: isCover ? '2px solid var(--primary)' : '1px solid var(--border-glass)',
+                                background: '#070B14',
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <img
+                                src={imgUrl}
+                                alt={`Project image ${idx + 1}`}
+                                style={{ width: '100%', height: '85px', objectFit: 'cover' }}
+                              />
+                              {isCover && (
+                                <span style={{
+                                  position: 'absolute',
+                                  top: '4px',
+                                  left: '4px',
+                                  background: 'var(--primary)',
+                                  color: '#fff',
+                                  fontSize: '0.68rem',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontWeight: 700,
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                                }}>
+                                  👑 ปกหลัก
+                                </span>
+                              )}
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                background: 'rgba(15, 23, 42, 0.9)',
+                                padding: '4px',
+                                gap: '4px',
+                              }}>
+                                {!isCover ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetCoverImage(imgUrl)}
+                                    style={{
+                                      flex: 1,
+                                      background: 'transparent',
+                                      border: 'none',
+                                      color: 'var(--primary)',
+                                      fontSize: '0.72rem',
+                                      cursor: 'pointer',
+                                      fontWeight: 600,
+                                      padding: '2px',
+                                    }}
+                                    title="เลือกเป็นรูปปกหลัก"
+                                  >
+                                    ตั้งเป็นปก
+                                  </button>
+                                ) : (
+                                  <span style={{ flex: 1, fontSize: '0.72rem', color: '#10B981', textAlign: 'center', fontWeight: 600 }}>
+                                    รูปปกหลัก
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveProjectImage(idx)}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#EF4444',
+                                    fontSize: '0.78rem',
+                                    cursor: 'pointer',
+                                    padding: '2px 6px',
+                                  }}
+                                  title="ลบรูปนี้"
+                                >
+                                  <i className="fa-solid fa-trash-can"></i>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* File Upload Zone */}
                 {projectImageMode === 'upload' ? (
                   <div className="dash-image-upload-zone" key="upload-zone-wrapper">
                     <input
@@ -2449,96 +2626,73 @@ export default function DashboardView() {
                       type="file"
                       ref={projectFileInputRef}
                       accept="image/*"
+                      multiple
                       style={{ display: 'none' }}
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleProjectImageUpload(file);
+                        if (e.target.files && e.target.files.length > 0) {
+                          handleProjectImagesUpload(e.target.files);
+                        }
                         e.target.value = '';
                       }}
                     />
 
-                    {editingProject.image ? (
-                      <div className="dash-image-preview-box">
-                        <img
-                          src={editingProject.image}
-                          alt="Project Preview"
-                          className="dash-image-preview-img"
-                        />
-                        <div className="dash-image-preview-overlay">
-                          <button
-                            type="button"
-                            className="dash-image-btn-change"
-                            onClick={() => projectFileInputRef.current?.click()}
-                            disabled={isUploadingProjectImg}
-                          >
-                            <i className="fa-solid fa-camera"></i>
-                            <span>{isUploadingProjectImg ? 'กำลังอัปโหลด...' : 'เปลี่ยนรูป'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            className="dash-image-btn-remove"
-                            onClick={() => setEditingProject({ ...editingProject, image: '' })}
-                          >
-                            <i className="fa-solid fa-trash-can"></i>
-                            <span>ลบ</span>
-                          </button>
-                        </div>
+                    <div
+                      className={`dash-image-dropzone ${isDraggingProjectImg ? 'dragover' : ''}`}
+                      onClick={() => projectFileInputRef.current?.click()}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProjectImg(true);
+                      }}
+                      onDragLeave={() => setIsDraggingProjectImg(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProjectImg(false);
+                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                          handleProjectImagesUpload(e.dataTransfer.files);
+                        }
+                      }}
+                      style={{ padding: '20px 16px' }}
+                    >
+                      <div className="dash-image-dropzone-icon" style={{ width: '42px', height: '42px', fontSize: '1.2rem' }}>
+                        {isUploadingProjectImg ? (
+                          <i className="fa-solid fa-spinner fa-spin"></i>
+                        ) : (
+                          <i className="fa-solid fa-cloud-arrow-up"></i>
+                        )}
                       </div>
-                    ) : (
-                      <div
-                        className={`dash-image-dropzone ${isDraggingProjectImg ? 'dragover' : ''}`}
-                        onClick={() => projectFileInputRef.current?.click()}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          setIsDraggingProjectImg(true);
-                        }}
-                        onDragLeave={() => setIsDraggingProjectImg(false)}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          setIsDraggingProjectImg(false);
-                          const file = e.dataTransfer.files?.[0];
-                          if (file) handleProjectImageUpload(file);
-                        }}
-                      >
-                        <div className="dash-image-dropzone-icon">
-                          {isUploadingProjectImg ? (
-                            <i className="fa-solid fa-spinner fa-spin"></i>
-                          ) : (
-                            <i className="fa-solid fa-cloud-arrow-up"></i>
-                          )}
-                        </div>
-                        <span className="dash-image-dropzone-title">
-                          {isUploadingProjectImg ? 'กำลังประมวลผลรูปภาพ...' : 'คลิกหรือลากไฟล์ภาพมาวางที่นี่'}
-                        </span>
-                        <span className="dash-image-dropzone-sub">
-                          รองรับ JPG, PNG, WebP จากคอมพิวเตอร์ หรือเลือกจากคลังภาพ/กล้องมือถือ
-                        </span>
-                      </div>
-                    )}
+                      <span className="dash-image-dropzone-title" style={{ fontSize: '0.9rem' }}>
+                        {isUploadingProjectImg ? 'กำลังประมวลผลและอัปโหลดรูปภาพ...' : '➕ คลิกหรือลากไฟล์ภาพมาวางที่นี่ (เลือกเพิ่มพร้อมกันหลายรูปได้)'}
+                      </span>
+                      <span className="dash-image-dropzone-sub">
+                        รองรับ JPG, PNG, WebP จากคอมพิวเตอร์ หรือเลือกจากคลังภาพ/กล้องมือถือ
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   <div key="url-input-wrapper">
-                    <input
-                      key="project-url-text-input"
-                      type="text"
-                      value={editingProject.image || ''}
-                      onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
-                      placeholder="/assets/images/project_example.jpg หรือ https://..."
-                      required
-                    />
-                    {editingProject.image && (
-                      <div className="dash-image-preview-box" style={{ marginTop: '10px', maxHeight: '160px' }}>
-                        <img
-                          src={editingProject.image}
-                          alt="Preview"
-                          className="dash-image-preview-img"
-                          style={{ maxHeight: '160px' }}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        key="project-url-text-input"
+                        type="text"
+                        id="newImageUrlInput"
+                        placeholder="/assets/images/project_example.jpg หรือ https://..."
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => {
+                          const input = document.getElementById('newImageUrlInput') as HTMLInputElement;
+                          if (input && input.value) {
+                            handleAddImageUrlInput(input.value);
+                            input.value = '';
+                          }
+                        }}
+                        style={{ whiteSpace: 'nowrap', padding: '0 16px' }}
+                      >
+                        <i className="fa-solid fa-plus"></i> เพิ่มรูปภาพ
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

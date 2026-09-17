@@ -8,6 +8,7 @@ export interface ProjectItem {
   excerpt: string;
   details?: string;
   image: string;
+  images?: string[];
   tags: string[];
   client?: string;
   duration?: string;
