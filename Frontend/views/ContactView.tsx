@@ -27,6 +27,7 @@ export default function ContactView() {
     const estType = sessionStorage.getItem('nexus_est_type');
     const estPrice = sessionStorage.getItem('nexus_est_price');
     const estWeeks = sessionStorage.getItem('nexus_est_weeks');
+    const estFeaturesRaw = sessionStorage.getItem('nexus_est_features');
 
     if (estType && estPrice) {
       const typeLabels: Record<string, string> = {
@@ -35,8 +36,30 @@ export default function ContactView() {
         ecommerce: 'E-Commerce & Booking',
         corporate: 'Corporate Showcase Website',
       };
-      setProjectScope(typeLabels[estType] || 'Custom Web Application');
-      setProjectDetails(`[สเปกจากระบบประเมินราคา]\n- ประเภท: ${typeLabels[estType] || estType}\n- ราคาประเมิน: ${parseInt(estPrice).toLocaleString()} บาท\n- ระยะเวลา: ${estWeeks} สัปดาห์`);
+
+      const featureLabels: Record<string, string> = {
+        auth: 'ระบบสมาชิก & RBAC',
+        payment: 'ชำระเงินอัตโนมัติ',
+        notification: 'ระบบแจ้งเตือน LINE/Email',
+        export: 'ส่งออก PDF/Excel',
+        ai: 'AI Copilot & Chatbot',
+        multilang: 'หลายภาษา (TH/EN)',
+      };
+
+      let featureText = 'ไม่มี';
+      if (estFeaturesRaw) {
+        try {
+          const parsed = JSON.parse(estFeaturesRaw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            featureText = parsed.map((f: string) => featureLabels[f] || f).join(', ');
+          }
+        } catch {}
+      }
+
+      const formattedPrice = `${parseInt(estPrice).toLocaleString()} บาท`;
+      setProjectScope(typeLabels[estType] || estType);
+      setBudgetRange(formattedPrice);
+      setProjectDetails(`[สเปกประเมินราคาจากระบบ]\n- ประเภทโปรเจกต์: ${typeLabels[estType] || estType}\n- งบประเมินเบื้องต้น: ${formattedPrice}\n- กรอบเวลาพัฒนา: ${estWeeks} สัปดาห์\n- ฟังก์ชันเสริมที่เลือก: ${featureText}`);
     }
   }, []);
 
@@ -58,6 +81,12 @@ export default function ContactView() {
       projectType: projectScope,
       budget: budgetRange,
       message: projectDetails,
+      estimateDetails: {
+        type: sessionStorage.getItem('nexus_est_type'),
+        price: sessionStorage.getItem('nexus_est_price'),
+        weeks: sessionStorage.getItem('nexus_est_weeks'),
+        features: sessionStorage.getItem('nexus_est_features'),
+      }
     };
 
     try {
@@ -69,32 +98,23 @@ export default function ContactView() {
       const data = await res.json();
 
       if (data.success && data.lead) {
-        try {
-          const existing = JSON.parse(localStorage.getItem('nexus_dash_leads') || '[]');
-          existing.unshift(data.lead);
-          localStorage.setItem('nexus_dash_leads', JSON.stringify(existing));
-        } catch {}
+        // Clear session storage so subsequent forms start clean
+        sessionStorage.removeItem('nexus_est_type');
+        sessionStorage.removeItem('nexus_est_price');
+        sessionStorage.removeItem('nexus_est_weeks');
+        sessionStorage.removeItem('nexus_est_features');
+
+        triggerToast('ส่งข้อมูลสำเร็จ! ข้อมูลบันทึกเข้าสู่ระบบแอดมินเรียบร้อยแล้ว');
+        setName('');
+        setPhone('');
+        setEmail('');
+        setProjectDetails('');
+      } else {
+        throw new Error(data.error || 'Failed to save lead');
       }
-      triggerToast('ส่งข้อมูลสำเร็จ! ข้อมูลบันทึกเข้าสู่ระบบเรียบร้อยแล้ว');
-      setName('');
-      setPhone('');
-      setEmail('');
-      setProjectDetails('');
     } catch (err) {
       console.error('[ContactView.handleSubmit] Error:', err);
-      // Fallback
-      const fallbackLead = {
-        id: 'lead-' + Date.now(),
-        ...leadPayload,
-        status: 'new' as const,
-        date: new Date().toLocaleDateString('th-TH'),
-      };
-      try {
-        const existing = JSON.parse(localStorage.getItem('nexus_dash_leads') || '[]');
-        existing.unshift(fallbackLead);
-        localStorage.setItem('nexus_dash_leads', JSON.stringify(existing));
-      } catch {}
-      triggerToast('ส่งข้อมูลสำเร็จ!');
+      triggerToast('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
     } finally {
       setSubmitting(false);
     }

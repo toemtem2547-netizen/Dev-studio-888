@@ -56,12 +56,14 @@ export interface LeadItem {
   phone?: string;
   projectType: string;
   budget: string;
-  timeline: string;
+  message?: string;
+  timeline?: string;
   features?: string[];
   details?: string;
-  status: 'new' | 'contacted' | 'proposal' | 'won' | 'closed';
+  status: 'new' | 'contacted' | 'proposal' | 'won' | 'closed' | string;
   date: string;
   estimatedPrice?: string;
+  estimateDetails?: any;
 }
 
 export interface CustomProjectType {

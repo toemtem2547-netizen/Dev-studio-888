@@ -144,6 +144,8 @@ export default function DashboardView() {
 
   // Leads & Messages
   const [leads, setLeads] = useState<LeadItem[]>([]);
+  const [selectedLeadModal, setSelectedLeadModal] = useState<LeadItem | null>(null);
+  const [isRefreshingLeads, setIsRefreshingLeads] = useState(false);
   const [portfolioCategoryFilter, setPortfolioCategoryFilter] = useState('all');
   const [portfolioSearch, setPortfolioSearch] = useState('');
 
@@ -179,6 +181,12 @@ export default function DashboardView() {
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(''), 3000);
+  };
+
+  const handleCopy = (text: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    triggerToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
   };
 
   const handleProjectImageUpload = async (file: File) => {
@@ -395,29 +403,6 @@ export default function DashboardView() {
       return;
     }
 
-    // Load live leads from API
-    const loadLeadsFromApi = async () => {
-      try {
-        const res = await fetch('/api/leads');
-        const data = await res.json();
-        if (data.success && Array.isArray(data.leads)) {
-          setLeads(data.leads);
-          localStorage.setItem('nexus_dash_leads', JSON.stringify(data.leads));
-        } else {
-          const savedLeads = localStorage.getItem('nexus_dash_leads');
-          if (savedLeads) setLeads(JSON.parse(savedLeads));
-        }
-      } catch (e) {
-        console.error('Failed to load leads from API, fallback to localStorage:', e);
-        try {
-          const savedLeads = localStorage.getItem('nexus_dash_leads');
-          if (savedLeads) setLeads(JSON.parse(savedLeads));
-        } catch {}
-      }
-    };
-
-    loadLeadsFromApi();
-
     setSiteForm(site);
     setContactForm(contact);
     setSocialForm(social);
@@ -428,6 +413,50 @@ export default function DashboardView() {
       setFontBody(themeSettings.fontBody);
     }
   }, [site, contact, social, themeSettings, router]);
+
+  // Load live leads from API with auto-polling & manual refresh
+  const loadLeadsFromApi = async () => {
+    setIsRefreshingLeads(true);
+    try {
+      const res = await fetch('/api/leads');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.leads)) {
+        setLeads(data.leads);
+        localStorage.setItem('nexus_dash_leads', JSON.stringify(data.leads));
+      }
+    } catch (e) {
+      console.error('Failed to load leads from API:', e);
+    } finally {
+      setIsRefreshingLeads(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLeadsFromApi();
+    const interval = setInterval(loadLeadsFromApi, 5000); // 5s Real-time polling
+    return () => clearInterval(interval);
+  }, [activeSection]);
+
+  const handleUpdateLeadStatus = async (id: string, status: 'new' | 'contacted' | 'closed') => {
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json();
+      if (data.success && data.lead) {
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+        if (selectedLeadModal && selectedLeadModal.id === id) {
+          setSelectedLeadModal(prev => prev ? { ...prev, status } : null);
+        }
+        triggerToast('อัปเดตสถานะข้อความเรียบร้อยแล้ว ✨');
+      }
+    } catch (err) {
+      console.error('[handleUpdateLeadStatus] Error:', err);
+      triggerToast('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+    }
+  };
 
   // Sync estimatorForm whenever context estimatorConfig changes (initial load from DB/localStorage)
   useEffect(() => {
@@ -985,8 +1014,19 @@ export default function DashboardView() {
             <section className="dash-section active" id="sec-messages">
               <div className="dash-section-header">
                 <div>
-                  <h2><i className="fa-regular fa-envelope"></i> ข้อความจากลูกค้า (Messages &amp; Leads)</h2>
-                  <p>รายการติดต่อและขอใบเสนอราคาจากหน้าเว็บไซต์</p>
+                  <h2><i className="fa-regular fa-envelope"></i> ข้อความและใบเสนอราคา (Messages &amp; Leads)</h2>
+                  <p>รายการติดต่อและขอใบเสนอราคาจากหน้าเว็บไซต์ (ซิงค์ตรงกับฐานข้อมูล Real-time)</p>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={loadLeadsFromApi}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <i className={`fa-solid fa-arrows-rotate ${isRefreshingLeads ? 'fa-spin' : ''}`}></i>
+                    <span>รีเฟรชข้อมูล</span>
+                  </button>
                 </div>
               </div>
 
@@ -995,6 +1035,7 @@ export default function DashboardView() {
                   <table className="dash-table" id="messagesTable">
                     <thead>
                       <tr>
+                        <th>สถานะ</th>
                         <th>วันที่</th>
                         <th>ชื่อผู้ติดต่อ</th>
                         <th>เบอร์โทร</th>
@@ -1007,30 +1048,55 @@ export default function DashboardView() {
                     <tbody>
                       {leads.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="dash-table-empty">
+                          <td colSpan={8} className="dash-table-empty">
                             ยังไม่มีข้อความส่งเข้ามา
                           </td>
                         </tr>
                       ) : (
-                        leads.map(l => (
-                          <tr key={l.id}>
-                            <td>{l.date}</td>
-                            <td><strong>{l.name}</strong></td>
-                            <td>{l.phone || '-'}</td>
-                            <td>{l.email}</td>
-                            <td>{l.projectType}</td>
-                            <td><strong style={{ color: 'var(--primary)' }}>{l.budget}</strong></td>
-                            <td>
-                              <button
-                                className="dash-btn-icon-danger"
-                                title="ลบข้อความ"
-                                onClick={() => handleDeleteLead(l.id)}
-                              >
-                                <i className="fa-solid fa-trash"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        ))
+                        leads.map(l => {
+                          const statusStyles: Record<string, { label: string; bg: string; color: string }> = {
+                            new: { label: 'ใหม่', bg: 'rgba(16, 185, 129, 0.12)', color: '#10B981' },
+                            contacted: { label: 'ติดต่อแล้ว', bg: 'rgba(59, 130, 246, 0.12)', color: '#3B82F6' },
+                            closed: { label: 'ปิดการขาย', bg: 'rgba(100, 116, 139, 0.12)', color: '#64748B' },
+                          };
+                          const st = statusStyles[l.status || 'new'] || statusStyles.new;
+                          return (
+                            <tr key={l.id}>
+                              <td>
+                                <span className="dash-badge" style={{ background: st.bg, color: st.color, border: `1px solid ${st.color}33`, fontWeight: 600 }}>
+                                  {st.label}
+                                </span>
+                              </td>
+                              <td>{l.date}</td>
+                              <td><strong>{l.name}</strong></td>
+                              <td>{l.phone || '-'}</td>
+                              <td>{l.email}</td>
+                              <td>{l.projectType}</td>
+                              <td><strong style={{ color: 'var(--primary)' }}>{l.budget}</strong></td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                  <button
+                                    type="button"
+                                    className="dash-btn-icon"
+                                    title="อ่านรายละเอียดข้อความ"
+                                    onClick={() => setSelectedLeadModal(l)}
+                                    style={{ color: '#3B82F6', background: 'rgba(59, 130, 246, 0.1)', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                  >
+                                    <i className="fa-solid fa-eye"></i> อ่านสเปก
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="dash-btn-icon-danger"
+                                    title="ลบข้อความ"
+                                    onClick={() => handleDeleteLead(l.id)}
+                                  >
+                                    <i className="fa-solid fa-trash"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
@@ -2552,6 +2618,146 @@ export default function DashboardView() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============ LEAD DETAIL MODAL ============ */}
+      {selectedLeadModal && (
+        <div className="dash-modal-backdrop active" onClick={() => setSelectedLeadModal(null)}>
+          <div className="dash-modal" style={{ maxWidth: '680px' }} onClick={e => e.stopPropagation()}>
+            <div className="dash-modal-header" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <i className="fa-solid fa-envelope-open-text" style={{ color: 'var(--primary)' }}></i>
+                รายละเอียดการติดต่อจาก {selectedLeadModal.name}
+              </h3>
+              <button className="dash-modal-close" onClick={() => setSelectedLeadModal(null)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="dash-modal-body" style={{ padding: '24px' }}>
+              {/* Info Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginBottom: '20px' }}>
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>ชื่อผู้ติดต่อ / บริษัท</span>
+                  <strong style={{ fontSize: '1rem', color: 'var(--text-heading)' }}>{selectedLeadModal.name}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>วันที่ส่งข้อมูล</span>
+                  <strong style={{ fontSize: '0.95rem', color: 'var(--text-heading)' }}>{selectedLeadModal.date}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>เบอร์โทรศัพท์</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                    <strong style={{ fontSize: '0.95rem', color: 'var(--text-heading)' }}>{selectedLeadModal.phone || 'ไม่ระบุ'}</strong>
+                    {selectedLeadModal.phone && (
+                      <button
+                        type="button"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '2px 6px' }}
+                        onClick={() => handleCopy(selectedLeadModal.phone!)}
+                        title="คัดลอกเบอร์"
+                      >
+                        <i className="fa-regular fa-copy"></i>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>อีเมล</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                    <strong style={{ fontSize: '0.95rem', color: 'var(--text-heading)' }}>{selectedLeadModal.email}</strong>
+                    <button
+                      type="button"
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '2px 6px' }}
+                      onClick={() => handleCopy(selectedLeadModal.email)}
+                      title="คัดลอกอีเมล"
+                    >
+                      <i className="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>ประเภทโปรเจกต์</span>
+                  <strong style={{ fontSize: '0.95rem', color: 'var(--primary)' }}>{selectedLeadModal.projectType}</strong>
+                </div>
+
+                <div style={{ background: 'var(--bg-surface)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', display: 'block' }}>งบประมาณที่ประเมิน</span>
+                  <strong style={{ fontSize: '1.05rem', color: '#10B981' }}>{selectedLeadModal.budget}</strong>
+                </div>
+              </div>
+
+              {/* Status Switcher */}
+              <div style={{ marginBottom: '20px', background: 'var(--bg-surface)', padding: '14px 18px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+                <label style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: '8px', display: 'block' }}>
+                  <i className="fa-solid fa-list-check" style={{ marginRight: '6px', color: 'var(--primary)' }}></i>
+                  อัปเดตสถานะการติดตามลูกค้า:
+                </label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {[
+                    { id: 'new', label: 'ใหม่ (New)', bg: '#10B981' },
+                    { id: 'contacted', label: 'ติดต่อแล้ว (Contacted)', bg: '#3B82F6' },
+                    { id: 'closed', label: 'ปิดการขาย (Closed)', bg: '#64748B' },
+                  ].map(st => {
+                    const isSelected = selectedLeadModal.status === st.id;
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: isSelected ? `2px solid ${st.bg}` : '1px solid var(--border-glass)',
+                          background: isSelected ? `${st.bg}22` : 'var(--bg-card)',
+                          color: isSelected ? st.bg : 'var(--text-muted)',
+                          fontWeight: isSelected ? 700 : 500,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onClick={() => handleUpdateLeadStatus(selectedLeadModal.id, st.id as 'new' | 'contacted' | 'closed')}
+                      >
+                        {isSelected && <i className="fa-solid fa-check" style={{ marginRight: '6px' }}></i>}
+                        {st.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Message / Details Content Box */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: '8px', display: 'block' }}>
+                  <i className="fa-regular fa-comment-dots" style={{ marginRight: '6px', color: 'var(--primary)' }}></i>
+                  ข้อความและสเปกที่ส่งเข้ามา:
+                </label>
+                <div style={{
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '10px',
+                  padding: '16px',
+                  whiteSpace: 'pre-wrap',
+                  fontSize: '0.9rem',
+                  lineHeight: '1.6',
+                  color: 'var(--text-main)',
+                  maxHeight: '220px',
+                  overflowY: 'auto'
+                }}>
+                  {selectedLeadModal.message || 'ไม่มีข้อความเพิ่มเติม'}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setSelectedLeadModal(null)}>
+                  ปิดหน้าต่าง
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
