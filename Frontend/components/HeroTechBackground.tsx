@@ -151,8 +151,21 @@ export const HeroTechBackground: React.FC = () => {
       ctx.clearRect(0, 0, width, height);
 
       const isDark = theme === 'dark';
-      const primaryHex = themeSettings?.primaryColor || '#2563EB';
-      const secondaryHex = themeSettings?.secondaryColor || '#7C3AED';
+      const primaryHex = themeSettings?.primaryColor || (typeof document !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() : '') || '#2563EB';
+      const secondaryHex = themeSettings?.secondaryColor || (typeof document !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim() : '') || '#7C3AED';
+
+      const hexToRgbStr = (hex: string) => {
+        const clean = hex.replace('#', '').trim();
+        let r = 37, g = 99, b = 235;
+        if (clean.length === 6) {
+          r = parseInt(clean.substring(0, 2), 16);
+          g = parseInt(clean.substring(2, 4), 16);
+          b = parseInt(clean.substring(4, 6), 16);
+        }
+        return `${r}, ${g}, ${b}`;
+      };
+
+      const primaryRgbStr = hexToRgbStr(primaryHex);
 
       // Draw constellation connecting lines
       ctx.lineWidth = 0.65;
@@ -164,7 +177,7 @@ export const HeroTechBackground: React.FC = () => {
 
           if (dist < 120) {
             const lineAlpha = (1 - dist / 120) * (isDark ? 0.14 : 0.08);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
+            ctx.strokeStyle = `rgba(${primaryRgbStr}, ${lineAlpha})`;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -345,7 +358,7 @@ export const HeroTechBackground: React.FC = () => {
           width: '580px',
           height: '580px',
           borderRadius: '50%',
-          background: `radial-gradient(circle, ${themeSettings?.primaryColor || '#2563EB'}22 0%, transparent 70%)`,
+          background: 'radial-gradient(circle, rgba(var(--primary-rgb), 0.14) 0%, transparent 70%)',
           filter: 'blur(80px)',
           animation: 'ambientFloat1 10s ease-in-out infinite alternate',
           pointerEvents: 'none',
@@ -360,7 +373,7 @@ export const HeroTechBackground: React.FC = () => {
           width: '520px',
           height: '520px',
           borderRadius: '50%',
-          background: `radial-gradient(circle, ${themeSettings?.secondaryColor || '#7C3AED'}1c 0%, transparent 70%)`,
+          background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)',
           filter: 'blur(90px)',
           animation: 'ambientFloat2 12s ease-in-out infinite alternate',
           pointerEvents: 'none',

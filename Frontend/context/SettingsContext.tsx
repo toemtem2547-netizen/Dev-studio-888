@@ -159,7 +159,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [contact, setContact] = useState<ContactSettings>(defaultContactSettings);
   const [social, setSocial] = useState<SocialSettings>(defaultSocialSettings);
   const [projects, setProjects] = useState<ProjectItem[]>(defaultProjects);
-  const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedTheme = localStorage.getItem('nexus_dash_settings_theme');
+        if (savedTheme) {
+          return { ...defaultThemeSettings, ...JSON.parse(savedTheme) };
+        }
+      } catch (e) {}
+    }
+    return defaultThemeSettings;
+  });
   const [estimatorConfig, setEstimatorConfig] = useState<EstimatorConfig>(DEFAULT_ESTIMATOR_CONFIG);
 
 function hexToRgb(hex: string): string {
