@@ -2673,8 +2673,8 @@ export default function DashboardView() {
 
       {/* ============ LEAD DETAIL MODAL ============ */}
       {selectedLeadModal && (
-        <div className="dash-modal-backdrop active" onClick={() => setSelectedLeadModal(null)}>
-          <div className="dash-modal" style={{ maxWidth: '680px' }} onClick={e => e.stopPropagation()}>
+        <div className="dash-modal-overlay active" onClick={() => setSelectedLeadModal(null)}>
+          <div className="dash-modal" style={{ maxWidth: '680px', margin: 'auto' }} onClick={e => e.stopPropagation()}>
             <div className="dash-modal-header" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '16px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <i className="fa-solid fa-envelope-open-text" style={{ color: 'var(--primary)' }}></i>
@@ -2813,11 +2813,12 @@ export default function DashboardView() {
 
       {/* ============ CUSTOM ULTRA-BEAUTIFUL CONFIRMATION MODAL ============ */}
       {confirmModal.isOpen && (
-        <div className="dash-modal-backdrop active" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}>
+        <div className="dash-modal-overlay active" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}>
           <div
             className="dash-modal"
             style={{
               maxWidth: '440px',
+              margin: 'auto',
               textAlign: 'center',
               padding: '32px 28px',
               borderRadius: '20px',
