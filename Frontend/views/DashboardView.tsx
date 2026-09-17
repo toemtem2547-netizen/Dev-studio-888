@@ -189,6 +189,43 @@ export default function DashboardView() {
     triggerToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
   };
 
+  // Ultra-Beautiful Confirmation Modal State (Replaces native browser confirm())
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    variant?: 'danger' | 'warning' | 'primary';
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'ยืนยัน',
+    variant: 'danger',
+    onConfirm: () => {},
+  });
+
+  const requestConfirm = (
+    title: string,
+    message: string,
+    onConfirmAction: () => void,
+    confirmText = 'ยืนยันการลบ',
+    variant: 'danger' | 'warning' | 'primary' = 'danger'
+  ) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      confirmText,
+      variant,
+      onConfirm: () => {
+        onConfirmAction();
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
   const handleProjectImageUpload = async (file: File) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -552,17 +589,23 @@ export default function DashboardView() {
   };
 
   const handleDeleteLead = async (id: string) => {
-    if (confirm('ต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
-      try {
-        await fetch(`/api/leads?id=${id}`, { method: 'DELETE' });
-      } catch (err) {
-        console.error('[handleDeleteLead] Error:', err);
-      }
-      const updated = leads.filter(l => l.id !== id);
-      setLeads(updated);
-      localStorage.setItem('nexus_dash_leads', JSON.stringify(updated));
-      triggerToast('ลบข้อความเรียบร้อยแล้ว');
-    }
+    requestConfirm(
+      'ลบข้อความลูกค้า',
+      'คุณต้องการลบข้อมูลการติดต่อนี้ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้',
+      async () => {
+        try {
+          await fetch(`/api/leads?id=${id}`, { method: 'DELETE' });
+        } catch (err) {
+          console.error('[handleDeleteLead] Error:', err);
+        }
+        const updated = leads.filter(l => l.id !== id);
+        setLeads(updated);
+        localStorage.setItem('nexus_dash_leads', JSON.stringify(updated));
+        triggerToast('ลบข้อความเรียบร้อยแล้ว ✨');
+      },
+      'ยืนยันการลบข้อความ',
+      'danger'
+    );
   };
 
   const handleOpenAddProject = () => {
@@ -603,12 +646,18 @@ export default function DashboardView() {
     triggerToast('บันทึกข้อมูลผลงานเรียบร้อยแล้ว');
   };
 
-  const handleDeleteProject = (id: string) => {
-    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผลงานนี้ออกจาก Portfolio?')) {
-      const updated = projects.filter(p => p.id !== id);
-      saveProjects(updated);
-      triggerToast('ลบผลงานเรียบร้อยแล้ว');
-    }
+  const handleDeleteProject = (id: string, title?: string) => {
+    requestConfirm(
+      'ลบผลงาน Portfolio',
+      `คุณแน่ใจหรือไม่ว่าต้องการลบผลงาน "${title || ''}" ออกจาก Portfolio?`,
+      () => {
+        const updated = projects.filter(p => p.id !== id);
+        saveProjects(updated);
+        triggerToast('ลบผลงานเรียบร้อยแล้ว');
+      },
+      'ยืนยันการลบผลงาน',
+      'danger'
+    );
   };
 
   const filteredProjects = projects.filter(p => {
@@ -997,7 +1046,7 @@ export default function DashboardView() {
                         <button
                           type="button"
                           className="dash-btn-delete"
-                          onClick={() => handleDeleteProject(proj.id)}
+                          onClick={() => handleDeleteProject(proj.id, proj.title)}
                         >
                           <i className="fa-solid fa-trash"></i> ลบ
                         </button>
@@ -2757,6 +2806,104 @@ export default function DashboardView() {
                   ปิดหน้าต่าง
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ CUSTOM ULTRA-BEAUTIFUL CONFIRMATION MODAL ============ */}
+      {confirmModal.isOpen && (
+        <div className="dash-modal-backdrop active" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}>
+          <div
+            className="dash-modal"
+            style={{
+              maxWidth: '440px',
+              textAlign: 'center',
+              padding: '32px 28px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.98) 100%)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 40px rgba(239, 68, 68, 0.18)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Icon Badge */}
+            <div
+              style={{
+                width: '68px',
+                height: '68px',
+                borderRadius: '50%',
+                background: confirmModal.variant === 'danger' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                border: confirmModal.variant === 'danger' ? '1.5px solid rgba(239, 68, 68, 0.3)' : '1.5px solid rgba(245, 158, 11, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                boxShadow: confirmModal.variant === 'danger' ? '0 0 25px rgba(239, 68, 68, 0.25)' : '0 0 25px rgba(245, 158, 11, 0.25)',
+              }}
+            >
+              <i
+                className={`fa-solid ${confirmModal.variant === 'danger' ? 'fa-trash-can' : 'fa-triangle-exclamation'}`}
+                style={{
+                  fontSize: '1.8rem',
+                  color: confirmModal.variant === 'danger' ? '#EF4444' : '#F59E0B',
+                }}
+              ></i>
+            </div>
+
+            {/* Modal Title & Message */}
+            <h3 style={{ margin: '0 0 10px', fontSize: '1.35rem', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.01em' }}>
+              {confirmModal.title}
+            </h3>
+            <p style={{ margin: '0 0 26px', fontSize: '0.92rem', color: '#94A3B8', lineHeight: '1.55' }}>
+              {confirmModal.message}
+            </p>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                style={{
+                  flex: 1,
+                  padding: '11px 20px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
+                  color: '#F1F5F9',
+                  fontWeight: 600,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                style={{
+                  flex: 1,
+                  padding: '11px 20px',
+                  borderRadius: '12px',
+                  background: confirmModal.variant === 'danger'
+                    ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)'
+                    : 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  boxShadow: confirmModal.variant === 'danger'
+                    ? '0 4px 18px rgba(239, 68, 68, 0.45)'
+                    : '0 4px 18px rgba(37, 99, 235, 0.45)',
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={() => confirmModal.onConfirm()}
+              >
+                {confirmModal.confirmText || 'ยืนยัน'}
+              </button>
             </div>
           </div>
         </div>
