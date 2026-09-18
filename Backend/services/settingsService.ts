@@ -1,6 +1,6 @@
 import prisma from '../db';
-import { SiteSettings, ContactSettings, SocialSettings } from '../models';
-import { INITIAL_SITE_SETTINGS, INITIAL_CONTACT_SETTINGS, INITIAL_SOCIAL_SETTINGS } from '../data/initialData';
+import { SiteSettings, ContactSettings, SocialSettings, ThemeSettings } from '../models';
+import { INITIAL_SITE_SETTINGS, INITIAL_CONTACT_SETTINGS, INITIAL_SOCIAL_SETTINGS, INITIAL_THEME_SETTINGS } from '../data/initialData';
 import { DEFAULT_LUCKY_CONFIG } from '../../types';
 
 export class SettingsService {
@@ -229,6 +229,91 @@ export class SettingsService {
     } catch (err) {
       console.error('[SettingsService.updateLuckyConfig] Error:', err);
       return config;
+    }
+  }
+
+  static async getThemeSettings(): Promise<ThemeSettings> {
+    try {
+      const setting = await this.getOrCreateSetting();
+      if (!setting) return INITIAL_THEME_SETTINGS;
+
+      let fontHeading = INITIAL_THEME_SETTINGS.fontHeading;
+      let fontBody = INITIAL_THEME_SETTINGS.fontBody;
+      let presetId = INITIAL_THEME_SETTINGS.presetId || 'cyber-nexus';
+
+      if (setting.themePreset) {
+        if (setting.themePreset.startsWith('{')) {
+          try {
+            const parsed = JSON.parse(setting.themePreset);
+            if (parsed.fontHeading) fontHeading = parsed.fontHeading;
+            if (parsed.fontBody) fontBody = parsed.fontBody;
+            if (parsed.presetId) presetId = parsed.presetId;
+          } catch (_) {}
+        } else {
+          presetId = setting.themePreset;
+        }
+      }
+
+      return {
+        primaryColor: setting.themePrimary || INITIAL_THEME_SETTINGS.primaryColor,
+        secondaryColor: setting.themeSecondary || INITIAL_THEME_SETTINGS.secondaryColor,
+        fontHeading,
+        fontBody,
+        presetId,
+      };
+    } catch (err) {
+      console.error('[SettingsService.getThemeSettings] Error:', err);
+      return INITIAL_THEME_SETTINGS;
+    }
+  }
+
+  static async updateThemeSettings(data: Partial<ThemeSettings>): Promise<ThemeSettings> {
+    try {
+      const current = await this.getThemeSettings();
+      const nextPrimary = data.primaryColor || current.primaryColor;
+      const nextSecondary = data.secondaryColor || current.secondaryColor;
+      const nextHeading = data.fontHeading || current.fontHeading;
+      const nextBody = data.fontBody || current.fontBody;
+      const nextPresetId = data.presetId || current.presetId || 'custom';
+
+      const presetDataStr = JSON.stringify({
+        presetId: nextPresetId,
+        fontHeading: nextHeading,
+        fontBody: nextBody,
+      });
+
+      const updated = await prisma.setting.upsert({
+        where: { id: 'site-config' },
+        update: {
+          themePrimary: nextPrimary,
+          themeSecondary: nextSecondary,
+          themePreset: presetDataStr,
+        },
+        create: {
+          id: 'site-config',
+          siteName: INITIAL_SITE_SETTINGS.title,
+          themePrimary: nextPrimary,
+          themeSecondary: nextSecondary,
+          themePreset: presetDataStr,
+        },
+      });
+
+      return {
+        primaryColor: updated.themePrimary,
+        secondaryColor: updated.themeSecondary,
+        fontHeading: nextHeading,
+        fontBody: nextBody,
+        presetId: nextPresetId,
+      };
+    } catch (err) {
+      console.error('[SettingsService.updateThemeSettings] Error:', err);
+      return {
+        primaryColor: data.primaryColor || INITIAL_THEME_SETTINGS.primaryColor,
+        secondaryColor: data.secondaryColor || INITIAL_THEME_SETTINGS.secondaryColor,
+        fontHeading: data.fontHeading || INITIAL_THEME_SETTINGS.fontHeading,
+        fontBody: data.fontBody || INITIAL_THEME_SETTINGS.fontBody,
+        presetId: data.presetId || INITIAL_THEME_SETTINGS.presetId,
+      };
     }
   }
 }

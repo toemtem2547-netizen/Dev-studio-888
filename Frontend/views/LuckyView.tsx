@@ -15,6 +15,11 @@ const CARD_WIDTH_DESKTOP = 200;
 const CARD_MARGIN_DESKTOP = 12;
 const TOTAL_REEL_ITEMS = 75;
 
+// Pre-fill initial reel items so cards are immediately visible on F5 refresh with 0 lag/flash
+const INITIAL_REEL_ITEMS: PerkPrize[] = Array.from({ length: TOTAL_REEL_ITEMS }, (_, i) =>
+  DEFAULT_LUCKY_CONFIG.prizes[i % DEFAULT_LUCKY_CONFIG.prizes.length]
+);
+
 export default function LuckyView() {
   const router = useRouter();
   const { luckyConfig: ctxConfig } = useSettings();
@@ -26,9 +31,12 @@ export default function LuckyView() {
     margin: CARD_MARGIN_DESKTOP,
   });
 
-  const [reelItems, setReelItems] = useState<PerkPrize[]>([]);
+  const [reelItems, setReelItems] = useState<PerkPrize[]>(INITIAL_REEL_ITEMS);
   const [spinning, setSpinning] = useState<boolean>(false);
-  const [offset, setOffset] = useState<number>(0);
+  const [offset, setOffset] = useState<number>(() => {
+    const pitch = CARD_WIDTH_DESKTOP + (CARD_MARGIN_DESKTOP * 2);
+    return -(4 * pitch + pitch / 2 - 700);
+  });
   const [transitionStyle, setTransitionStyle] = useState<string>('none');
   const [targetIndex, setTargetIndex] = useState<number>(4);
   const [winningPrize, setWinningPrize] = useState<PerkPrize | null>(null);
@@ -36,7 +44,6 @@ export default function LuckyView() {
   const [copied, setCopied] = useState<boolean>(false);
   const [spinsLeft, setSpinsLeft] = useState<number>(1);
   const [history, setHistory] = useState<PerkPrize[]>([]);
-  const [showDropRates, setShowDropRates] = useState<boolean>(false);
 
   const reelTrackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,6 +61,23 @@ export default function LuckyView() {
     const pitch = dims.width + (dims.margin * 2);
     return -(idx * pitch + pitch / 2 - containerWidth / 2);
   };
+
+  // Ensure on load or F5 refresh, viewport is always pinned to the top (0, 0)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      if (window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      window.scrollTo(0, 0);
+      const timer = setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     const updateDims = () => {
@@ -428,14 +452,6 @@ export default function LuckyView() {
                   >
                     <i className="fa-solid fa-plus"></i> เพิ่มสิทธิ์
                   </button>
-                  <button
-                    className="btn-add-spin btn-rates-link"
-                    onClick={() => setShowDropRates(true)}
-                    title="ดูอัตราการออกรางวัล"
-                    style={{ whiteSpace: 'nowrap', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
-                  >
-                    <i className="fa-solid fa-chart-pie" style={{ color: '#F59E0B' }}></i> เรท
-                  </button>
                 </div>
               </div>
             </div>
@@ -449,7 +465,7 @@ export default function LuckyView() {
 
               {/* Reel Outer Frame */}
               <div className="gacha-reel-frame">
-                {/* Clean Pointer Indicators (Center of Reel) */}
+                {/* Center Spin Pointer (Arrows Only) */}
                 <div className="gacha-center-pointer top-pointer">
                   <div className="pointer-head"></div>
                 </div>
@@ -498,7 +514,7 @@ export default function LuckyView() {
                               <img
                                 src={prize.imageUrl}
                                 alt={prize.name}
-                                style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '50%' }}
+                                className="card-prize-image"
                               />
                             ) : (
                               <i className={prize.icon}></i>
@@ -577,7 +593,7 @@ export default function LuckyView() {
                       <img
                         src={p.imageUrl}
                         alt={p.name}
-                        style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '8px' }}
+                        style={{ width: '88%', height: '88%', objectFit: 'contain' }}
                       />
                     ) : (
                       <i className={p.icon}></i>
@@ -748,67 +764,6 @@ export default function LuckyView() {
                     <i className="fa-solid fa-rotate-right"></i> สุ่มใหม่อีกครั้ง {spinsLeft > 0 ? `(${spinsLeft} สิทธิ์คงเหลือ)` : ''}
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================== */}
-        {/* DROP RATES MODAL                                        */}
-        {/* ======================================================== */}
-        {showDropRates && (
-          <div className="gacha-modal-overlay">
-            <div className="gacha-modal-backdrop" onClick={() => setShowDropRates(false)}></div>
-            <div className="gacha-rates-modal">
-              <button
-                className="modal-close-btn"
-                onClick={() => setShowDropRates(false)}
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px' }}>
-                <i className="fa-solid fa-chart-pie" style={{ color: '#F59E0B', marginRight: '8px' }}></i>
-                อัตราการออกรางวัล (Drop Rate Probability)
-              </h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '20px' }}>
-                ระบบสุ่มด้วยอัลกอริทึมโปร่งใส 100% ไม่มีเกลือ ทุกครั้งที่หมุนจะได้รับฟังก์ชันจริง
-              </p>
-
-              <div className="rates-table">
-                <div className="rate-row gold-tier">
-                  <div className="tier-info">
-                    <span className="tier-badge gold">LEGENDARY</span>
-                    <span className="tier-desc">ฟังก์ชันระดับท็อป (สปีด 0.4s, LINE OA, AI, ส่วนลด 10%)</span>
-                  </div>
-                  <div className="tier-rate">{dropRates.legendary}%</div>
-                </div>
-
-                <div className="rate-row purple-tier">
-                  <div className="tier-info">
-                    <span className="tier-badge purple">EPIC</span>
-                    <span className="tier-desc">ระบบพรีเมียม (PromptPay QR, SLA 3 เดือน, Export Engine)</span>
-                  </div>
-                  <div className="tier-rate">{dropRates.epic}%</div>
-                </div>
-
-                <div className="rate-row cyan-tier">
-                  <div className="tier-info">
-                    <span className="tier-badge cyan">RARE</span>
-                    <span className="tier-desc">บริการเสริมพื้นฐาน (โดเมน .COM + Cloudflare SSL, Technical SEO)</span>
-                  </div>
-                  <div className="tier-rate">{dropRates.rare}%</div>
-                </div>
-              </div>
-
-              <div style={{ marginTop: '22px', textAlign: 'center' }}>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => setShowDropRates(false)}
-                  style={{ width: '100%' }}
-                >
-                  เข้าใจแล้ว
-                </button>
               </div>
             </div>
           </div>

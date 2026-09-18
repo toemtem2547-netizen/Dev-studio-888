@@ -140,7 +140,7 @@ interface SettingsContextType {
   updateSiteSettings: (data: Partial<SiteSettings>) => void;
   updateContactSettings: (data: Partial<ContactSettings>) => void;
   updateSocialSettings: (data: Partial<SocialSettings>) => void;
-  updateThemeSettings: (data: Partial<ThemeSettings>) => void;
+  updateThemeSettings: (data: Partial<ThemeSettings>) => void | Promise<void>;
   updateEstimatorConfig: (config: Partial<EstimatorConfig>, skipApiCall?: boolean) => void;
   updateLuckyConfig: (config: Partial<LuckyConfig>) => void;
   saveProjects: (projects: ProjectItem[]) => void;
@@ -324,6 +324,11 @@ function hexToRgb(hex: string): string {
             setLuckyConfig(prev => ({ ...prev, ...settData.luckyConfig }));
             localStorage.setItem('nexus_dash_lucky_config', JSON.stringify(settData.luckyConfig));
           }
+          if (settData.themeSettings) {
+            setThemeSettings(prev => ({ ...prev, ...settData.themeSettings }));
+            localStorage.setItem('nexus_dash_settings_theme', JSON.stringify(settData.themeSettings));
+            applyThemeToDOM(settData.themeSettings);
+          }
         }
 
         if (projData.success && Array.isArray(projData.projects) && projData.projects.length > 0) {
@@ -404,11 +409,29 @@ function hexToRgb(hex: string): string {
     }
   };
 
-  const updateThemeSettings = (data: Partial<ThemeSettings>) => {
+  const updateThemeSettings = async (data: Partial<ThemeSettings>) => {
     const next = { ...themeSettings, ...data };
     setThemeSettings(next);
     localStorage.setItem('nexus_dash_settings_theme', JSON.stringify(next));
     applyThemeToDOM(next);
+
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeSettings: next }),
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && result.themeSettings) {
+          setThemeSettings(result.themeSettings);
+          localStorage.setItem('nexus_dash_settings_theme', JSON.stringify(result.themeSettings));
+          applyThemeToDOM(result.themeSettings);
+        }
+      }
+    } catch (err) {
+      console.error('[updateThemeSettings] API error:', err);
+    }
   };
 
   const updateEstimatorConfig = async (config: Partial<EstimatorConfig>, skipApiCall = false) => {

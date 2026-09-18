@@ -35,8 +35,8 @@
   /* Multi-layered Soft Shadows & Elevation */
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(226, 232, 240, 0.8);
-  --shadow-card-hover: 0 20px 35px -8px rgba(37, 99, 235, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(37, 99, 235, 0.3);
-  --glow-primary: 0 0 35px rgba(37, 99, 235, 0.2);
+  --shadow-card-hover: 0 20px 35px -8px rgba(var(--primary-rgb), 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(var(--primary-rgb), 0.3);
+  --glow-primary: 0 0 35px rgba(var(--primary-rgb), 0.2);
 
   /* Fonts */
   --font-heading: 'Plus Jakarta Sans', 'Prompt', -apple-system, sans-serif;
@@ -86,7 +86,7 @@
   --border-focus: #38BDF8;
 
   --shadow-card: 0 14px 35px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
-  --shadow-card-hover: 0 20px 45px -5px rgba(56, 189, 248, 0.2), 0 0 0 1.5px rgba(56, 189, 248, 0.4);
+  --shadow-card-hover: 0 20px 45px -5px rgba(var(--primary-rgb), 0.2), 0 0 0 1.5px rgba(var(--primary-rgb), 0.4);
   --navbar-bg: rgba(7, 11, 20, 0.88);
   --ticker-bg: #0B1120;
 }
@@ -126,8 +126,8 @@
 
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(226, 232, 240, 0.8);
-  --shadow-card-hover: 0 20px 35px -8px rgba(37, 99, 235, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(37, 99, 235, 0.3);
-  --glow-primary: 0 0 35px rgba(37, 99, 235, 0.2);
+  --shadow-card-hover: 0 20px 35px -8px rgba(var(--primary-rgb), 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(var(--primary-rgb), 0.3);
+  --glow-primary: 0 0 35px rgba(var(--primary-rgb), 0.2);
   --navbar-bg: rgba(255, 255, 255, 0.88);
   --ticker-bg: #FFFFFF;
 }
@@ -241,7 +241,7 @@ iframe {
   left: -5%;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 70%);
+  background: radial-gradient(circle, rgba(var(--primary-rgb), 0.12), transparent 70%);
 }
 
 .glow-2 {
@@ -261,7 +261,7 @@ iframe {
 }
 
 [data-theme="dark"] .glow-1 {
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(var(--primary-rgb), 0.2), transparent 70%);
 }
 
 [data-theme="dark"] .glow-2 {
@@ -328,12 +328,12 @@ h5 {
 .btn-primary {
   background: var(--primary-gradient);
   color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.28);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 8px 22px rgba(var(--primary-rgb), 0.4);
   opacity: 0.96;
 }
 
@@ -422,7 +422,7 @@ h5 {
   justify-content: center;
   color: #FFFFFF;
   font-size: 1rem;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.25);
   flex-shrink: 0;
 }
 
@@ -871,13 +871,13 @@ h5 {
   background: var(--bg-card);
   border-color: var(--brand-color, var(--primary));
   transform: scale(1.14);
-  box-shadow: 0 6px 20px -2px var(--brand-glow, rgba(37, 99, 235, 0.45)), 0 0 14px var(--brand-glow, rgba(37, 99, 235, 0.3));
+  box-shadow: 0 6px 20px -2px var(--brand-glow, rgba(var(--primary-rgb), 0.45)), 0 0 14px var(--brand-glow, rgba(var(--primary-rgb), 0.3));
   z-index: 20;
 }
 
 .tech-logo-bubble:hover i {
   transform: scale(1.08);
-  filter: drop-shadow(0 0 8px var(--brand-glow, rgba(37, 99, 235, 0.65)));
+  filter: drop-shadow(0 0 8px var(--brand-glow, rgba(var(--primary-rgb), 0.65)));
 }
 
 .tech-tag {
@@ -977,7 +977,7 @@ h5 {
   background: var(--primary-gradient);
   color: #FFFFFF;
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.3);
 }
 
 /* Portfolio Grid & Cards */
@@ -1161,7 +1161,7 @@ h5 {
 
 .highlighted-service {
   border-color: var(--primary);
-  background: linear-gradient(180deg, var(--bg-card) 0%, rgba(37, 99, 235, 0.03) 100%);
+  background: linear-gradient(180deg, var(--bg-card) 0%, rgba(var(--primary-rgb), 0.03) 100%);
 }
 
 .popular-badge {
@@ -1174,15 +1174,15 @@ h5 {
   font-weight: 700;
   padding: 0.25rem 0.85rem;
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
 }
 
 .service-icon {
   width: 54px;
   height: 54px;
   border-radius: var(--radius-md);
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
   color: var(--primary);
   font-size: 1.5rem;
   display: flex;
@@ -1350,8 +1350,8 @@ h5 {
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--primary);
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.18);
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.18);
   padding: 4px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -1362,7 +1362,7 @@ h5 {
   background: var(--primary);
   color: #FFFFFF;
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
 }
 
 .option-icon {
@@ -1410,7 +1410,7 @@ h5 {
 .option-card.active .option-content {
   background: var(--bg-card);
   border-color: var(--primary);
-  box-shadow: 0 0 0 1.5px var(--primary), 0 8px 20px -4px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 1.5px var(--primary), 0 8px 20px -4px rgba(var(--primary-rgb), 0.15);
 }
 
 .option-card.active .option-icon {
@@ -1465,7 +1465,7 @@ h5 {
 
 .feature-checkbox:hover {
   background: var(--bg-card);
-  border-color: rgba(37, 99, 235, 0.35);
+  border-color: rgba(var(--primary-rgb), 0.35);
   transform: translateY(-2px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
@@ -1523,8 +1523,8 @@ h5 {
   color: var(--primary);
   font-weight: 700;
   padding: 4px 9px;
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.15);
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.15);
   border-radius: 6px;
   pointer-events: none;
   margin-right: 0.4rem;
@@ -1560,8 +1560,8 @@ h5 {
 .feature-checkbox.checked,
 .feature-checkbox.active {
   border-color: var(--primary);
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.03)), var(--bg-card);
-  box-shadow: 0 0 0 1.5px var(--primary), 0 8px 24px -4px rgba(37, 99, 235, 0.28);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), rgba(var(--primary-rgb), 0.03)), var(--bg-card);
+  box-shadow: 0 0 0 1.5px var(--primary), 0 8px 24px -4px rgba(var(--primary-rgb), 0.28);
   transform: translateY(-2px);
 }
 
@@ -1570,7 +1570,7 @@ h5 {
   color: #FFFFFF;
   background: var(--primary);
   border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.35);
   transform: scale(1.04);
 }
 
@@ -1584,7 +1584,7 @@ h5 {
   background: var(--primary);
   color: #FFFFFF;
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
 }
 
 .feature-checkbox.checked .custom-check,
@@ -1593,7 +1593,7 @@ h5 {
   border-color: var(--primary);
   color: #FFFFFF;
   transform: scale(1.12);
-  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 2px 10px rgba(var(--primary-rgb), 0.45);
 }
 
 /* Timeline Speed Selector */
@@ -1658,7 +1658,7 @@ h5 {
 .speed-option.active .speed-content {
   background: var(--bg-card);
   border-color: var(--primary);
-  box-shadow: 0 0 0 1.5px var(--primary), 0 4px 12px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 1.5px var(--primary), 0 4px 12px rgba(var(--primary-rgb), 0.1);
 }
 
 .speed-title {
@@ -1816,7 +1816,7 @@ h5 {
   font-size: 0.95rem;
   padding: 0.95rem 1.4rem;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.25);
 }
 
 .btn-apply-spec i,
@@ -1956,7 +1956,7 @@ h5 {
   align-items: center;
   justify-content: center;
   font-size: 1.05rem;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.25);
 }
 
 .client-name {
@@ -2078,7 +2078,7 @@ h5 {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(var(--primary-rgb), 0.08);
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -2202,7 +2202,7 @@ h5 {
 .form-group textarea:focus {
   border-color: var(--primary);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
 }
 
 .btn-submit {
@@ -2373,8 +2373,8 @@ h5 {
 
 .case-tech-item {
   padding: 0.35rem 0.8rem;
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
   border-radius: var(--radius-sm);
   color: var(--primary);
   font-size: 0.8rem;
@@ -2566,7 +2566,7 @@ h5 {
   background: var(--primary);
   border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.35);
 }
 
 .footer-bottom {
@@ -3161,7 +3161,7 @@ h5 {
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--primary-rgb), 0.15) 0%, transparent 70%);
   top: -150px;
   left: -150px;
   pointer-events: none;
@@ -3975,7 +3975,7 @@ h5 {
 .gacha-page-container {
   position: relative;
   min-height: 100vh;
-  padding-top: 100px;
+  padding-top: 76px;
   overflow-x: hidden;
   background:
     radial-gradient(ellipse at 30% 15%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
@@ -3995,13 +3995,21 @@ h5 {
 .gacha-hero-stage {
   position: relative;
   width: 100%;
+  min-height: calc(100vh - 76px);
+  min-height: calc(100dvh - 76px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0 20px;
+  box-sizing: border-box;
 }
 
 /* ============== HEADER ============== */
 .gacha-header {
   position: relative;
   z-index: 1;
-  padding: 40px 0 28px;
+  padding: 14px 0 10px;
 }
 
 .gacha-header-badge {
@@ -4009,18 +4017,25 @@ h5 {
   color: #F59E0B !important;
   border-color: rgba(245, 158, 11, 0.3) !important;
   letter-spacing: 0.02em;
+  margin-bottom: 8px !important;
 }
 
 .gacha-hero-title {
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
-  font-size: clamp(2rem, 3.8vw, 3.5rem);
+  font-size: clamp(2rem, 3.4vw, 3.2rem);
   font-weight: 800;
   letter-spacing: -0.5px;
-  line-height: 1.25;
+  line-height: 1.22;
   white-space: nowrap;
   max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 8px;
+}
+
+.gacha-header .hero-subtitle {
+  font-size: 0.98rem;
+  margin: 0 auto 12px;
+  line-height: 1.55;
+  max-width: 740px;
 }
 
 .hero-title-line1 {
@@ -4040,15 +4055,15 @@ h5 {
 .gacha-status-strip {
   display: inline-flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 28px;
+  gap: 14px;
+  margin-top: 0;
   background: #0d1527;
   border: 1px solid rgba(245, 158, 11, 0.2);
-  padding: 10px 22px;
+  padding: 6px 18px;
   border-radius: var(--radius-full);
   flex-wrap: wrap;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .status-item {
@@ -4111,7 +4126,7 @@ h5 {
 .gacha-reel-section {
   position: relative;
   z-index: 2;
-  margin: 36px auto;
+  margin: 16px auto 12px;
   display: flex;
   justify-content: center;
 }
@@ -4129,7 +4144,7 @@ h5 {
   overflow: hidden;
 }
 
-/* Clean Center Pointer (Arrow indicators, no laser lines) */
+/* Center Spin Target Indicator (Golden Arrows & Payline Guide) */
 .gacha-center-pointer {
   position: absolute;
   left: 50%;
@@ -4154,6 +4169,7 @@ h5 {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.9));
 }
 
 .top-pointer .pointer-head {
@@ -4207,14 +4223,14 @@ h5 {
    ========================================================================== */
 
 .gacha-card {
-  height: 230px;
+  height: 242px;
   flex-shrink: 0;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 12px;
+  padding: 13px 12px;
   position: relative;
   background: #131A2D;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -4323,17 +4339,34 @@ h5 {
 }
 
 .card-icon-box {
-  width: 56px;
-  height: 56px;
+  width: 82px;
+  height: 82px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin: 6px 0;
+  font-size: 2.1rem;
+  margin: 5px 0;
   position: relative;
   z-index: 2;
   transition: transform 0.3s ease;
+}
+
+.card-prize-image,
+.card-icon-box img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gacha-card:hover .card-prize-image,
+.card-selected .card-prize-image,
+.gacha-card:hover .card-icon-box img,
+.card-selected .card-icon-box img {
+  transform: scale(1.12);
 }
 
 .card-info {
@@ -4470,13 +4503,27 @@ h5 {
 }
 
 @keyframes bounceDown {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(3px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(3px);
+  }
 }
 
 /* ==========================================================================
    PRIZES SHOWCASE GRID — PREMIUM CARDS
    ========================================================================== */
+
+.gacha-prizes-section {
+  padding-top: 110px;
+  padding-bottom: 90px;
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
 
 .gacha-prizes-grid {
   display: grid;
@@ -4538,15 +4585,23 @@ h5 {
 }
 
 .showcase-icon {
-  width: 46px;
-  height: 46px;
+  width: 52px;
+  height: 52px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.showcase-icon img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
 }
 
 .showcase-meta {
@@ -4757,8 +4812,8 @@ h5 {
 
 .win-hero-pedestal {
   position: relative;
-  width: 104px;
-  height: 104px;
+  width: 120px;
+  height: 120px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -4767,30 +4822,33 @@ h5 {
 
 .win-hero-ring-outer {
   position: absolute;
-  inset: -6px;
+  inset: -8px;
   border-radius: 50%;
   border: 1.5px dashed rgba(245, 158, 11, 0.35);
   pointer-events: none;
 }
 
 .win-hero-ring-inner {
-  width: 96px;
-  height: 96px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #F59E0B;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.35);
 }
 
 .win-hero-image {
-  width: 68px;
-  height: 68px;
-  object-fit: cover;
-  border-radius: 50%;
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
 }
 
 .win-hero-icon {
@@ -5238,7 +5296,16 @@ h5 {
 
 @media (max-width: 768px) {
   .gacha-page-container {
-    padding-top: 84px;
+    padding-top: 72px;
+  }
+
+  .gacha-hero-stage {
+    min-height: calc(100dvh - 72px);
+    min-height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   .gacha-hero-title {
@@ -5246,39 +5313,44 @@ h5 {
     font-size: clamp(1.6rem, 5.5vw, 2.4rem) !important;
     line-height: 1.35 !important;
     padding: 0 12px;
+    margin-bottom: 8px !important;
   }
 
   .gacha-header {
-    padding: 28px 0 20px;
+    padding: 14px 0 8px;
   }
 
   .hero-subtitle {
     font-size: 0.92rem !important;
     padding: 0 16px;
-    line-height: 1.6;
+    line-height: 1.55;
+    margin-bottom: 12px !important;
   }
 
   .gacha-reel-section {
-    margin: 24px auto;
+    margin: 14px auto 10px;
     padding: 0 12px;
   }
 
   .gacha-reel-frame {
-    height: 235px;
+    height: 250px;
     border-radius: 16px;
   }
 
   .gacha-card {
-    height: 195px;
-    padding: 12px 10px;
+    height: 210px;
+    padding: 10px 8px;
     border-radius: 12px;
   }
 
   .card-icon-box {
-    width: 44px;
-    height: 44px;
-    font-size: 1.15rem;
+    width: 68px;
+    height: 68px;
+    font-size: 1.7rem;
     margin: 4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .card-title {
@@ -5461,7 +5533,7 @@ h5 {
   }
 
   .gacha-reel-frame {
-    height: 210px;
+    height: 220px;
     border-radius: 15px;
     background: radial-gradient(ellipse at 50% 50%, #0F172A 0%, #080D1A 100%);
     border: 1.5px solid rgba(245, 158, 11, 0.45);
@@ -5473,7 +5545,7 @@ h5 {
   }
 
   .gacha-card {
-    height: 180px;
+    height: 190px;
     padding: 8px 6px;
     border-radius: 12px;
     background: #111827;
@@ -5503,10 +5575,13 @@ h5 {
   }
 
   .card-icon-box {
-    width: 38px;
-    height: 38px;
-    font-size: 1.05rem;
-    margin: 3px 0;
+    width: 58px;
+    height: 58px;
+    font-size: 1.5rem;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .card-title {
@@ -5664,11 +5739,14 @@ h5 {
   }
 
   .showcase-icon {
-    width: 38px;
-    height: 38px;
-    font-size: 1.1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
     border-radius: 10px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .showcase-meta {
@@ -5749,23 +5827,41 @@ h5 {
   }
 
   .win-hero-stage {
-    margin: 0 auto 3px;
+    margin: 4px auto 8px;
   }
 
   .win-hero-pedestal {
-    width: 48px;
-    height: 48px;
+    width: 88px;
+    height: 88px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .win-hero-ring-outer {
+    inset: -6px;
+    border-radius: 50%;
   }
 
   .win-hero-ring-inner {
-    width: 44px;
-    height: 44px;
-    font-size: 1.25rem;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
   }
 
   .win-hero-image {
-    width: 30px;
-    height: 30px;
+    width: 66px;
+    height: 66px;
+    object-fit: contain;
+    display: block;
   }
 
   .win-info-section {
@@ -5916,5 +6012,221 @@ h5 {
 
   .rate-row .tier-rate {
     font-size: 0.95rem;
+  }
+}
+
+/* ==========================================================================
+   FLOATING LUCKY BOUNCY NUDGE (Mobile & Desktop Gamified CTA)
+   ========================================================================== */
+
+@keyframes gachaSpringBounce {
+  0% {
+    transform: scale(0.88) translateY(0) rotate(0deg);
+  }
+  20% {
+    transform: scale(1.16) translateY(-14px) rotate(-4deg);
+  }
+  40% {
+    transform: scale(0.92) translateY(2px) rotate(3deg);
+  }
+  60% {
+    transform: scale(1.08) translateY(-6px) rotate(-2deg);
+  }
+  80% {
+    transform: scale(0.98) translateY(1px) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes gachaGentleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulseGlowRing {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.4), 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(245, 158, 11, 0.75), 0 10px 30px rgba(245, 158, 11, 0.3);
+  }
+}
+
+.floating-lucky-nudge {
+  position: fixed;
+  bottom: calc(42px + env(safe-area-inset-bottom, 0px));
+  right: 16px;
+  z-index: 9995;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  animation: gachaGentleFloat 3.5s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+.floating-lucky-nudge.is-bouncing {
+  animation: gachaSpringBounce 1.5s cubic-bezier(0.28, 0.84, 0.42, 1) !important;
+}
+
+.floating-lucky-nudge:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.nudge-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 12px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(245, 158, 11, 0.65);
+  border-radius: 999px;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(245, 158, 11, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  animation: pulseGlowRing 3s infinite ease-in-out;
+}
+
+.nudge-close-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.nudge-close-btn:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+  border-color: #EF4444;
+  transform: scale(1.1);
+}
+
+.nudge-icon-wrapper {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0.08) 80%);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nudge-gift-emoji {
+  font-size: 1.45rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.nudge-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.nudge-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #10B981;
+  letter-spacing: 0.02em;
+}
+
+.nudge-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
+  display: inline-block;
+}
+
+.nudge-headline {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.nudge-gold-text {
+  color: #F59E0B;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.nudge-subtext {
+  font-size: 0.70rem;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1;
+}
+
+.nudge-arrow-icon {
+  font-size: 0.65rem;
+  color: #F59E0B;
+  transition: transform 0.2s ease;
+}
+
+.floating-lucky-nudge:hover .nudge-arrow-icon {
+  transform: translateX(3px);
+}
+
+/* Mobile fine-tuning */
+@media (max-width: 480px) {
+  .floating-lucky-nudge {
+    bottom: calc(38px + env(safe-area-inset-bottom, 0px));
+    right: 14px;
+  }
+
+  .nudge-card {
+    padding: 8px 14px 8px 10px;
+    gap: 10px;
+  }
+
+  .nudge-icon-wrapper {
+    width: 38px;
+    height: 38px;
+  }
+
+  .nudge-gift-emoji {
+    font-size: 1.3rem;
+  }
+
+  .nudge-headline {
+    font-size: 0.82rem;
+  }
+
+  .nudge-subtext {
+    font-size: 0.66rem;
   }
 }

@@ -1,4 +1,4 @@
-import { ProjectItem, SiteSettings, ContactSettings, SocialSettings, LeadItem } from '../models';
+import { ProjectItem, SiteSettings, ContactSettings, SocialSettings, LeadItem, ThemeSettings } from '../models';
 
 export const INITIAL_PROJECTS: ProjectItem[] = [
   {
@@ -108,6 +108,14 @@ export const INITIAL_SOCIAL_SETTINGS: SocialSettings = {
   linkedin: 'https://linkedin.com/company/nexus888',
   line: 'https://line.me/R/ti/p/@nexus888',
   facebook: 'https://facebook.com/nexusstudio888',
+};
+
+export const INITIAL_THEME_SETTINGS: ThemeSettings = {
+  primaryColor: '#2563EB',
+  secondaryColor: '#7C3AED',
+  fontHeading: 'Plus Jakarta Sans',
+  fontBody: 'Inter',
+  presetId: 'cyber-nexus',
 };
 
 export const INITIAL_LEADS: LeadItem[] = [

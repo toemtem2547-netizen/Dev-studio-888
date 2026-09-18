@@ -5,6 +5,8 @@ import './dashboard.css';
 import { ThemeProvider } from '@/Frontend/context/ThemeContext';
 import { LanguageProvider } from '@/Frontend/context/LanguageContext';
 import { SettingsProvider } from '@/Frontend/context/SettingsContext';
+import { FloatingLuckyPopup } from '@/Frontend/components/FloatingLuckyPopup';
+import { SettingsService } from '@/Backend';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://devstudio888.com'),
@@ -92,11 +94,48 @@ export const viewport: Viewport = {
   themeColor: '#070B14',
 };
 
-export default function RootLayout({
+function hexToRgb(hex: string): string {
+  if (!hex) return '37, 99, 235';
+  const clean = hex.replace('#', '').trim();
+  let r = 37, g = 99, b = 235;
+  if (clean.length === 6) {
+    r = parseInt(clean.substring(0, 2), 16);
+    g = parseInt(clean.substring(2, 4), 16);
+    b = parseInt(clean.substring(4, 6), 16);
+  } else if (clean.length === 3) {
+    r = parseInt(clean[0] + clean[0], 16);
+    g = parseInt(clean[1] + clean[1], 16);
+    b = parseInt(clean[2] + clean[2], 16);
+  }
+  return isNaN(r) || isNaN(g) || isNaN(b) ? '37, 99, 235' : `${r}, ${g}, ${b}`;
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let serverTheme = {
+    primaryColor: '#2563EB',
+    secondaryColor: '#7C3AED',
+    fontHeading: 'Plus Jakarta Sans',
+    fontBody: 'Inter',
+  };
+
+  try {
+    const liveTheme = await SettingsService.getThemeSettings();
+    if (liveTheme && liveTheme.primaryColor) {
+      serverTheme = { ...serverTheme, ...liveTheme };
+    }
+  } catch (err) {
+    // Database or offline fallback during build
+  }
+
+  const sP = serverTheme.primaryColor;
+  const sS = serverTheme.secondaryColor;
+  const sPRgb = hexToRgb(sP);
+  const sSRgb = hexToRgb(sS);
+
   return (
     <html lang="th" data-theme="dark" suppressHydrationWarning>
       <head>
@@ -105,6 +144,25 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
         />
         <meta name="theme-color" content="#070B14" id="themeColorMeta" />
+        <style
+          id="server-theme-override"
+          dangerouslySetInnerHTML={{
+            __html: `:root, [data-theme="dark"], [data-theme="light"] {
+              --primary: ${sP} !important;
+              --secondary: ${sS} !important;
+              --primary-rgb: ${sPRgb} !important;
+              --secondary-rgb: ${sSRgb} !important;
+              --primary-hover: ${sP} !important;
+              --secondary-light: ${sS} !important;
+              --primary-gradient: linear-gradient(135deg, ${sP} 0%, ${sS} 100%) !important;
+              --border-focus: ${sP} !important;
+              --glow-primary: 0 0 35px rgba(${sPRgb}, 0.25) !important;
+              --shadow-card-hover: 0 20px 45px -5px rgba(${sPRgb}, 0.25), 0 0 0 1.5px ${sP} !important;
+              ${serverTheme.fontHeading ? `--font-heading: '${serverTheme.fontHeading}', 'Prompt', sans-serif !important;` : ''}
+              ${serverTheme.fontBody ? `--font-body: '${serverTheme.fontBody}', 'Prompt', sans-serif !important;` : ''}
+            }`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function() {
@@ -268,12 +326,23 @@ export default function RootLayout({
             }),
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+                window.scrollTo(0, 0);
+              }
+            `,
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         <ThemeProvider>
           <LanguageProvider>
             <SettingsProvider>
               {children}
+              <FloatingLuckyPopup />
             </SettingsProvider>
           </LanguageProvider>
         </ThemeProvider>

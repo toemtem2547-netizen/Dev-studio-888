@@ -57,6 +57,14 @@ export interface SocialSettings {
   facebook: string;
 }
 
+export interface ThemeSettings {
+  primaryColor: string;
+  secondaryColor: string;
+  fontHeading: string;
+  fontBody: string;
+  presetId?: string;
+}
+
 export interface AdminUser {
   username: string;
   name: string;
