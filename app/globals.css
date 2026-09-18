@@ -5622,10 +5622,10 @@ h5 {
     padding: 4px 12px;
   }
 
-  /* Prize Showcase Grid & Section Spacing */
+  /* Prize Showcase Grid & Section Spacing — Pushed below mobile fold */
   .gacha-prizes-section {
-    margin-top: 60px !important;
-    margin-bottom: 50px !important;
+    margin-top: 140px !important;
+    margin-bottom: 60px !important;
   }
 
   .gacha-prizes-grid {
