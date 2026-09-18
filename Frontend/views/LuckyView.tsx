@@ -374,15 +374,6 @@ export default function LuckyView() {
                   <i className="fa-solid fa-plus"></i> รับสิทธิ์เพิ่ม
                 </button>
               </div>
-
-              <div className="status-item">
-                <button
-                  className="btn-rates"
-                  onClick={() => setShowDropRates(true)}
-                >
-                  <i className="fa-solid fa-chart-pie"></i> อัตราการดรอป (Probabilities)
-                </button>
-              </div>
             </div>
           </div>
         </header>
@@ -492,7 +483,7 @@ export default function LuckyView() {
         {/* ======================================================== */}
         {/* PRIZE SHOWCASE GRID (All Possible Rewards)              */}
         {/* ======================================================== */}
-        <section className="container" style={{ marginTop: '70px', marginBottom: '80px', maxWidth: '1440px' }}>
+        <section className="container gacha-prizes-section" style={{ marginTop: '70px', marginBottom: '80px', maxWidth: '1440px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <h3 style={{ fontSize: '1.6rem', fontWeight: 800 }}>
               รายการของรางวัลทั้งหมดใน <span className="text-gradient">Lucky Vault</span>
