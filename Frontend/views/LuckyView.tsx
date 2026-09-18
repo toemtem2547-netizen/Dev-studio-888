@@ -13,7 +13,7 @@ export const PRIZES: PerkPrize[] = DEFAULT_LUCKY_CONFIG.prizes;
 
 const CARD_WIDTH_DESKTOP = 200;
 const CARD_MARGIN_DESKTOP = 12;
-const TOTAL_REEL_ITEMS = 65;
+const TOTAL_REEL_ITEMS = 75;
 
 export default function LuckyView() {
   const router = useRouter();
@@ -26,20 +26,67 @@ export default function LuckyView() {
     margin: CARD_MARGIN_DESKTOP,
   });
 
+  const [reelItems, setReelItems] = useState<PerkPrize[]>([]);
+  const [spinning, setSpinning] = useState<boolean>(false);
+  const [offset, setOffset] = useState<number>(0);
+  const [transitionStyle, setTransitionStyle] = useState<string>('none');
+  const [targetIndex, setTargetIndex] = useState<number>(4);
+  const [winningPrize, setWinningPrize] = useState<PerkPrize | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [spinsLeft, setSpinsLeft] = useState<number>(1);
+  const [history, setHistory] = useState<PerkPrize[]>([]);
+  const [showDropRates, setShowDropRates] = useState<boolean>(false);
+
+  const reelTrackRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const targetIndexRef = useRef<number>(4);
+  const spinningRef = useRef<boolean>(false);
+  const cardDimsRef = useRef<{ width: number; margin: number }>({
+    width: CARD_WIDTH_DESKTOP,
+    margin: CARD_MARGIN_DESKTOP,
+  });
+
+  // Helper to calculate exact centered offset for a card index
+  const calculateCenteredOffset = (idx: number, dims: { width: number; margin: number }) => {
+    const containerWidth = containerRef.current ? containerRef.current.offsetWidth : (typeof window !== 'undefined' ? Math.min(window.innerWidth, 1440) : 360);
+    const pitch = dims.width + (dims.margin * 2);
+    return -(idx * pitch + pitch / 2 - containerWidth / 2);
+  };
+
   useEffect(() => {
     const updateDims = () => {
       if (typeof window === 'undefined') return;
+      let newDims = { width: CARD_WIDTH_DESKTOP, margin: CARD_MARGIN_DESKTOP };
       if (window.innerWidth <= 480) {
-        setCardDims({ width: 125, margin: 6 });
+        newDims = { width: 155, margin: 6 };
       } else if (window.innerWidth <= 768) {
-        setCardDims({ width: 155, margin: 8 });
-      } else {
-        setCardDims({ width: CARD_WIDTH_DESKTOP, margin: CARD_MARGIN_DESKTOP });
+        newDims = { width: 175, margin: 8 };
+      }
+      setCardDims(newDims);
+      cardDimsRef.current = newDims;
+
+      if (!spinningRef.current && containerRef.current) {
+        const pitch = newDims.width + (newDims.margin * 2);
+        const containerWidth = containerRef.current.offsetWidth || (typeof window !== 'undefined' ? window.innerWidth : 360);
+        const centered = -(targetIndexRef.current * pitch + pitch / 2 - containerWidth / 2);
+        setTransitionStyle('none');
+        setOffset(centered);
+        if (reelTrackRef.current) {
+          reelTrackRef.current.style.transition = 'none';
+          reelTrackRef.current.style.transform = `translate3d(${centered}px, 0, 0)`;
+        }
       }
     };
+
     updateDims();
+    const t = setTimeout(updateDims, 80);
     window.addEventListener('resize', updateDims);
-    return () => window.removeEventListener('resize', updateDims);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', updateDims);
+    };
   }, []);
 
   // Fetch live config from API so admin changes take effect immediately
@@ -60,22 +107,6 @@ export default function LuckyView() {
   const activeConfig: LuckyConfig = liveConfig || ctxConfig || DEFAULT_LUCKY_CONFIG;
   const currentPrizes = activeConfig.prizes && activeConfig.prizes.length > 0 ? activeConfig.prizes : DEFAULT_LUCKY_CONFIG.prizes;
   const dropRates = activeConfig.dropRates || DEFAULT_LUCKY_CONFIG.dropRates;
-
-  const [reelItems, setReelItems] = useState<PerkPrize[]>([]);
-  const [spinning, setSpinning] = useState<boolean>(false);
-  const [offset, setOffset] = useState<number>(0);
-  const [transitionStyle, setTransitionStyle] = useState<string>('none');
-  const [targetIndex, setTargetIndex] = useState<number>(50);
-  const [winningPrize, setWinningPrize] = useState<PerkPrize | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [spinsLeft, setSpinsLeft] = useState<number>(1);
-  const [history, setHistory] = useState<PerkPrize[]>([]);
-  const [showDropRates, setShowDropRates] = useState<boolean>(false);
-
-  const reelTrackRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Helper to generate a random deck of prizes using real admin drop rates
   const buildPrizePool = (): PerkPrize[] => {
@@ -121,103 +152,121 @@ export default function LuckyView() {
     }
   }, [currentPrizes, dropRates.legendary, dropRates.epic, dropRates.rare]);
 
-  // Keep winning card centered if window is resized or phone rotates
-  useEffect(() => {
-    if (!spinning && winningPrize && containerRef.current) {
-      const pitch = cardDims.width + (cardDims.margin * 2);
-      const containerWidth = containerRef.current.offsetWidth;
-      const centered = -(targetIndex * pitch + pitch / 2 - containerWidth / 2);
-      setTransitionStyle('none');
-      setOffset(centered);
-    }
-  }, [cardDims, spinning, winningPrize, targetIndex]);
-
   // Trigger spin with guaranteed smooth reel sliding on EVERY spin
   const handleSpin = () => {
-    if (spinning) return;
+    if (spinningRef.current) return;
+    spinningRef.current = true;
+    setSpinning(true);
 
     if (spinsLeft <= 0) {
       setSpinsLeft(1);
     }
 
     setShowModal(false);
+    const prevPrize = winningPrize;
     setWinningPrize(null);
+    soundFx.playClick();
 
-    // 1. Generate fresh randomized card sequence
+    // 1. Generate fresh randomized card sequence with previous prize at index 4 (so start looks seamless)
     const newPool = buildPrizePool();
+    if (prevPrize) {
+      newPool[4] = prevPrize;
+    }
     setReelItems(newPool);
 
-    // Randomize center winning index between 46 and 54
-    const winIdx = Math.floor(46 + Math.random() * 8);
-    setTargetIndex(winIdx);
+    // Randomize center winning index between 48 and 56 (giving 44-52 cards of high-speed spin)
+    const winIdx = Math.floor(48 + Math.random() * 8);
 
-    // 2. Snap reel back to starting point (0px) with NO transition
+    const dims = cardDimsRef.current;
+    const currentPitch = dims.width + (dims.margin * 2);
+    const containerWidth = containerRef.current ? containerRef.current.offsetWidth : (typeof window !== 'undefined' ? Math.min(window.innerWidth, 1440) : 360);
+
+    // Reset reel position instantly to card index 4 with NO transition
+    const startOffset = -(4 * currentPitch + currentPitch / 2 - containerWidth / 2);
+    const finalOffset = -(winIdx * currentPitch + currentPitch / 2 - containerWidth / 2);
+
+    targetIndexRef.current = 4;
+    setTargetIndex(4);
     setTransitionStyle('none');
-    setOffset(0);
+    setOffset(startOffset);
 
-    // 3. After 50ms (giving browser time to paint offset 0), launch smooth spin animation
-    setTimeout(() => {
-      setSpinning(true);
+    if (reelTrackRef.current) {
+      reelTrackRef.current.style.transition = 'none';
+      reelTrackRef.current.style.transform = `translate3d(${startOffset}px, 0, 0)`;
+      void reelTrackRef.current.offsetHeight; // Force browser layout reflow
+    }
 
-      const currentPitch = cardDims.width + (cardDims.margin * 2);
-      const containerWidth = containerRef.current ? containerRef.current.offsetWidth : 800;
-      const randomJitter = (Math.random() - 0.5) * (cardDims.width * 0.08); // subtle realistic stop variance
-      const finalOffset = -(winIdx * currentPitch + currentPitch / 2 - containerWidth / 2 + randomJitter);
+    // Dynamic duration configured in admin dashboard
+    const spinDuration = activeConfig.spinDuration || 4000;
 
-      // Dynamic duration configured in admin dashboard
-      const spinDuration = activeConfig.spinDuration || 3800;
-      setTransitionStyle(`transform ${spinDuration}ms cubic-bezier(0.12, 0.88, 0.22, 1)`);
-      setOffset(finalOffset);
+    // 2. Launch smooth CSS transition towards winIdx in next animation frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const easeCurve = 'cubic-bezier(0.12, 0.88, 0.22, 1)';
+        const transStyle = `transform ${spinDuration}ms ${easeCurve}`;
 
-      // Decelerating mechanical audio ticks
-      let elapsed = 0;
-      let tickDelay = 26;
-      const tickLoop = () => {
-        if (elapsed >= spinDuration) return;
-        soundFx.playSpinTick();
-        elapsed += tickDelay;
-        tickDelay = Math.min(420, 26 + Math.pow(elapsed / spinDuration, 2.5) * 400);
-        setTimeout(tickLoop, tickDelay);
-      };
-      setTimeout(tickLoop, 30);
+        setTransitionStyle(transStyle);
+        setOffset(finalOffset);
 
-      // When spin finishes
-      setTimeout(() => {
-        setSpinning(false);
-        const targetPrize = newPool[winIdx];
-        setWinningPrize(targetPrize);
-        setShowModal(true);
-        soundFx.playWinJackpot();
-
-        // Native mobile haptic feedback if supported
-        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-          try {
-            navigator.vibrate([70, 30, 70, 30, 140]);
-          } catch (_) { }
+        if (reelTrackRef.current) {
+          reelTrackRef.current.style.transition = transStyle;
+          reelTrackRef.current.style.transform = `translate3d(${finalOffset}px, 0, 0)`;
         }
 
-        // Deduct spin
-        setSpinsLeft(prev => {
-          const next = Math.max(0, prev - 1);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('nexus_lucky_spins', next.toString());
-          }
-          return next;
-        });
+        // Decelerating mechanical audio ticks
+        let elapsed = 0;
+        let tickDelay = 26;
+        const tickLoop = () => {
+          if (elapsed >= spinDuration || !spinningRef.current) return;
+          soundFx.playSpinTick();
+          elapsed += tickDelay;
+          tickDelay = Math.min(460, 26 + Math.pow(elapsed / spinDuration, 2.6) * 430);
+          setTimeout(tickLoop, tickDelay);
+        };
+        setTimeout(tickLoop, 35);
 
-        // Save to history
-        setHistory(prev => {
-          const updated = [targetPrize, ...prev.filter(x => x.id !== targetPrize.id)].slice(0, 5);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('nexus_lucky_history', JSON.stringify(updated));
-          }
-          return updated;
-        });
+        // When spin finishes
+        setTimeout(() => {
+          spinningRef.current = false;
+          setSpinning(false);
+          targetIndexRef.current = winIdx;
+          setTargetIndex(winIdx);
 
-        // Launch celebratory confetti canvas
-        launchConfetti();
-      }, spinDuration + 60);
-    }, 50);
+          const targetPrize = newPool[winIdx] || currentPrizes[0];
+          setWinningPrize(targetPrize);
+          setShowModal(true);
+          soundFx.playWinJackpot();
+
+          // Native mobile haptic feedback if supported
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            try {
+              navigator.vibrate([70, 30, 70, 30, 140]);
+            } catch (_) { }
+          }
+
+          // Deduct spin
+          setSpinsLeft(prev => {
+            const next = Math.max(0, prev - 1);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('nexus_lucky_spins', next.toString());
+            }
+            return next;
+          });
+
+          // Save to history
+          setHistory(prev => {
+            const updated = [targetPrize, ...prev.filter(x => x.id !== targetPrize.id)].slice(0, 5);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('nexus_lucky_history', JSON.stringify(updated));
+            }
+            return updated;
+          });
+
+          // Launch celebratory confetti canvas
+          launchConfetti();
+        }, spinDuration + 100);
+      });
+    });
   };
 
   // Add more spins button
@@ -343,147 +392,173 @@ export default function LuckyView() {
         <div className="gacha-bg-glow glow-1"></div>
         <div className="gacha-bg-glow glow-2"></div>
 
-        {/* Top Header */}
-        <header className="gacha-header">
-          <div className="container" style={{ textAlign: 'center', maxWidth: '1400px' }}>
-            <div className="section-badge gacha-header-badge">
-              <i className="fa-solid fa-dice-d20 gacha-spin-icon"></i>
-              NEXUS LUCKY VAULT • ลุ้นรับสิทธิพิเศษฟรี
-            </div>
-            <h1 className="hero-title gacha-hero-title">
-              หมุนวงล้อสุ่ม <span className="text-gradient">ปลดล็อกฟังก์ชันฟรี</span> <span style={{ whiteSpace: 'nowrap' }}>ให้โปรเจกต์คุณ</span>
-            </h1>
-            <p className="hero-subtitle" style={{ maxWidth: '680px', margin: '14px auto 0' }}>
-              มอบของขวัญสำหรับลูกค้าใหม่และพาร์ทเนอร์ สุ่มรับสิทธิ์ติดตั้งระบบเสริมระดับพรีเมียม
-              มูลค่าสูงสุด <span style={{ color: '#F59E0B', fontWeight: 700 }}>฿25,000</span> ฟรีทันที ไม่มีค่าใช้จ่ายแอบแฝง!
-            </p>
-
-            {/* Quick Stats Bar */}
-            <div className="gacha-status-strip">
-              <div className="status-item">
-                <span className="label">สิทธิ์การสุ่มคงเหลือ:</span>
-                <span className="value-badge">
-                  <i className="fa-solid fa-ticket" style={{ color: '#F59E0B', marginRight: '5px' }}></i>
-                  {spinsLeft} สิทธิ์
+        {/* Full-screen Hero Game Stage */}
+        <div className="gacha-hero-stage">
+          {/* Top Header */}
+          <header className="gacha-header">
+            <div className="container" style={{ textAlign: 'center', maxWidth: '1400px' }}>
+              <div className="section-badge gacha-header-badge">
+                <i className="fa-solid fa-dice-d20 gacha-spin-icon"></i>
+                NEXUS LUCKY VAULT • ลุ้นรับสิทธิพิเศษฟรี
+              </div>
+              <h1 className="hero-title gacha-hero-title">
+                <span className="hero-title-line1">
+                  หมุนวงล้อสุ่ม <span className="text-gradient">ปลดล็อกฟังก์ชันฟรี</span>
                 </span>
-                <button
-                  className="btn-add-spin"
-                  onClick={handleAddSpin}
-                  title="รับสิทธิ์สุ่มเพิ่มฟรี"
-                >
-                  <i className="fa-solid fa-plus"></i> รับสิทธิ์เพิ่ม
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+                <span className="hero-title-line2">ให้โปรเจกต์คุณ</span>
+              </h1>
+              <p className="hero-subtitle">
+                มอบของขวัญสำหรับลูกค้าใหม่และพาร์ทเนอร์ สุ่มรับสิทธิ์ติดตั้งระบบเสริมระดับพรีเมียม
+                มูลค่าสูงสุด <span style={{ color: '#F59E0B', fontWeight: 700 }}>฿25,000</span> ฟรีทันที ไม่มีค่าใช้จ่ายแอบแฝง!
+              </p>
 
-        {/* ======================================================== */}
-        {/* CENTER REEL SECTION (Dead center of the viewport)       */}
-        {/* ======================================================== */}
-        <section className="gacha-reel-section">
-          <div className="container" style={{ maxWidth: '1440px', position: 'relative' }}>
-
-            {/* Reel Outer Frame */}
-            <div className="gacha-reel-frame">
-              {/* Clean Pointer Indicators (Center of Reel) */}
-              <div className="gacha-center-pointer top-pointer">
-                <div className="pointer-head"></div>
-              </div>
-              <div className="gacha-center-pointer bottom-pointer">
-                <div className="pointer-head"></div>
-              </div>
-
-              {/* Edge Vignette Gradients */}
-              <div className="reel-vignette vignette-left"></div>
-              <div className="reel-vignette vignette-right"></div>
-
-              {/* Viewport Window */}
-              <div className="gacha-viewport" ref={containerRef}>
-                <div
-                  className="gacha-track"
-                  ref={reelTrackRef}
-                  style={{
-                    transform: `translateX(${offset}px)`,
-                    transition: transitionStyle,
-                  }}
-                >
-                  {reelItems.map((prize, idx) => {
-                    const isCenterPick = idx === targetIndex;
-                    return (
-                      <div
-                        key={`${prize.id}-${idx}`}
-                        className={`gacha-card rarity-${prize.rarity} ${isCenterPick && !spinning && winningPrize ? 'card-selected' : ''}`}
-                        style={{ width: `${cardDims.width}px`, margin: `0 ${cardDims.margin}px` }}
-                      >
-                        <div className="gacha-card-glow"></div>
-
-                        {/* Rarity Header Bar */}
-                        <div className="card-top-bar">
-                          {getRarityBadge(prize.rarity)}
-                        </div>
-
-                        {/* Icon or Image */}
-                        <div className="card-icon-box">
-                          {prize.imageUrl ? (
-                            <img
-                              src={prize.imageUrl}
-                              alt={prize.name}
-                              style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '50%' }}
-                            />
-                          ) : (
-                            <i className={prize.icon}></i>
-                          )}
-                        </div>
-
-                        {/* Prize Name */}
-                        <div className="card-info">
-                          <h4 className="card-title">{prize.name}</h4>
-                          <span className="card-category">{prize.category}</span>
-                        </div>
-
-                        {/* Value Tag */}
-                        <div className="card-value-tag">
-                          มูลค่า ฿{prize.valueThb.toLocaleString()} ฟรี
-                        </div>
-                      </div>
-                    );
-                  })}
+              {/* Quick Stats Bar */}
+              <div className="gacha-status-strip">
+                <div className="status-item">
+                  <span className="label" style={{ whiteSpace: 'nowrap' }}>สิทธิ์คงเหลือ:</span>
+                  <span className="value-badge" style={{ whiteSpace: 'nowrap' }}>
+                    <i className="fa-solid fa-ticket" style={{ color: '#F59E0B', marginRight: '4px' }}></i>
+                    {spinsLeft} สิทธิ์
+                  </span>
+                  <button
+                    className="btn-add-spin"
+                    onClick={handleAddSpin}
+                    title="รับสิทธิ์สุ่มเพิ่มฟรี"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    <i className="fa-solid fa-plus"></i> เพิ่มสิทธิ์
+                  </button>
+                  <button
+                    className="btn-add-spin btn-rates-link"
+                    onClick={() => setShowDropRates(true)}
+                    title="ดูอัตราการออกรางวัล"
+                    style={{ whiteSpace: 'nowrap', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
+                  >
+                    <i className="fa-solid fa-chart-pie" style={{ color: '#F59E0B' }}></i> เรท
+                  </button>
                 </div>
               </div>
             </div>
+          </header>
 
-            {/* SPIN ACTION BUTTON (Right below center reel) */}
-            <div className="gacha-controls">
-              <button
-                id="spinVaultBtn"
-                className={`btn-spin-huge ${spinning ? 'is-spinning' : ''}`}
-                onClick={handleSpin}
-                disabled={spinning}
-              >
-                {spinning ? (
-                  <>
-                    <i className="fa-solid fa-circle-notch fa-spin"></i> กำลังหมุนวงล้อสุ่ม...
-                  </>
-                ) : (
-                  <>
-                    <i className="fa-solid fa-bolt"></i> หมุนสุ่มรับสิทธิ์ฟรี (SPIN NOW)
-                  </>
-                )}
-              </button>
-              <p className="spin-hint">
-                <i className="fa-solid fa-circle-check" style={{ color: '#10B981', marginRight: '6px' }}></i>
-                สุ่มได้ฟรี 100% • โค้ดที่ได้สามารถนำไปหักลดในใบเสนอราคาหรือใช้ในระบบคำนวณราคาได้ทันที
-              </p>
+          {/* ======================================================== */}
+          {/* CENTER REEL SECTION (Dead center of the viewport)       */}
+          {/* ======================================================== */}
+          <section className="gacha-reel-section">
+            <div className="container" style={{ maxWidth: '1440px', position: 'relative' }}>
+
+              {/* Reel Outer Frame */}
+              <div className="gacha-reel-frame">
+                {/* Clean Pointer Indicators (Center of Reel) */}
+                <div className="gacha-center-pointer top-pointer">
+                  <div className="pointer-head"></div>
+                </div>
+                <div className="gacha-center-pointer bottom-pointer">
+                  <div className="pointer-head"></div>
+                </div>
+
+                {/* Edge Vignette Gradients */}
+                <div className="reel-vignette vignette-left"></div>
+                <div className="reel-vignette vignette-right"></div>
+
+                {/* Viewport Window */}
+                <div className="gacha-viewport" ref={containerRef}>
+                  <div
+                    className="gacha-track"
+                    ref={reelTrackRef}
+                    style={{
+                      transform: `translate3d(${offset}px, 0, 0)`,
+                      transition: transitionStyle,
+                    }}
+                  >
+                    {reelItems.map((prize, idx) => {
+                      const isCenterPick = idx === targetIndex;
+                      const focusClass = spinning
+                        ? ''
+                        : isCenterPick
+                        ? (winningPrize ? 'card-selected' : 'card-focused')
+                        : 'card-dimmed';
+
+                      return (
+                        <div
+                          key={`${prize.id}-${idx}`}
+                          className={`gacha-card rarity-${prize.rarity} ${focusClass}`}
+                          style={{ width: `${cardDims.width}px`, margin: `0 ${cardDims.margin}px` }}
+                        >
+                          <div className="gacha-card-glow"></div>
+
+                          {/* Rarity Header Bar */}
+                          <div className="card-top-bar">
+                            {getRarityBadge(prize.rarity)}
+                          </div>
+
+                          {/* Icon or Image */}
+                          <div className="card-icon-box">
+                            {prize.imageUrl ? (
+                              <img
+                                src={prize.imageUrl}
+                                alt={prize.name}
+                                style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '50%' }}
+                              />
+                            ) : (
+                              <i className={prize.icon}></i>
+                            )}
+                          </div>
+
+                          {/* Prize Name */}
+                          <div className="card-info">
+                            <h4 className="card-title">{prize.name}</h4>
+                            <span className="card-category">{prize.category}</span>
+                          </div>
+
+                          {/* Value Tag */}
+                          <div className="card-value-tag">
+                            มูลค่า ฿{prize.valueThb.toLocaleString()} ฟรี
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
+          </section>
 
+          {/* SPIN ACTION BUTTON (Right below center reel) */}
+          <div className="gacha-controls">
+            <button
+              id="spinVaultBtn"
+              className={`btn-spin-huge ${spinning ? 'is-spinning' : ''}`}
+              onClick={handleSpin}
+              disabled={spinning}
+            >
+              {spinning ? (
+                <>
+                  <i className="fa-solid fa-circle-notch fa-spin"></i> กำลังหมุนวงล้อสุ่ม...
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-bolt"></i> หมุนสุ่มรับสิทธิ์ฟรี (SPIN NOW)
+                </>
+              )}
+            </button>
+            <p className="spin-hint">
+              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', marginRight: '6px' }}></i>
+              สุ่มได้ฟรี 100% • โค้ดที่ได้สามารถนำไปหักลดในใบเสนอราคาหรือใช้ในระบบคำนวณราคาได้ทันที
+            </p>
+            <div className="gacha-scroll-down-hint">
+              <a href="#prizesSection" className="scroll-down-link">
+                <span>ดูของรางวัลทั้งหมด</span>
+                <i className="fa-solid fa-chevron-down scroll-arrow-down"></i>
+              </a>
+            </div>
           </div>
-        </section>
+        </div>
 
         {/* ======================================================== */}
         {/* PRIZE SHOWCASE GRID (All Possible Rewards)              */}
         {/* ======================================================== */}
-        <section className="container gacha-prizes-section" style={{ marginTop: '70px', marginBottom: '80px', maxWidth: '1440px' }}>
+        <section className="container gacha-prizes-section" id="prizesSection" style={{ maxWidth: '1440px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <h3 style={{ fontSize: '1.6rem', fontWeight: 800 }}>
               รายการของรางวัลทั้งหมดใน <span className="text-gradient">Lucky Vault</span>
