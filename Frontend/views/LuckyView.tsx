@@ -30,9 +30,9 @@ export default function LuckyView() {
     const updateDims = () => {
       if (typeof window === 'undefined') return;
       if (window.innerWidth <= 480) {
-        setCardDims({ width: 150, margin: 8 });
+        setCardDims({ width: 125, margin: 6 });
       } else if (window.innerWidth <= 768) {
-        setCardDims({ width: 175, margin: 10 });
+        setCardDims({ width: 155, margin: 8 });
       } else {
         setCardDims({ width: CARD_WIDTH_DESKTOP, margin: CARD_MARGIN_DESKTOP });
       }
