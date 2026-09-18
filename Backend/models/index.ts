@@ -11,6 +11,7 @@ export interface ProjectItem {
   tags: string[];
   client: string;
   duration: string;
+  liveUrl?: string;
   problem: string;
   solution: string;
   results: string;

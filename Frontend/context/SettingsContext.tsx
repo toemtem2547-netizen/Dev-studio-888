@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { SiteSettings, ContactSettings, SocialSettings, ProjectItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG } from '@/types';
+import { SiteSettings, ContactSettings, SocialSettings, ProjectItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG, LuckyConfig, DEFAULT_LUCKY_CONFIG } from '@/types';
 
 export interface ThemeSettings {
   primaryColor: string;
@@ -47,6 +47,7 @@ const defaultProjects: ProjectItem[] = [
     tags: ['React', 'TypeScript', 'Tailwind CSS', 'RMU OPAC', 'TDC Database', 'ProQuest API', 'Vercel'],
     client: 'สำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏมหาสารคาม (ARIT RMU)',
     duration: '4 สัปดาห์',
+    liveUrl: 'https://arit-web-subject-guide-m76n.vercel.app/home',
     problem: 'นักศึกษาและคณาจารย์กว่า 117 สาขาวิชา ประสบปัญหาในการค้นคว้าแหล่งข้อมูลทางวิชาการและงานวิจัย เนื่องจากแหล่งสืบค้น วารสาร ฐานข้อมูลออนไลน์ (OPAC, TDC, ProQuest, EBSCO, ScienceDirect) กระจัดกระจายและเข้าถึงได้ยาก',
     solution: 'ออกแบบและพัฒนาระบบ ARIT Web Subject Guide ที่จัดหมวดหมู่ทรัพยากรสารสนเทศตามสาขาวิชาและคณะแบบครบวงจร (Subject Guide Architecture) พร้อมระบบค้นหาอัจฉริยะ (Instant Subject Search) และ Direct Resource Access เชื่อมตรงสู่ฐานข้อมูลงานวิจัยระดับสากล',
     results: 'เข้าถึงทรัพยากรสารสนเทศได้สะดวกรวดเร็วในคลิกเดียว ลดเวลาสืบค้นงานวิจัยลง 80% และรองรับทราฟฟิกค้นคว้ากว่า 1,000+ รายการต่อวัน',
@@ -63,6 +64,7 @@ const defaultProjects: ProjectItem[] = [
     tags: ['Next.js 14', 'TypeScript', 'Chart.js', 'PostgreSQL', 'Docker', 'Tailwind CSS', 'Redis Cache'],
     client: 'Global Logistics & Supply Chain Corp.',
     duration: '7 สัปดาห์',
+    liveUrl: 'https://demo-analytics.nexusstudio888.com',
     problem: 'ผู้บริหารและทีมงานต้องใช้เวลารวบรวมข้อมูลยอดขายจาก 6 ระบบที่แยกกัน ทำให้เสียเวลาประชุมสรุปผลกว่า 12 ชั่วโมงต่อสัปดาห์ และรายงานที่ได้มีความล่าช้า ไม่สะท้อนสถานการณ์จริง',
     solution: 'พัฒนา Centralized Executive Dashboard ที่เชื่อมต่อฐานข้อมูลและ API จากทุกระบบเข้าด้วยกัน พร้อมแสดงผลกราฟแบบ Real-time, ระบบคัดกรองข้อมูลตามช่วงเวลา และระบบ Export รายงาน PDF ส่งตรงเข้าเมลผู้บริหารทุกเช้า',
     results: '+180% ประสิทธิภาพการตัดสินใจ และลดเวลาทำรีพอร์ตลง 85%',
@@ -79,6 +81,7 @@ const defaultProjects: ProjectItem[] = [
     tags: ['React.js', 'Tailwind CSS', 'Node.js', 'Stripe API', 'PromptPay Gateway', 'Redis Cart'],
     client: 'Axel & Co. International Lifestyle Brand',
     duration: '5 สัปดาห์',
+    liveUrl: 'https://demo-store.nexusstudio888.com',
     problem: 'เว็บไซต์เดิมใช้ระบบเก่าที่โหลดช้า (กว่า 4.5 วินาที) ทำให้สูญเสียลูกค้ากว่า 40% ในขั้นตอน Checkout และไม่รองรับการชำระเงินแบบ PromptPay QR อัตโนมัติ',
     solution: 'สร้างแพลตฟอร์ม E-Commerce ระดับพรีเมียมใหม่ทั้งหมดด้วย React + Headless Architecture โหลดหน้าเว็บเร็วขึ้นเป็น 0.4 วินาที พร้อมระบบ Quick Slide Cart และ Payment Gateway PromptPay QR & Credit Card แม่นยำ 100%',
     results: '+240% อัตราการแปลงเป็นยอดขาย (Conversion Rate) และคะแนนรีวิว 4.9/5',
@@ -95,6 +98,7 @@ const defaultProjects: ProjectItem[] = [
     tags: ['Next.js', 'FullCalendar API', 'Node.js', 'LINE Messaging API', 'PostgreSQL', 'Twilio SMS'],
     client: 'Aura Wellness & Aesthetic Center',
     duration: '6 สัปดาห์',
+    liveUrl: 'https://demo-booking.nexusstudio888.com',
     problem: 'การนัดหมายคนไข้ใช้การตอบแชทแอดมินผ่าน LINE ซึ่งเกิดปัญหานัดหมายชนกัน (Double Booking) สูง และลูกค้ามักลืมนัดทำให้คลินิกสูญเสียรายได้จากคิวที่ว่าง',
     solution: 'ออกแบบระบบปฏิทินนัดหมายแบบ Interactive Calendar ที่คนไข้สามารถเลือกแพทย์ สาขา และเวลาว่างได้เอง พร้อมเชื่อมต่อ LINE Messaging API เพื่อส่งใบนัดและการแจ้งเตือนล่วงหน้า 24 ชม. และ 2 ชม. ก่อนนัด',
     results: 'ลดอัตราการเบี้ยวนัด (No-Show) ลง 92% และลดภาระงานแอดมินกว่า 70%',
@@ -111,6 +115,7 @@ const defaultProjects: ProjectItem[] = [
     tags: ['TypeScript', 'WebSockets', 'TradingView Lightweight Charts', 'Node.js Microservices', 'PostgreSQL', 'Docker'],
     client: 'Nexus Capital & Private Investors',
     duration: '8 สัปดาห์',
+    liveUrl: 'https://demo-fintech.nexusstudio888.com',
     problem: 'นักลงทุนต้องการระบบติดตามมูลค่าพอร์ตสินทรัพย์ดิจิทัลและหุ้นแบบสดๆ พร้อมแจ้งเตือนเมื่อเกิดความผันผวนของราคา แต่แอปทั่วไปในตลาดมีค่าความหน่วงสูง (Latency) และไม่สามารถคำนวณภาษีหรือกำไรขาดทุนสะสมได้',
     solution: 'พัฒนา Web Application ที่เชื่อมต่อ WebSocket สดจาก Binance, CoinGecko และตลาดหลักทรัพย์ คำนวณ P&L กำไรขาดทุนแบบ Real-time พร้อมกราฟเทคนิคัลระดับสูง (TradingView Integration) และระบบความปลอดภัยระดับสถาบันการเงิน',
     results: 'รองรับการส่งข้อมูล Real-time กว่า 10,000 TPS โดยมีความหน่วงต่ำกว่า 50ms',
@@ -131,11 +136,13 @@ interface SettingsContextType {
   projects: ProjectItem[];
   themeSettings: ThemeSettings;
   estimatorConfig: EstimatorConfig;
+  luckyConfig: LuckyConfig;
   updateSiteSettings: (data: Partial<SiteSettings>) => void;
   updateContactSettings: (data: Partial<ContactSettings>) => void;
   updateSocialSettings: (data: Partial<SocialSettings>) => void;
   updateThemeSettings: (data: Partial<ThemeSettings>) => void;
   updateEstimatorConfig: (config: Partial<EstimatorConfig>, skipApiCall?: boolean) => void;
+  updateLuckyConfig: (config: Partial<LuckyConfig>) => void;
   saveProjects: (projects: ProjectItem[]) => void;
 }
 
@@ -146,11 +153,13 @@ const SettingsContext = createContext<SettingsContextType>({
   projects: defaultProjects,
   themeSettings: defaultThemeSettings,
   estimatorConfig: DEFAULT_ESTIMATOR_CONFIG,
+  luckyConfig: DEFAULT_LUCKY_CONFIG,
   updateSiteSettings: () => {},
   updateContactSettings: () => {},
   updateSocialSettings: () => {},
   updateThemeSettings: () => {},
   updateEstimatorConfig: () => {},
+  updateLuckyConfig: () => {},
   saveProjects: () => {},
 });
 
@@ -171,6 +180,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return defaultThemeSettings;
   });
   const [estimatorConfig, setEstimatorConfig] = useState<EstimatorConfig>(DEFAULT_ESTIMATOR_CONFIG);
+  const [luckyConfig, setLuckyConfig] = useState<LuckyConfig>(DEFAULT_LUCKY_CONFIG);
 
 function hexToRgb(hex: string): string {
   if (!hex) return '37, 99, 235';
@@ -258,12 +268,26 @@ function hexToRgb(hex: string): string {
       const savedProjects = localStorage.getItem('nexus_dash_portfolio');
       if (savedProjects) {
         const parsed = JSON.parse(savedProjects);
-        if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const merged = parsed.map((p: any) => {
+            const def = defaultProjects.find(dp => dp.id === p.id || dp.title === p.title);
+            if (def && !p.liveUrl && def.liveUrl) {
+              return { ...p, liveUrl: def.liveUrl };
+            }
+            return p;
+          });
+          setProjects(merged);
+        }
       }
 
       const savedEstimator = localStorage.getItem('nexus_dash_estimator_config');
       if (savedEstimator) {
         setEstimatorConfig(prev => ({ ...prev, ...JSON.parse(savedEstimator) }));
+      }
+
+      const savedLucky = localStorage.getItem('nexus_dash_lucky_config');
+      if (savedLucky) {
+        setLuckyConfig(prev => ({ ...prev, ...JSON.parse(savedLucky) }));
       }
     } catch (e) {
       console.error('SettingsContext local cache error:', e);
@@ -295,6 +319,10 @@ function hexToRgb(hex: string): string {
           if (settData.estimatorConfig) {
             setEstimatorConfig(prev => ({ ...prev, ...settData.estimatorConfig }));
             localStorage.setItem('nexus_dash_estimator_config', JSON.stringify(settData.estimatorConfig));
+          }
+          if (settData.luckyConfig) {
+            setLuckyConfig(prev => ({ ...prev, ...settData.luckyConfig }));
+            localStorage.setItem('nexus_dash_lucky_config', JSON.stringify(settData.luckyConfig));
           }
         }
 
@@ -428,6 +456,36 @@ function hexToRgb(hex: string): string {
     }
   };
 
+  const updateLuckyConfig = async (config: Partial<LuckyConfig>) => {
+    const next: LuckyConfig = {
+      ...luckyConfig,
+      ...config,
+      dropRates: {
+        ...luckyConfig.dropRates,
+        ...(config.dropRates || {}),
+      },
+      prizes: config.prizes || luckyConfig.prizes || DEFAULT_LUCKY_CONFIG.prizes,
+    };
+    setLuckyConfig(next);
+    localStorage.setItem('nexus_dash_lucky_config', JSON.stringify(next));
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ luckyConfig: next }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.luckyConfig) {
+          setLuckyConfig(data.luckyConfig);
+          localStorage.setItem('nexus_dash_lucky_config', JSON.stringify(data.luckyConfig));
+        }
+      }
+    } catch (err) {
+      console.error('[updateLuckyConfig] API error:', err);
+    }
+  };
+
   const saveProjects = async (newProjects: ProjectItem[]) => {
     setProjects(newProjects);
     localStorage.setItem('nexus_dash_portfolio', JSON.stringify(newProjects));
@@ -455,11 +513,13 @@ function hexToRgb(hex: string): string {
         projects,
         themeSettings,
         estimatorConfig,
+        luckyConfig,
         updateSiteSettings,
         updateContactSettings,
         updateSocialSettings,
         updateThemeSettings,
         updateEstimatorConfig,
+        updateLuckyConfig,
         saveProjects,
       }}
     >

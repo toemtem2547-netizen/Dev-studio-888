@@ -37,6 +37,31 @@ export default function EstimatorView() {
   const [projectType, setProjectType] = useState<string>('webapp');
   const [features, setFeatures] = useState<string[]>([]);
   const [timelineSpeed, setTimelineSpeed] = useState<'standard' | 'express'>('standard');
+  const [activePromo, setActivePromo] = useState<string | null>(null);
+  const [promoName, setPromoName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const promo = urlParams.get('promo') || sessionStorage.getItem('nexus_won_promo');
+      const name = sessionStorage.getItem('nexus_won_name');
+      if (promo) {
+        setActivePromo(promo);
+        if (name) setPromoName(name);
+
+        // Auto-select features if won from Lucky Vault
+        if (promo.includes('LINE')) {
+          setFeatures(prev => prev.includes('notification') ? prev : [...prev, 'notification']);
+        } else if (promo.includes('PROMPTPAY') || promo.includes('QR')) {
+          setFeatures(prev => prev.includes('payment') ? prev : [...prev, 'payment']);
+        } else if (promo.includes('AI')) {
+          setFeatures(prev => prev.includes('ai') ? prev : [...prev, 'ai']);
+        } else if (promo.includes('REPORT') || promo.includes('EXCEL')) {
+          setFeatures(prev => prev.includes('export') ? prev : [...prev, 'export']);
+        }
+      }
+    }
+  }, []);
 
   const customProjectTypes = estimatorConfig?.customProjectTypes || [];
 
@@ -86,13 +111,25 @@ export default function EstimatorView() {
   };
 
   // Calculate
-  let total = getBasePrice(projectType);
+  let subtotal = getBasePrice(projectType);
   features.forEach(f => {
-    total += (featurePrices[f as keyof typeof featurePrices] || 0);
+    // Feature perks granted for free
+    if (activePromo?.includes('LINE') && f === 'notification') return;
+    if ((activePromo?.includes('PROMPTPAY') || activePromo?.includes('QR')) && f === 'payment') return;
+    if (activePromo?.includes('REPORT') && f === 'export') return;
+    subtotal += (featurePrices[f as keyof typeof featurePrices] || 0);
   });
+
   if (timelineSpeed === 'express') {
-    total = Math.round(total * (timelineWeeks[projectType]?.multiplier || speedMultiplier));
+    subtotal = Math.round(subtotal * (timelineWeeks[projectType]?.multiplier || speedMultiplier));
   }
+
+  let discount = 0;
+  if (activePromo?.includes('10OFF') || activePromo?.includes('VIP-10')) {
+    discount = Math.round(subtotal * 0.10);
+  }
+
+  const total = Math.max(0, subtotal - discount);
 
   const weeks = timelineWeeks[projectType]?.[timelineSpeed] || (timelineSpeed === 'express' ? '2-4' : '4-6');
 
@@ -101,6 +138,9 @@ export default function EstimatorView() {
     sessionStorage.setItem('nexus_est_price', total.toString());
     sessionStorage.setItem('nexus_est_weeks', weeks);
     sessionStorage.setItem('nexus_est_features', JSON.stringify(features));
+    if (activePromo) {
+      sessionStorage.setItem('nexus_est_promo', activePromo);
+    }
     router.push('/contact');
   };
 
@@ -395,8 +435,32 @@ export default function EstimatorView() {
               </div>
             </div>
 
-            {/* Estimator Summary Card (Sticky) */}
+              {/* Estimator Summary Card (Sticky) */}
             <div className="estimator-summary-card">
+              {activePromo && (
+                <div style={{
+                  background: 'rgba(245, 158, 11, 0.12)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '10px 12px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '0.82rem',
+                }}>
+                  <i className="fa-solid fa-gift" style={{ color: '#F59E0B', fontSize: '1.1rem' }}></i>
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#F59E0B' }}>
+                      ใช้สิทธิ์โค้ด: {activePromo}
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem' }}>
+                      {promoName || 'ได้รับสิทธิพิเศษฟรีจาก Lucky Vault'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="summary-header">
                 <div className="summary-title-wrap">
                   <i className="fa-solid fa-receipt"></i>

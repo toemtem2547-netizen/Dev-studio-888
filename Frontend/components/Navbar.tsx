@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/Frontend/context/ThemeContext';
 import { useLanguage } from '@/Frontend/context/LanguageContext';
 import { useSettings } from '@/Frontend/context/SettingsContext';
+import { soundFx } from '@/Frontend/utils/soundEffects';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -13,6 +14,17 @@ export const Navbar: React.FC = () => {
   const { lang, t, toggleLang } = useLanguage();
   const { site } = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [soundOn, setSoundOn] = useState(false);
+
+  useEffect(() => {
+    setSoundOn(soundFx.isEnabled());
+  }, []);
+
+  const handleToggleSound = () => {
+    const next = soundFx.toggle();
+    setSoundOn(next);
+  };
 
   // Format brand name
   const renderBrandName = () => {
@@ -42,6 +54,7 @@ export const Navbar: React.FC = () => {
           <Link
             href="/#portfolio"
             className="nav-link"
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
             {t.navWork}
@@ -49,6 +62,7 @@ export const Navbar: React.FC = () => {
           <Link
             href="/#services"
             className="nav-link"
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
             {t.navServices}
@@ -56,13 +70,24 @@ export const Navbar: React.FC = () => {
           <Link
             href="/estimator"
             className={`nav-link highlight-link ${pathname === '/estimator' ? 'active' : ''}`}
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
-            <i className="fa-solid fa-calculator"></i> {t.navEstimator}
+            <i className="fa-solid fa-calculator"></i> <span>{t.navEstimator}</span>
+          </Link>
+          <Link
+            href="/lucky"
+            className={`nav-link gacha-nav-link ${pathname === '/lucky' ? 'active' : ''}`}
+            style={{ whiteSpace: 'nowrap' }}
+            onClick={() => setMobileOpen(false)}
+          >
+            <span className="gacha-nav-badge">FREE</span>
+            <span>{(t as any).navLucky || '🎁 สุ่มรับฟังก์ชันฟรี'}</span>
           </Link>
           <Link
             href="/process"
             className={`nav-link ${pathname === '/process' ? 'active' : ''}`}
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
             {t.navProcess}
@@ -70,6 +95,7 @@ export const Navbar: React.FC = () => {
           <Link
             href="/faq"
             className={`nav-link ${pathname === '/faq' ? 'active' : ''}`}
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
             {t.navFaq}
@@ -77,6 +103,7 @@ export const Navbar: React.FC = () => {
           <Link
             href="/contact"
             className={`btn btn-sm btn-primary nav-cta ${pathname === '/contact' ? 'active' : ''}`}
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => setMobileOpen(false)}
           >
             {t.navContact}
@@ -96,6 +123,22 @@ export const Navbar: React.FC = () => {
           >
             <i className="fa-solid fa-globe" style={{ marginRight: '4px' }}></i>
             <span>{t.langLabel}</span>
+          </button>
+
+          {/* Futuristic Sound FX Toggle */}
+          <button
+            className={`theme-toggle ${soundOn ? 'sound-active' : ''}`}
+            id="soundToggle"
+            title={soundOn ? 'ปิดเสียงเอฟเฟกต์ (Mute SFX)' : 'เปิดเสียงเอฟเฟกต์สุดล้ำ (Enable Sci-Fi SFX)'}
+            aria-label="Toggle Sound Effects"
+            onClick={handleToggleSound}
+            style={soundOn ? { color: '#10B981', borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.15)' } : {}}
+          >
+            {soundOn ? (
+              <i className="fa-solid fa-volume-high"></i>
+            ) : (
+              <i className="fa-solid fa-volume-xmark" style={{ opacity: 0.55 }}></i>
+            )}
           </button>
 
           {/* Theme Toggle */}

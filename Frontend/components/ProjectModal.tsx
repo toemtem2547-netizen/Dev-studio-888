@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ProjectItem } from '@/types';
+import { soundFx } from '@/Frontend/utils/soundEffects';
 
 interface ProjectModalProps {
   project: ProjectItem | null;
@@ -34,10 +35,12 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
   const currentImage = allImages[activeImgIdx] || project.image;
 
   const handlePrevImg = () => {
+    soundFx.playClick();
     setActiveImgIdx(prev => (prev > 0 ? prev - 1 : allImages.length - 1));
   };
 
   const handleNextImg = () => {
+    soundFx.playClick();
     setActiveImgIdx(prev => (prev < allImages.length - 1 ? prev + 1 : 0));
   };
 
@@ -168,12 +171,56 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               )}
             </div>
             <h2 className="case-study-title">{project.title}</h2>
-            <div className="kpi-banner">
-              <i className="fa-solid fa-chart-line"></i> {project.kpi}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="kpi-banner">
+                <i className="fa-solid fa-chart-line"></i> {project.kpi}
+              </div>
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl.startsWith('http://') || project.liveUrl.startsWith('https://') ? project.liveUrl : `https://${project.liveUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="case-study-live-btn"
+                  title="เปิดดูเว็บไซต์จริงในแท็บใหม่"
+                >
+                  <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                  <span>เปิดดูเว็บไซต์จริง (Visit Website)</span>
+                </a>
+              )}
             </div>
           </div>
 
           <div className="case-study-body">
+            {project.liveUrl && (
+              <div className="case-study-live-card">
+                <div className="live-card-info">
+                  <div className="live-card-badge">
+                    <span className="live-indicator-pulse"></span>
+                    <span>ONLINE PRODUCTION</span>
+                  </div>
+                  <div className="live-card-url">
+                    <i className="fa-solid fa-globe"></i>
+                    <a
+                      href={project.liveUrl.startsWith('http://') || project.liveUrl.startsWith('https://') ? project.liveUrl : `https://${project.liveUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {project.liveUrl}
+                    </a>
+                  </div>
+                </div>
+                <a
+                  href={project.liveUrl.startsWith('http://') || project.liveUrl.startsWith('https://') ? project.liveUrl : `https://${project.liveUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="live-card-cta"
+                >
+                  <span>เข้าสู่ระบบจริง</span>
+                  <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </div>
+            )}
+
             {project.problem && (
               <div className="case-study-section">
                 <h4>
@@ -209,6 +256,21 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
                     <span key={idx}>{tag}</span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {project.liveUrl && (
+              <div style={{ marginTop: '8px', textAlign: 'center' }}>
+                <a
+                  href={project.liveUrl.startsWith('http://') || project.liveUrl.startsWith('https://') ? project.liveUrl : `https://${project.liveUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="case-study-live-btn full-width"
+                  style={{ display: 'inline-flex', width: '100%', justifyContent: 'center', padding: '14px 24px', fontSize: '1rem' }}
+                >
+                  <i className="fa-solid fa-globe"></i>
+                  <span>เปิดเว็บไซต์จริงของโปรเจกต์นี้ &rarr;</span>
+                </a>
               </div>
             )}
           </div>

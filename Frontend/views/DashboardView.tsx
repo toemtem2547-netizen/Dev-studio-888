@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/Frontend/context/ThemeContext';
 import { useSettings } from '@/Frontend/context/SettingsContext';
-import { ProjectItem, LeadItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG, CustomProjectType } from '@/types';
+import { ProjectItem, LeadItem, EstimatorConfig, DEFAULT_ESTIMATOR_CONFIG, CustomProjectType, LuckyConfig, DEFAULT_LUCKY_CONFIG, PerkPrize } from '@/types';
 
 export interface ThemePreset {
   id: string;
@@ -120,11 +120,13 @@ export default function DashboardView() {
     projects,
     themeSettings,
     estimatorConfig,
+    luckyConfig,
     updateSiteSettings,
     updateContactSettings,
     updateSocialSettings,
     updateThemeSettings,
     updateEstimatorConfig,
+    updateLuckyConfig,
     saveProjects,
   } = useSettings();
 
@@ -151,6 +153,7 @@ export default function DashboardView() {
         'messages',
         'estimator-logs',
         'settings-estimator',
+        'settings-lucky',
         'settings-site',
         'settings-contact',
         'settings-social',
@@ -188,6 +191,9 @@ export default function DashboardView() {
   const [contactForm, setContactForm] = useState(contact);
   const [socialForm, setSocialForm] = useState(social);
   const [estimatorForm, setEstimatorForm] = useState<EstimatorConfig>(estimatorConfig || DEFAULT_ESTIMATOR_CONFIG);
+  const [luckyForm, setLuckyForm] = useState<LuckyConfig>(luckyConfig || DEFAULT_LUCKY_CONFIG);
+  const [editingPrize, setEditingPrize] = useState<PerkPrize | null>(null);
+  const [showPrizeModal, setShowPrizeModal] = useState<boolean>(false);
   const [primaryColor, setPrimaryColor] = useState(themeSettings?.primaryColor || '#2563EB');
   const [secondaryColor, setSecondaryColor] = useState(themeSettings?.secondaryColor || '#7C3AED');
   const [fontHeading, setFontHeading] = useState(themeSettings?.fontHeading || 'Plus Jakarta Sans');
@@ -665,6 +671,129 @@ export default function DashboardView() {
     }
   };
 
+  const handleSaveLuckySettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateLuckyConfig(luckyForm);
+      triggerToast('บันทึกการตั้งค่าระบบสุ่มและเรทรางวัลเรียบร้อยแล้ว (อัปเดตหน้าเว็บสดทันที) 🎁');
+    } catch (err) {
+      console.error('[handleSaveLuckySettings] Error:', err);
+      triggerToast('เกิดข้อผิดพลาด ไม่สามารถบันทึกได้');
+    }
+  };
+
+  const handleAdjustDropRate = (tier: 'legendary' | 'epic' | 'rare', delta: number) => {
+    setLuckyForm(prev => {
+      const currentRates = prev.dropRates || DEFAULT_LUCKY_CONFIG.dropRates;
+      const newVal = Math.max(0, Math.min(100, (currentRates[tier] || 0) + delta));
+      return {
+        ...prev,
+        dropRates: {
+          ...currentRates,
+          [tier]: newVal,
+        },
+      };
+    });
+  };
+
+  const handleSetDropRate = (tier: 'legendary' | 'epic' | 'rare', val: number) => {
+    setLuckyForm(prev => {
+      const currentRates = prev.dropRates || DEFAULT_LUCKY_CONFIG.dropRates;
+      const newVal = Math.max(0, Math.min(100, isNaN(val) ? 0 : val));
+      return {
+        ...prev,
+        dropRates: {
+          ...currentRates,
+          [tier]: newVal,
+        },
+      };
+    });
+  };
+
+  const handleApplyDropRatePreset = (legendary: number, epic: number, rare: number) => {
+    setLuckyForm(prev => ({
+      ...prev,
+      dropRates: { legendary, epic, rare },
+    }));
+    triggerToast(`ปรับชุดเรทเป็น ${legendary}% / ${epic}% / ${rare}% เรียบร้อยแล้ว ✨`);
+  };
+
+  const handleAutoBalanceDropRates = () => {
+    setLuckyForm(prev => {
+      const currentRates = prev.dropRates || DEFAULT_LUCKY_CONFIG.dropRates;
+      const leg = Number(currentRates.legendary || 0);
+      const ep = Number(currentRates.epic || 0);
+      const remaining = Math.max(0, 100 - (leg + ep));
+      return {
+        ...prev,
+        dropRates: {
+          ...currentRates,
+          rare: remaining,
+        },
+      };
+    });
+    triggerToast('ปรับเรท Rare ให้รวมครบ 100% พอดีเรียบร้อยแล้ว ⚡');
+  };
+
+  const handleOpenAddPrize = () => {
+    setEditingPrize({
+      id: 'perk-' + Date.now(),
+      name: '',
+      nameEn: '',
+      category: 'Special',
+      rarity: 'epic',
+      valueThb: 8000,
+      promoCode: 'DEV888-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+      icon: 'fa-solid fa-gift',
+      imageUrl: '',
+      description: '',
+      highlightText: '',
+    });
+    setShowPrizeModal(true);
+  };
+
+  const handleOpenEditPrize = (prize: PerkPrize) => {
+    setEditingPrize({ ...prize });
+    setShowPrizeModal(true);
+  };
+
+  const handleSavePrize = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPrize || !editingPrize.name.trim()) return;
+
+    const currentList = luckyForm.prizes || [];
+    const exists = currentList.some(p => p.id === editingPrize.id);
+    let updated: PerkPrize[];
+    if (exists) {
+      updated = currentList.map(p => p.id === editingPrize.id ? editingPrize : p);
+    } else {
+      updated = [...currentList, editingPrize];
+    }
+
+    const nextForm = { ...luckyForm, prizes: updated };
+    setLuckyForm(nextForm);
+    updateLuckyConfig(nextForm);
+    setShowPrizeModal(false);
+    triggerToast(exists ? 'แก้ไขข้อมูลของรางวัลเรียบร้อยแล้ว ✨' : 'เพิ่มของรางวัลใหม่สำเร็จแล้ว 🎁');
+  };
+
+  const handleDeletePrize = (id: string, name: string) => {
+    requestConfirm(
+      'ลบของรางวัล',
+      `คุณต้องการลบรางวัล "${name}" ออกจากระบบสุ่มใช่หรือไม่?`,
+      () => {
+        const currentList = luckyForm.prizes || [];
+        const updated = currentList.filter(p => p.id !== id);
+        const nextForm = { ...luckyForm, prizes: updated };
+        setLuckyForm(nextForm);
+        updateLuckyConfig(nextForm);
+        triggerToast('ลบของรางวัลเรียบร้อยแล้ว');
+      },
+      'ยืนยันการลบรางวัล',
+      'danger'
+    );
+  };
+
   const handleSelectPreset = (preset: ThemePreset) => {
     setPrimaryColor(preset.primaryColor);
     setSecondaryColor(preset.secondaryColor);
@@ -721,8 +850,9 @@ export default function DashboardView() {
       excerpt: '',
       image: '/assets/images/project_dashboard.jpg',
       tags: ['Next.js', 'TypeScript', 'Tailwind CSS'],
-      client: 'Global Corp.',
+      client: '',
       duration: '4 สัปดาห์',
+      liveUrl: '',
       problem: 'ความท้าทายของระบบเดิม',
       solution: 'การพัฒนาระบบใหม่ด้วยสถาปัตยกรรมทันสมัย',
       results: 'เพิ่มผลลัพธ์ทางธุรกิจและความรวดเร็วในการทำงาน',
@@ -730,7 +860,7 @@ export default function DashboardView() {
     setShowProjectModal(true);
   };
 
-  const handleSaveProject = (e: React.FormEvent) => {
+  const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProject) return;
 
@@ -738,8 +868,26 @@ export default function DashboardView() {
     const exists = projects.find(p => p.id === editingProject.id);
     if (exists) {
       updatedList = projects.map(p => p.id === editingProject.id ? editingProject : p);
+      try {
+        await fetch('/api/projects', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editingProject),
+        });
+      } catch (err) {
+        console.error('[handleSaveProject] PUT error:', err);
+      }
     } else {
       updatedList = [editingProject, ...projects];
+      try {
+        await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editingProject),
+        });
+      } catch (err) {
+        console.error('[handleSaveProject] POST error:', err);
+      }
     }
 
     saveProjects(updatedList);
@@ -752,7 +900,12 @@ export default function DashboardView() {
     requestConfirm(
       'ลบผลงาน Portfolio',
       `คุณแน่ใจหรือไม่ว่าต้องการลบผลงาน "${title || ''}" ออกจาก Portfolio?`,
-      () => {
+      async () => {
+        try {
+          await fetch(`/api/projects?id=${id}`, { method: 'DELETE' });
+        } catch (err) {
+          console.error('[handleDeleteProject] DELETE error:', err);
+        }
         const updated = projects.filter(p => p.id !== id);
         saveProjects(updated);
         triggerToast('ลบผลงานเรียบร้อยแล้ว');
@@ -846,6 +999,14 @@ export default function DashboardView() {
           >
             <i className="fa-solid fa-coins"></i>
             <span>ตั้งค่าราคาประเมิน</span>
+          </button>
+          <button
+            type="button"
+            className={`dash-nav-item ${activeSection === 'settings-lucky' ? 'active' : ''}`}
+            onClick={() => switchSection('settings-lucky')}
+          >
+            <i className="fa-solid fa-gift" style={{ color: '#F59E0B' }}></i>
+            <span>ระบบสุ่มรางวัล (Gacha)</span>
           </button>
           <button
             type="button"
@@ -1060,6 +1221,40 @@ export default function DashboardView() {
                   )}
                 </div>
               </div>
+
+              {/* Recent Portfolio Projects & Live Links */}
+              <div className="dash-card">
+                <div className="dash-card-header">
+                  <h3><i className="fa-solid fa-briefcase"></i> ผลงานที่เผยแพร่ล่าสุด ({projects.length} รายการ)</h3>
+                  <button className="btn btn-sm btn-glass" onClick={() => switchSection('portfolio')}>จัดการผลงานทั้งหมด</button>
+                </div>
+                <div className="dash-card-body">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+                    {projects.slice(0, 4).map(p => (
+                      <div key={p.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
+                        <img src={p.image} alt={p.title} style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-sub)' }}>{p.catLabel || p.category}</div>
+                        </div>
+                        {p.liveUrl ? (
+                          <a
+                            href={p.liveUrl.startsWith('http') ? p.liveUrl : `https://${p.liveUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ padding: '6px 10px', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10B981', fontSize: '0.78rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600, flexShrink: 0 }}
+                            title="เปิดดูเว็บไซต์จริง"
+                          >
+                            <i className="fa-solid fa-arrow-up-right-from-square"></i> เปิดเว็บ
+                          </a>
+                        ) : (
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-sub)', flexShrink: 0 }}>ไม่มีลิงก์</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </section>
           )}
 
@@ -1127,15 +1322,47 @@ export default function DashboardView() {
                   <div key={proj.id} className="dash-portfolio-card">
                     <img src={proj.image} alt={proj.title} className="dash-portfolio-img" />
                     <div className="dash-portfolio-body">
-                      <div className="dash-portfolio-cat">{proj.catLabel || proj.category.toUpperCase()}</div>
+                      <div className="dash-portfolio-cat" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{proj.catLabel || proj.category.toUpperCase()}</span>
+                        {proj.liveUrl && (
+                          <span style={{ fontSize: '0.72rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '2px 8px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }}></span> ออนไลน์
+                          </span>
+                        )}
+                      </div>
                       <h4 className="dash-portfolio-title">{proj.title}</h4>
                       <p className="dash-portfolio-desc">{proj.excerpt}</p>
+                      {proj.liveUrl && (
+                        <div style={{ fontSize: '0.78rem', color: '#38BDF8', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <i className="fa-solid fa-link" style={{ color: 'var(--primary)', flexShrink: 0 }}></i>
+                          <a
+                            href={proj.liveUrl.startsWith('http') ? proj.liveUrl : `https://${proj.liveUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: '#38BDF8', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            title="เปิดดูเว็บไซต์จริง"
+                          >
+                            {proj.liveUrl}
+                          </a>
+                        </div>
+                      )}
                       <div className="dash-portfolio-tags">
                         {(proj.tags || []).map((t, idx) => (
                           <span key={idx}>{t}</span>
                         ))}
                       </div>
                       <div className="dash-portfolio-actions">
+                        {proj.liveUrl && (
+                          <a
+                            href={proj.liveUrl.startsWith('http') ? proj.liveUrl : `https://${proj.liveUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="dash-btn-live-preview"
+                            title="เปิดชมเว็บไซต์จริงในแท็บใหม่"
+                          >
+                            <i className="fa-solid fa-arrow-up-right-from-square"></i> เปิดเว็บ
+                          </a>
+                        )}
                         <button
                           type="button"
                           onClick={() => {
@@ -2041,6 +2268,976 @@ export default function DashboardView() {
             );
           })()}
 
+          {/* ============ SETTINGS: LUCKY VAULT / GACHA ============ */}
+          {activeSection === 'settings-lucky' && (() => {
+            const dropRates = luckyForm.dropRates || DEFAULT_LUCKY_CONFIG.dropRates;
+            const currentPrizes = luckyForm.prizes || [];
+            const totalRate = Number(dropRates.legendary || 0) + Number(dropRates.epic || 0) + Number(dropRates.rare || 0);
+            const isRateValid = totalRate === 100;
+
+            return (
+              <section className="dash-section active" id="sec-settings-lucky">
+                <div className="dash-section-header">
+                  <div>
+                    <h2>
+                      <i className="fa-solid fa-gift" style={{ color: '#F59E0B' }}></i> ระบบสุ่มรางวัล (Lucky Vault &amp; Gacha Reel)
+                    </h2>
+                    <p>จัดการของรางวัล, รหัสโปรโมชัน, รูปภาพ/ไอคอน และตั้งค่าเรทออกของรางวัล (Drop Rate %) ที่ส่งผลจริงในหน้าเว็บ</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <Link
+                      href="/lucky"
+                      target="_blank"
+                      className="btn btn-secondary btn-sm"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square"></i> ดูหน้าสุ่มรางวัลของลูกค้า
+                    </Link>
+                  </div>
+                </div>
+
+                <form className="dash-form" onSubmit={handleSaveLuckySettings}>
+                  {/* Card 1: Drop Rates & Probability Engine */}
+                  <div className="dash-card" style={{ marginBottom: '28px', border: '1px solid rgba(245, 158, 11, 0.25)', boxShadow: '0 15px 40px -10px rgba(0, 0, 0, 0.5)' }}>
+                    <div className="dash-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px', borderBottom: '1px solid var(--border-glass)', padding: '20px 24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div
+                          style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%)',
+                            border: '1px solid rgba(245, 158, 11, 0.35)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#F59E0B',
+                            fontSize: '1.3rem',
+                          }}
+                        >
+                          <i className="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <div>
+                          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-heading)' }}>
+                            ตั้งค่าอัตราการออกรางวัล (Drop Rate Engine)
+                          </h3>
+                          <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+                            กำหนดเปอร์เซ็นต์โอกาสสุ่มได้ของแต่ละระดับความแรร์ (ระบบสุ่มตามค่าที่ตั้งนี้จริง 100%)
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Status indicator */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span
+                          style={{
+                            fontSize: '0.86rem',
+                            fontWeight: 700,
+                            padding: '6px 16px',
+                            borderRadius: 'var(--radius-full)',
+                            background: isRateValid ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.18)',
+                            color: isRateValid ? '#10B981' : '#EF4444',
+                            border: `1.5px solid ${isRateValid ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            boxShadow: isRateValid ? '0 0 15px rgba(16, 185, 129, 0.2)' : '0 0 15px rgba(239, 68, 68, 0.2)',
+                          }}
+                        >
+                          <i className={`fa-solid ${isRateValid ? 'fa-circle-check' : 'fa-triangle-exclamation'}`}></i>
+                          {isRateValid ? 'อัตราส่วนครบ 100% พอดี' : `รวมปัจจุบัน ${totalRate}% (${totalRate < 100 ? `ขาดอีก ${100 - totalRate}%` : `เกินมา ${totalRate - 100}%`})`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '24px' }}>
+                      {/* Presets Quick Selector Bar */}
+                      <div
+                        style={{
+                          marginBottom: '24px',
+                          padding: '14px 18px',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          borderRadius: '14px',
+                          border: '1px solid var(--border-glass)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '12px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="fa-solid fa-wand-magic-sparkles" style={{ color: '#F59E0B' }}></i>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-heading)' }}>
+                            เลือกชุดเรทแนะนำ (1-Click Presets):
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          <button
+                            type="button"
+                            className="dash-preset-btn"
+                            onClick={() => handleApplyDropRatePreset(18, 37, 45)}
+                            title="สัดส่วนที่เหมาะสำหรับทุกธุรกิจทั่วไป"
+                          >
+                            <i className="fa-solid fa-scale-balanced" style={{ color: '#38BDF8' }}></i>
+                            สมดุลมาตรฐาน (18% / 37% / 45%)
+                          </button>
+                          <button
+                            type="button"
+                            className="dash-preset-btn"
+                            onClick={() => handleApplyDropRatePreset(30, 40, 30)}
+                            title="เรทแตกง่าย ลูกค้าได้ของใหญ่เยอะขึ้น"
+                          >
+                            <i className="fa-solid fa-gift" style={{ color: '#F59E0B' }}></i>
+                            แจกหนักโปรโมชัน (30% / 40% / 30%)
+                          </button>
+                          <button
+                            type="button"
+                            className="dash-preset-btn"
+                            onClick={() => handleApplyDropRatePreset(8, 32, 60)}
+                            title="รางวัลใหญ่แตกยาก ท้าทาย"
+                          >
+                            <i className="fa-solid fa-gem" style={{ color: '#A855F7' }}></i>
+                            เน้นรางวัลหายาก (8% / 32% / 60%)
+                          </button>
+                          {!isRateValid && (
+                            <button
+                              type="button"
+                              className="dash-preset-btn"
+                              style={{ background: 'rgba(239, 68, 68, 0.15)', borderColor: '#EF4444', color: '#EF4444' }}
+                              onClick={handleAutoBalanceDropRates}
+                            >
+                              <i className="fa-solid fa-bolt"></i> ปรับให้ครบ 100% อัตโนมัติ
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 3 Dedicated Luxury Drop Rate Cards */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
+                          gap: '20px',
+                          marginBottom: '26px',
+                        }}
+                      >
+                        {/* Card: LEGENDARY */}
+                        <div
+                          style={{
+                            background: 'linear-gradient(145deg, rgba(245, 158, 11, 0.09) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: '16px',
+                            boxShadow: '0 8px 25px rgba(245, 158, 11, 0.08)',
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  background: 'rgba(245, 158, 11, 0.2)',
+                                  border: '1px solid rgba(245, 158, 11, 0.4)',
+                                  color: '#F59E0B',
+                                  fontSize: '0.82rem',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.04em',
+                                }}
+                              >
+                                <i className="fa-solid fa-crown"></i> LEGENDARY
+                              </span>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                                {currentPrizes.filter(p => p.rarity === 'legendary').length} ของรางวัล
+                              </span>
+                            </div>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1.05rem', color: 'var(--text-heading)', fontWeight: 700 }}>
+                              รางวัลระดับสูงสุด (VIP Perks)
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                              สปีด 0.4s, AI Copilot, LINE OA Auto Alert, Voucher ส่วนลด ฿25,000
+                            </p>
+                          </div>
+
+                          {/* Rate Value Controller */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('legendary', -5)}
+                                title="ลด 5%"
+                              >
+                                -5%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('legendary', -1)}
+                                title="ลด 1%"
+                              >
+                                -1%
+                              </button>
+
+                              {/* Number input with % */}
+                              <div
+                                className="dash-pricing-input-box"
+                                style={{
+                                  flex: 1,
+                                  borderColor: 'rgba(245, 158, 11, 0.4)',
+                                  background: 'rgba(245, 158, 11, 0.06)',
+                                }}
+                              >
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={dropRates.legendary}
+                                  onChange={e => handleSetDropRate('legendary', Number(e.target.value))}
+                                  className="dash-pricing-number-input"
+                                  style={{ textAlign: 'center', color: '#F59E0B', fontSize: '1.35rem', fontWeight: 800 }}
+                                />
+                                <span className="dash-pricing-currency-prefix" style={{ color: '#F59E0B', fontWeight: 800, borderLeft: '1px solid rgba(245, 158, 11, 0.3)', borderRight: 'none' }}>
+                                  %
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('legendary', 1)}
+                                title="เพิ่ม 1%"
+                              >
+                                +1%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('legendary', 5)}
+                                title="เพิ่ม 5%"
+                              >
+                                +5%
+                              </button>
+                            </div>
+
+                            {/* Range Slider */}
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={dropRates.legendary}
+                              onChange={e => handleSetDropRate('legendary', Number(e.target.value))}
+                              style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Card: EPIC */}
+                        <div
+                          style={{
+                            background: 'linear-gradient(145deg, rgba(168, 85, 247, 0.09) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                            border: '1.5px solid rgba(168, 85, 247, 0.35)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: '16px',
+                            boxShadow: '0 8px 25px rgba(168, 85, 247, 0.08)',
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  background: 'rgba(168, 85, 247, 0.2)',
+                                  border: '1px solid rgba(168, 85, 247, 0.4)',
+                                  color: '#A855F7',
+                                  fontSize: '0.82rem',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.04em',
+                                }}
+                              >
+                                <i className="fa-solid fa-gem"></i> EPIC
+                              </span>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                                {currentPrizes.filter(p => p.rarity === 'epic').length} ของรางวัล
+                              </span>
+                            </div>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1.05rem', color: 'var(--text-heading)', fontWeight: 700 }}>
+                              รางวัลระบบพรีเมียม (Pro Architecture)
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                              PromptPay QR Automation, SLA ดูแล 3 เดือนเต็ม, Executive Report Engine
+                            </p>
+                          </div>
+
+                          {/* Rate Value Controller */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('epic', -5)}
+                                title="ลด 5%"
+                              >
+                                -5%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('epic', -1)}
+                                title="ลด 1%"
+                              >
+                                -1%
+                              </button>
+
+                              {/* Number input with % */}
+                              <div
+                                className="dash-pricing-input-box"
+                                style={{
+                                  flex: 1,
+                                  borderColor: 'rgba(168, 85, 247, 0.4)',
+                                  background: 'rgba(168, 85, 247, 0.06)',
+                                }}
+                              >
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={dropRates.epic}
+                                  onChange={e => handleSetDropRate('epic', Number(e.target.value))}
+                                  className="dash-pricing-number-input"
+                                  style={{ textAlign: 'center', color: '#A855F7', fontSize: '1.35rem', fontWeight: 800 }}
+                                />
+                                <span className="dash-pricing-currency-prefix" style={{ color: '#A855F7', fontWeight: 800, borderLeft: '1px solid rgba(168, 85, 247, 0.3)', borderRight: 'none' }}>
+                                  %
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('epic', 1)}
+                                title="เพิ่ม 1%"
+                              >
+                                +1%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('epic', 5)}
+                                title="เพิ่ม 5%"
+                              >
+                                +5%
+                              </button>
+                            </div>
+
+                            {/* Range Slider */}
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={dropRates.epic}
+                              onChange={e => handleSetDropRate('epic', Number(e.target.value))}
+                              style={{ width: '100%', accentColor: '#A855F7', cursor: 'pointer' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Card: RARE */}
+                        <div
+                          style={{
+                            background: 'linear-gradient(145deg, rgba(56, 189, 248, 0.09) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                            border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: '16px',
+                            boxShadow: '0 8px 25px rgba(56, 189, 248, 0.08)',
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  background: 'rgba(56, 189, 248, 0.2)',
+                                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                                  color: '#38BDF8',
+                                  fontSize: '0.82rem',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.04em',
+                                }}
+                              >
+                                <i className="fa-solid fa-bolt"></i> RARE
+                              </span>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                                {currentPrizes.filter(p => p.rarity === 'rare').length} ของรางวัล
+                              </span>
+                            </div>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1.05rem', color: 'var(--text-heading)', fontWeight: 700 }}>
+                              บริการเสริมพื้นฐาน (Standard Add-ons)
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                              ฟรีโดเมน .COM &amp; Cloudflare SSL 1 ปี, วางระบบ Technical SEO ขั้นสูง
+                            </p>
+                          </div>
+
+                          {/* Rate Value Controller */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('rare', -5)}
+                                title="ลด 5%"
+                              >
+                                -5%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('rare', -1)}
+                                title="ลด 1%"
+                              >
+                                -1%
+                              </button>
+
+                              {/* Number input with % */}
+                              <div
+                                className="dash-pricing-input-box"
+                                style={{
+                                  flex: 1,
+                                  borderColor: 'rgba(56, 189, 248, 0.4)',
+                                  background: 'rgba(56, 189, 248, 0.06)',
+                                }}
+                              >
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={dropRates.rare}
+                                  onChange={e => handleSetDropRate('rare', Number(e.target.value))}
+                                  className="dash-pricing-number-input"
+                                  style={{ textAlign: 'center', color: '#38BDF8', fontSize: '1.35rem', fontWeight: 800 }}
+                                />
+                                <span className="dash-pricing-currency-prefix" style={{ color: '#38BDF8', fontWeight: 800, borderLeft: '1px solid rgba(56, 189, 248, 0.3)', borderRight: 'none' }}>
+                                  %
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('rare', 1)}
+                                title="เพิ่ม 1%"
+                              >
+                                +1%
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ padding: '8px 12px', fontSize: '0.9rem', borderRadius: '8px' }}
+                                onClick={() => handleAdjustDropRate('rare', 5)}
+                                title="เพิ่ม 5%"
+                              >
+                                +5%
+                              </button>
+                            </div>
+
+                            {/* Range Slider */}
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={dropRates.rare}
+                              onChange={e => handleSetDropRate('rare', Number(e.target.value))}
+                              style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Visual Progress Bar of Drop Rates */}
+                      <div
+                        style={{
+                          background: 'rgba(15, 23, 42, 0.6)',
+                          border: '1px solid var(--border-glass)',
+                          borderRadius: '16px',
+                          padding: '16px 20px',
+                          marginBottom: '28px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="fa-solid fa-chart-column" style={{ color: 'var(--primary)' }}></i>
+                            แถบแสดงสัดส่วนโอกาสออกรางวัลจริง (Probability Gauge):
+                          </span>
+                          <span style={{ fontSize: '0.82rem', color: isRateValid ? '#10B981' : '#EF4444', fontWeight: 700 }}>
+                            {isRateValid ? 'รวม 100% สมบูรณ์' : `ผลรวมปัจจุบัน: ${totalRate}%`}
+                          </span>
+                        </div>
+
+                        {/* Chunky Colorful Segmented Gauge */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            height: '24px',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            boxShadow: 'inset 0 2px 6px rgba(0, 0, 0, 0.6)',
+                          }}
+                        >
+                          {dropRates.legendary > 0 && (
+                            <div
+                              style={{
+                                width: `${Math.min(100, dropRates.legendary)}%`,
+                                background: 'linear-gradient(90deg, #F59E0B 0%, #D97706 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#0F172A',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                transition: 'width 0.25s ease',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                              }}
+                              title={`Legendary: ${dropRates.legendary}%`}
+                            >
+                              {dropRates.legendary >= 8 ? `👑 ${dropRates.legendary}%` : ''}
+                            </div>
+                          )}
+                          {dropRates.epic > 0 && (
+                            <div
+                              style={{
+                                width: `${Math.min(100, dropRates.epic)}%`,
+                                background: 'linear-gradient(90deg, #A855F7 0%, #7C3AED 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#FFFFFF',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                transition: 'width 0.25s ease',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                              }}
+                              title={`Epic: ${dropRates.epic}%`}
+                            >
+                              {dropRates.epic >= 8 ? `💎 ${dropRates.epic}%` : ''}
+                            </div>
+                          )}
+                          {dropRates.rare > 0 && (
+                            <div
+                              style={{
+                                width: `${Math.min(100, dropRates.rare)}%`,
+                                background: 'linear-gradient(90deg, #38BDF8 0%, #0284C7 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#0F172A',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                transition: 'width 0.25s ease',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                              }}
+                              title={`Rare: ${dropRates.rare}%`}
+                            >
+                              {dropRates.rare >= 8 ? `⚡ ${dropRates.rare}%` : ''}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* General Rules & Behavior Grid (3 Columns) */}
+                      <div
+                        style={{
+                          borderTop: '1px solid var(--border-glass)',
+                          paddingTop: '24px',
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                          gap: '20px',
+                        }}
+                      >
+                        {/* Status Toggle Card */}
+                        <div
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '14px',
+                            padding: '18px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+                              สถานะระบบสุ่ม (System Status)
+                            </span>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1rem', color: 'var(--text-heading)' }}>
+                              เปิด / ปิด บริการตู้สุ่มหน้าเว็บ
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                              เมื่อปิดใช้งาน หน้าเว็บ /lucky จะแสดงข้อความปิดปรับปรุงระบบชั่วคราว
+                            </p>
+                          </div>
+                          <div style={{ marginTop: '16px' }}>
+                            <button
+                              type="button"
+                              onClick={() => setLuckyForm({ ...luckyForm, enabled: !luckyForm.enabled })}
+                              style={{
+                                width: '100%',
+                                padding: '10px 16px',
+                                borderRadius: '10px',
+                                border: `1.5px solid ${luckyForm.enabled !== false ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.4)'}`,
+                                background: luckyForm.enabled !== false ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.1)',
+                                color: luckyForm.enabled !== false ? '#10B981' : '#EF4444',
+                                fontWeight: 700,
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <i className={`fa-solid ${luckyForm.enabled !== false ? 'fa-toggle-on' : 'fa-toggle-off'}`} style={{ fontSize: '1.2rem' }}></i>
+                              {luckyForm.enabled !== false ? '🟢 เปิดให้บริการอยู่ (Active)' : '🔴 ปิดระบบชั่วคราว (Disabled)'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Free Daily Limit Card */}
+                        <div
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '14px',
+                            padding: '18px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+                              โควตาสิทธิ์ต่อคน (Daily Free Spins)
+                            </span>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1rem', color: 'var(--text-heading)' }}>
+                              จำนวนสิทธิ์หมุนฟรีต่อวัน
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                              ระบบจะรีเซ็ตสิทธิ์ให้ผู้ใช้งานหมุนใหม่ได้ทุกวันเวลาเที่ยงคืน
+                            </p>
+                          </div>
+                          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              type="button"
+                              className="dash-stepper-btn"
+                              style={{ padding: '10px 14px', borderRadius: '8px', fontSize: '1rem' }}
+                              onClick={() => setLuckyForm({ ...luckyForm, dailyFreeSpins: Math.max(1, (luckyForm.dailyFreeSpins ?? 1) - 1) })}
+                            >
+                              -
+                            </button>
+                            <div className="dash-pricing-input-box" style={{ flex: 1 }}>
+                              <input
+                                type="number"
+                                min="1"
+                                max="99"
+                                value={luckyForm.dailyFreeSpins ?? 1}
+                                onChange={e => setLuckyForm({ ...luckyForm, dailyFreeSpins: Math.max(1, Number(e.target.value)) })}
+                                className="dash-pricing-number-input"
+                                style={{ textAlign: 'center', fontWeight: 800 }}
+                              />
+                              <span className="dash-pricing-currency-prefix" style={{ fontSize: '0.85rem' }}>ครั้ง / วัน</span>
+                            </div>
+                            <button
+                              type="button"
+                              className="dash-stepper-btn"
+                              style={{ padding: '10px 14px', borderRadius: '8px', fontSize: '1rem' }}
+                              onClick={() => setLuckyForm({ ...luckyForm, dailyFreeSpins: (luckyForm.dailyFreeSpins ?? 1) + 1 })}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Spin Duration Card */}
+                        <div
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '14px',
+                            padding: '18px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+                              ความเร็วตู้สุ่ม (Spin Duration)
+                            </span>
+                            <h4 style={{ margin: '0 0 6px', fontSize: '1rem', color: 'var(--text-heading)' }}>
+                              เวลาในการหมุนตู้สุ่ม (มิลลิวินาที)
+                            </h4>
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ fontSize: '0.76rem', padding: '4px 8px', background: luckyForm.spinDuration === 2500 ? 'rgba(37, 99, 235, 0.25)' : undefined }}
+                                onClick={() => setLuckyForm({ ...luckyForm, spinDuration: 2500 })}
+                              >
+                                ⚡ 2.5s เร็ว
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ fontSize: '0.76rem', padding: '4px 8px', background: luckyForm.spinDuration === 3800 ? 'rgba(37, 99, 235, 0.25)' : undefined }}
+                                onClick={() => setLuckyForm({ ...luckyForm, spinDuration: 3800 })}
+                              >
+                                🎯 3.8s แนะนำ
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-stepper-btn"
+                                style={{ fontSize: '0.76rem', padding: '4px 8px', background: luckyForm.spinDuration === 5000 ? 'rgba(37, 99, 235, 0.25)' : undefined }}
+                                onClick={() => setLuckyForm({ ...luckyForm, spinDuration: 5000 })}
+                              >
+                                🎬 5.0s ระทึก
+                              </button>
+                            </div>
+                          </div>
+                          <div style={{ marginTop: '14px' }}>
+                            <div className="dash-pricing-input-box">
+                              <input
+                                type="number"
+                                min="1000"
+                                max="10000"
+                                step="100"
+                                value={luckyForm.spinDuration ?? 3800}
+                                onChange={e => setLuckyForm({ ...luckyForm, spinDuration: Number(e.target.value) })}
+                                className="dash-pricing-number-input"
+                                style={{ textAlign: 'center', fontWeight: 800 }}
+                              />
+                              <span className="dash-pricing-currency-prefix" style={{ fontSize: '0.85rem' }}>ms (มิลลิวินาที)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Prizes Management */}
+                  <div className="dash-card">
+                    <div className="dash-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                      <div>
+                        <h3>
+                          <i className="fa-solid fa-boxes-stacked" style={{ color: 'var(--primary)' }}></i>
+                          รายการของรางวัลในวงล้อสุ่ม (Prizes Pool)
+                        </h3>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                          มีทั้งหมด {currentPrizes.length} รางวัล (สามารถเพิ่ม แก้ไขรูปภาพ/ไอคอน และปรับเปลี่ยนรายละเอียดได้อิสระ)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary"
+                        onClick={handleOpenAddPrize}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <i className="fa-solid fa-plus"></i> เพิ่มของรางวัลใหม่
+                      </button>
+                    </div>
+
+                    <div style={{ padding: '20px 24px' }}>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                        gap: '16px'
+                      }}>
+                        {currentPrizes.map((prize) => {
+                          const rarityColor = prize.rarity === 'legendary' ? '#F59E0B' : prize.rarity === 'epic' ? '#A855F7' : '#06B6D4';
+                          return (
+                            <div
+                              key={prize.id}
+                              style={{
+                                background: 'var(--bg-surface)',
+                                border: '1px solid var(--border-glass)',
+                                borderLeft: `4px solid ${rarityColor}`,
+                                borderRadius: 'var(--radius-md)',
+                                padding: '16px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                gap: '12px'
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                  <span style={{
+                                    fontSize: '0.68rem',
+                                    fontWeight: 800,
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    background: `${rarityColor}20`,
+                                    color: rarityColor,
+                                    border: `1px solid ${rarityColor}40`,
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    {prize.rarity}
+                                  </span>
+                                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#10B981' }}>
+                                    มูลค่า ฿{prize.valueThb.toLocaleString()} ฟรี
+                                  </span>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                                  <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    borderRadius: '10px',
+                                    background: 'rgba(255, 255, 255, 0.06)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.25rem',
+                                    color: rarityColor,
+                                    flexShrink: 0
+                                  }}>
+                                    {prize.imageUrl ? (
+                                      <img
+                                        src={prize.imageUrl}
+                                        alt={prize.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+                                      />
+                                    ) : (
+                                      <i className={prize.icon}></i>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.3, marginBottom: '2px' }}>
+                                      {prize.name}
+                                    </h4>
+                                    <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                                      {prize.category}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div style={{
+                                  fontSize: '0.78rem',
+                                  fontFamily: 'monospace',
+                                  color: '#F59E0B',
+                                  background: 'rgba(0, 0, 0, 0.25)',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  marginBottom: '8px',
+                                  width: 'fit-content'
+                                }}>
+                                  โค้ด: {prize.promoCode}
+                                </div>
+
+                                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                                  {prize.description}
+                                </p>
+                              </div>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderTop: '1px solid var(--border-glass)', paddingTop: '12px' }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-secondary"
+                                  style={{ flex: 1, justifyContent: 'center' }}
+                                  onClick={() => handleOpenEditPrize(prize)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i> แก้ไข
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm"
+                                  style={{ color: '#EF4444', borderColor: 'rgba(239, 68, 68, 0.35)', background: 'rgba(239, 68, 68, 0.08)' }}
+                                  onClick={() => handleDeletePrize(prize.id, prize.name)}
+                                >
+                                  <i className="fa-solid fa-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sticky Floating Save Action Bar */}
+                  <div className="dash-sticky-action-bar">
+                    <div className="dash-sticky-action-info">
+                      <i className="fa-solid fa-gift" style={{ color: '#F59E0B', fontSize: '1.2rem' }}></i>
+                      <span>
+                        การตั้งค่าของรางวัลและอัตราการออกรางวัล <strong className="dash-bar-highlight">ซิงค์หน้าเว็บจริงทันที</strong>
+                      </span>
+                    </div>
+                    <div className="dash-sticky-action-btns">
+                      <button
+                        type="button"
+                        className="dash-bar-btn dash-bar-reset-btn"
+                        onClick={() => {
+                          setLuckyForm(DEFAULT_LUCKY_CONFIG);
+                          triggerToast('รีเซ็ตของรางวัลและเรทเป็นค่าเริ่มต้นแล้ว ✨');
+                        }}
+                      >
+                        <i className="fa-solid fa-rotate-left"></i> รีเซ็ตเป็นค่าเริ่มต้น
+                      </button>
+                      <button
+                        type="submit"
+                        className="dash-bar-btn dash-bar-save-btn"
+                        style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#0F172A' }}
+                      >
+                        <i className="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่าระบบสุ่ม 🎁
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </section>
+            );
+          })()}
+
           {/* ============ SETTINGS: SITE ============ */}
           {activeSection === 'settings-site' && (
             <section className="dash-section active" id="sec-settings-site">
@@ -2697,6 +3894,71 @@ export default function DashboardView() {
                 )}
               </div>
 
+              {/* Client & Duration */}
+              <div className="dash-form-row">
+                <div className="dash-form-group">
+                  <label>ชื่อลูกค้า / องค์กร (Client)</label>
+                  <input
+                    type="text"
+                    value={editingProject.client || ''}
+                    onChange={e => setEditingProject({ ...editingProject, client: e.target.value })}
+                    placeholder="เช่น สำนักวิทยบริการฯ มรภ.มหาสารคาม"
+                  />
+                </div>
+                <div className="dash-form-group">
+                  <label>ระยะเวลาส่งมอบ (Duration)</label>
+                  <input
+                    type="text"
+                    value={editingProject.duration || ''}
+                    onChange={e => setEditingProject({ ...editingProject, duration: e.target.value })}
+                    placeholder="เช่น 4 สัปดาห์"
+                  />
+                </div>
+              </div>
+
+              {/* Website Link (Live URL) */}
+              <div className="dash-form-group" style={{ background: 'rgba(37, 99, 235, 0.05)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(37, 99, 235, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ margin: 0, fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <i className="fa-solid fa-globe" style={{ color: 'var(--primary)' }}></i>
+                    ลิงก์เว็บไซต์ผลงาน (Website / Live URL)
+                  </label>
+                  {editingProject.liveUrl && (
+                    <a
+                      href={editingProject.liveUrl.startsWith('http') ? editingProject.liveUrl : `https://${editingProject.liveUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '0.8rem',
+                        color: '#10B981',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontWeight: 600,
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                      }}
+                      title="คลิกเพื่อทดสอบเปิดดูเว็บไซต์จริง"
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square"></i> ทดสอบเปิดดูเว็บ
+                    </a>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={editingProject.liveUrl || ''}
+                  onChange={e => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
+                  placeholder="เช่น https://arit-web-subject-guide-m76n.vercel.app/home"
+                  style={{ width: '100%' }}
+                />
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)', marginTop: '6px', display: 'block' }}>
+                  💡 แปะลิงก์เว็บไซต์ของโปรเจกต์นี้ เพื่อให้ผู้ใช้งานหน้าเว็บสามารถคลิกปุ่ม <strong>&quot;เปิดดูเว็บไซต์จริง (Visit Website)&quot;</strong> เข้าชมระบบจริงได้ทันที
+                </span>
+              </div>
+
               <div className="dash-form-group">
                 <label>คำอธิบายสรุปย่อ (Excerpt)</label>
                 <textarea
@@ -3012,6 +4274,288 @@ export default function DashboardView() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ MODAL: ADD / EDIT GACHA PRIZE ============ */}
+      {showPrizeModal && editingPrize && (
+        <div className="dash-modal-overlay active" onClick={() => setShowPrizeModal(false)}>
+          <div className="dash-modal" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
+            <div className="dash-modal-header">
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#F59E0B'
+                  }}
+                >
+                  <i className="fa-solid fa-gift"></i>
+                </span>
+                {luckyForm.prizes?.some(p => p.id === editingPrize.id)
+                  ? 'แก้ไขข้อมูลของรางวัล (Edit Prize Perks)'
+                  : 'เพิ่มของรางวัลใหม่ในตู้สุ่ม (Add Gacha Prize)'}
+              </h3>
+              <button className="dash-modal-close" onClick={() => setShowPrizeModal(false)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePrize} className="dash-modal-body" style={{ padding: '24px' }}>
+              {/* Prize Name (TH & EN) */}
+              <div className="dash-form-row">
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    ชื่อของรางวัล (ภาษาไทย) <span style={{ color: '#EF4444' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPrize.name}
+                    onChange={e => setEditingPrize({ ...editingPrize, name: e.target.value })}
+                    placeholder="เช่น ระบบแจ้งเตือน LINE Auto Alert & Rich Menu"
+                    required
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                  />
+                </div>
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    ชื่อภาษาอังกฤษ (English Name)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPrize.nameEn || ''}
+                    onChange={e => setEditingPrize({ ...editingPrize, nameEn: e.target.value })}
+                    placeholder="เช่น LINE Auto Alert & Rich Menu Premium"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Rarity & Category */}
+              <div className="dash-form-row">
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    ระดับความแรร์ (Rarity Tier) <span style={{ color: '#EF4444' }}>*</span>
+                  </label>
+                  <select
+                    value={editingPrize.rarity}
+                    onChange={e => setEditingPrize({ ...editingPrize, rarity: e.target.value as 'legendary' | 'epic' | 'rare' })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-glass)',
+                      background: 'var(--bg-surface)',
+                      color: editingPrize.rarity === 'legendary' ? '#F59E0B' : editingPrize.rarity === 'epic' ? '#A855F7' : '#38BDF8',
+                      fontWeight: 700
+                    }}
+                  >
+                    <option value="legendary">🌟 Legendary (สีทอง - พรีเมียมขั้นสุด)</option>
+                    <option value="epic">💎 Epic (สีม่วง - โค้ดระบบ ฟังก์ชันระดับสูง)</option>
+                    <option value="rare">⚡ Rare (สีฟ้า - บริการเสริม พื้นฐานเว็บ)</option>
+                  </select>
+                </div>
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    หมวดหมู่ (Category Tag)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPrize.category}
+                    onChange={e => setEditingPrize({ ...editingPrize, category: e.target.value })}
+                    placeholder="เช่น FINTECH, SECURITY, MARKETING, INFRASTRUCTURE"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Value & Promo Code */}
+              <div className="dash-form-row">
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    มูลค่าของรางวัล (Value THB) <span style={{ color: '#EF4444' }}>*</span>
+                  </label>
+                  <div className="dash-pricing-input-box">
+                    <span className="dash-pricing-currency-prefix">฿</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="500"
+                      value={editingPrize.valueThb}
+                      onChange={e => setEditingPrize({ ...editingPrize, valueThb: Number(e.target.value) || 0 })}
+                      className="dash-pricing-number-input"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="dash-form-group">
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                    โค้ดโปรโมชั่นสำหรับใช้สิทธิ์ (Promo Code)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPrize.promoCode}
+                    onChange={e => setEditingPrize({ ...editingPrize, promoCode: e.target.value.toUpperCase() })}
+                    placeholder="เช่น DEV888-LINE"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: '#F59E0B', fontWeight: 700, letterSpacing: '0.05em' }}
+                  />
+                </div>
+              </div>
+
+              {/* Highlight Text */}
+              <div className="dash-form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                  ข้อความไฮไลต์บนการ์ด (Highlight Badge Text)
+                </label>
+                <input
+                  type="text"
+                  value={editingPrize.highlightText || ''}
+                  onChange={e => setEditingPrize({ ...editingPrize, highlightText: e.target.value })}
+                  placeholder={`เช่น มูลค่า ฿${editingPrize.valueThb.toLocaleString()} ฟรี`}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)' }}
+                />
+              </div>
+
+              {/* Icon & Image URL */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <label style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="fa-solid fa-image" style={{ color: 'var(--primary)' }}></i>
+                    ไอคอนหรือรูปภาพของรางวัล (Icon / Image)
+                  </label>
+                  {/* Live Visual Preview */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-sub)' }}>ตัวอย่าง:</span>
+                    <div
+                      style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '50%',
+                        background: editingPrize.rarity === 'legendary' ? 'rgba(245, 158, 11, 0.2)' : editingPrize.rarity === 'epic' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(56, 189, 248, 0.2)',
+                        border: `1.5px solid ${editingPrize.rarity === 'legendary' ? '#F59E0B' : editingPrize.rarity === 'epic' ? '#A855F7' : '#38BDF8'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {editingPrize.imageUrl ? (
+                        <img src={editingPrize.imageUrl} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <i
+                          className={editingPrize.icon || 'fa-solid fa-gift'}
+                          style={{
+                            color: editingPrize.rarity === 'legendary' ? '#F59E0B' : editingPrize.rarity === 'epic' ? '#A855F7' : '#38BDF8',
+                            fontSize: '1rem'
+                          }}
+                        ></i>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="dash-form-row" style={{ marginBottom: '12px' }}>
+                  <div className="dash-form-group">
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-sub)', marginBottom: '4px' }}>
+                      FontAwesome Icon Class
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPrize.icon}
+                      onChange={e => setEditingPrize({ ...editingPrize, icon: e.target.value })}
+                      placeholder="เช่น fa-solid fa-gift หรือ fa-solid fa-shield-halved"
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)', fontSize: '0.88rem' }}
+                    />
+                  </div>
+                  <div className="dash-form-group">
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-sub)', marginBottom: '4px' }}>
+                      URL รูปภาพ (ถ้ามีจะแสดงแทนไอคอน)
+                    </label>
+                    <input
+                      type="url"
+                      value={editingPrize.imageUrl || ''}
+                      onChange={e => setEditingPrize({ ...editingPrize, imageUrl: e.target.value })}
+                      placeholder="เช่น https://images.unsplash.com/... หรือ ลิงก์รูป"
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)', fontSize: '0.88rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Icon Selector Chips */}
+                <div>
+                  <span style={{ fontSize: '0.76rem', color: 'var(--text-sub)', display: 'block', marginBottom: '6px' }}>
+                    เลือกไอคอนด่วนยอดนิยม:
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {[
+                      { icon: 'fa-solid fa-gift', label: 'ของขวัญ' },
+                      { icon: 'fa-solid fa-wand-magic-sparkles', label: 'AI Magic' },
+                      { icon: 'fa-solid fa-robot', label: 'Bot AI' },
+                      { icon: 'fa-solid fa-shield-halved', label: 'ความปลอดภัย' },
+                      { icon: 'fa-solid fa-bolt', label: 'ความเร็วสูง' },
+                      { icon: 'fa-solid fa-chart-line', label: 'SEO / สถิติ' },
+                      { icon: 'fa-solid fa-globe', label: 'โดเมน/เว็บ' },
+                      { icon: 'fa-solid fa-qrcode', label: 'PromptPay' },
+                      { icon: 'fa-solid fa-comments', label: 'LINE Chat' },
+                      { icon: 'fa-solid fa-database', label: 'สำรองข้อมูล' },
+                      { icon: 'fa-solid fa-cloud-arrow-up', label: 'Cloud' },
+                    ].map(item => (
+                      <button
+                        key={item.icon}
+                        type="button"
+                        onClick={() => setEditingPrize({ ...editingPrize, icon: item.icon })}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '4px 9px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          background: editingPrize.icon === item.icon ? 'rgba(37, 99, 235, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                          border: `1px solid ${editingPrize.icon === item.icon ? 'var(--primary)' : 'rgba(255, 255, 255, 0.1)'}`,
+                          color: editingPrize.icon === item.icon ? '#60A5FA' : 'var(--text-sub)',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <i className={item.icon}></i>
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="dash-form-group" style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px' }}>
+                  คำอธิบายสิทธิพิเศษและเงื่อนไข (Perk Description)
+                </label>
+                <textarea
+                  rows={3}
+                  value={editingPrize.description}
+                  onChange={e => setEditingPrize({ ...editingPrize, description: e.target.value })}
+                  placeholder="เช่น ติดตั้งระบบแจ้งเตือนผ่าน LINE Official Account อัตโนมัติพร้อมออกแบบ Rich Menu พรีเมียมฟรีทันที..."
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)', background: 'var(--bg-surface)', color: 'var(--text-main)', resize: 'vertical' }}
+                />
+              </div>
+
+              <div className="dash-modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPrizeModal(false)}>
+                  ยกเลิก
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '10px 24px', fontWeight: 700, background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#0F172A', border: 'none' }}>
+                  <i className="fa-solid fa-check"></i> บันทึกข้อมูลของรางวัล
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

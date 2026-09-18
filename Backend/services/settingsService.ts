@@ -1,6 +1,7 @@
 import prisma from '../db';
 import { SiteSettings, ContactSettings, SocialSettings } from '../models';
 import { INITIAL_SITE_SETTINGS, INITIAL_CONTACT_SETTINGS, INITIAL_SOCIAL_SETTINGS } from '../data/initialData';
+import { DEFAULT_LUCKY_CONFIG } from '../../types';
 
 export class SettingsService {
   private static async getOrCreateSetting() {
@@ -206,4 +207,29 @@ export class SettingsService {
       return config;
     }
   }
+
+  static async getLuckyConfig(): Promise<any> {
+    try {
+      const rows: any = await prisma.$queryRawUnsafe(`SELECT "luckyConfig" FROM "Setting" WHERE id = 'site-config' LIMIT 1`);
+      if (rows && rows.length > 0 && rows[0]?.luckyConfig && rows[0]?.luckyConfig !== '{}') {
+        return JSON.parse(rows[0].luckyConfig);
+      }
+      return DEFAULT_LUCKY_CONFIG;
+    } catch (err) {
+      console.error('[SettingsService.getLuckyConfig] Error:', err);
+      return DEFAULT_LUCKY_CONFIG;
+    }
+  }
+
+  static async updateLuckyConfig(config: any): Promise<any> {
+    try {
+      const configStr = JSON.stringify(config);
+      await prisma.$executeRawUnsafe(`UPDATE "Setting" SET "luckyConfig" = $1 WHERE id = 'site-config'`, configStr);
+      return config;
+    } catch (err) {
+      console.error('[SettingsService.updateLuckyConfig] Error:', err);
+      return config;
+    }
+  }
 }
+

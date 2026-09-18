@@ -20,6 +20,7 @@ export class ProjectService {
         tags: p.tags ? JSON.parse(p.tags) : [],
         client: p.client || '',
         duration: p.duration || '',
+        liveUrl: p.liveUrl || '',
         problem: p.fullDesc || '',
         solution: p.fullDesc || '',
         results: p.kpi || '',
@@ -46,6 +47,7 @@ export class ProjectService {
         tags: p.tags ? JSON.parse(p.tags) : [],
         client: p.client || '',
         duration: p.duration || '',
+        liveUrl: p.liveUrl || '',
         problem: p.fullDesc || '',
         solution: p.fullDesc || '',
         results: p.kpi || '',
@@ -57,6 +59,14 @@ export class ProjectService {
   }
 
   static async create(project: ProjectItem): Promise<ProjectItem> {
+    if (project.id) {
+      const existing = await prisma.project.findUnique({ where: { id: project.id } });
+      if (existing) {
+        const updated = await this.update(project.id, project);
+        if (updated) return updated;
+      }
+    }
+
     const slug = project.id || project.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
     const created = await prisma.project.create({
       data: {
@@ -70,6 +80,7 @@ export class ProjectService {
         excerpt: project.excerpt,
         client: project.client || '',
         duration: project.duration || '',
+        liveUrl: project.liveUrl || '',
         fullDesc: project.solution || project.problem || project.excerpt,
         tags: JSON.stringify(project.tags || []),
       },
@@ -87,6 +98,7 @@ export class ProjectService {
       tags: project.tags || [],
       client: created.client || '',
       duration: created.duration || '',
+      liveUrl: created.liveUrl || '',
       problem: project.problem || '',
       solution: project.solution || '',
       results: created.kpi || '',
@@ -104,6 +116,7 @@ export class ProjectService {
       if (project.excerpt !== undefined) data.excerpt = project.excerpt;
       if (project.client !== undefined) data.client = project.client;
       if (project.duration !== undefined) data.duration = project.duration;
+      if (project.liveUrl !== undefined) data.liveUrl = project.liveUrl;
       if (project.tags !== undefined) data.tags = JSON.stringify(project.tags);
       if (project.solution !== undefined || project.problem !== undefined) {
         data.fullDesc = project.solution || project.problem;
@@ -126,6 +139,7 @@ export class ProjectService {
         tags: updated.tags ? JSON.parse(updated.tags) : [],
         client: updated.client || '',
         duration: updated.duration || '',
+        liveUrl: updated.liveUrl || '',
         problem: project.problem || '',
         solution: updated.fullDesc || '',
         results: updated.kpi || '',

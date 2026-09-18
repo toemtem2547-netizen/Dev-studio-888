@@ -10,38 +10,38 @@
   --bg-card-hover: #FFFFFF;
   --bg-surface: #F1F5F9;
   --bg-surface-subtle: #F8FAFC;
-  
+
   --primary: #2563EB;
   --primary-rgb: 37, 99, 235;
   --primary-hover: #1D4ED8;
   --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  
+
   --secondary: #7C3AED;
   --secondary-light: #8B5CF6;
-  
+
   --accent-pink: #E11D48;
   --accent-green: #047857;
   --accent-green-bg: #ECFDF5;
   --accent-green-border: #A7F3D0;
-  
+
   --text-main: #0F172A;
   --text-heading: #0F172A;
   --text-muted: #475569;
   --text-sub: #64748B;
-  
+
   --border-glass: #E2E8F0;
   --border-focus: #3B82F6;
-  
+
   /* Multi-layered Soft Shadows & Elevation */
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(226, 232, 240, 0.8);
   --shadow-card-hover: 0 20px 35px -8px rgba(37, 99, 235, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(37, 99, 235, 0.3);
   --glow-primary: 0 0 35px rgba(37, 99, 235, 0.2);
-  
+
   /* Fonts */
   --font-heading: 'Plus Jakarta Sans', 'Prompt', -apple-system, sans-serif;
   --font-body: 'Inter', 'Prompt', -apple-system, sans-serif;
-  
+
   /* Layout */
   --container-max: 1240px;
   --radius-sm: 8px;
@@ -49,7 +49,7 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
   --transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   --navbar-bg: rgba(255, 255, 255, 0.88);
   --ticker-bg: #FFFFFF;
 }
@@ -63,28 +63,28 @@
   --bg-card-hover: #162038;
   --bg-surface: #131C31;
   --bg-surface-subtle: #0B1120;
-  
+
   --primary: #38BDF8;
   --primary-rgb: 56, 189, 248;
   --primary-hover: #7DD3FC;
   --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  
+
   --secondary: #818CF8;
   --secondary-light: #A5B4FC;
-  
+
   --accent-pink: #F43F5E;
   --accent-green: #10B981;
   --accent-green-bg: rgba(16, 185, 129, 0.12);
   --accent-green-border: rgba(16, 185, 129, 0.3);
-  
+
   --text-main: #F1F5F9;
   --text-heading: #FFFFFF;
   --text-muted: #94A3B8;
   --text-sub: #64748B;
-  
+
   --border-glass: rgba(255, 255, 255, 0.1);
   --border-focus: #38BDF8;
-  
+
   --shadow-card: 0 14px 35px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
   --shadow-card-hover: 0 20px 45px -5px rgba(56, 189, 248, 0.2), 0 0 0 1.5px rgba(56, 189, 248, 0.4);
   --navbar-bg: rgba(7, 11, 20, 0.88);
@@ -102,28 +102,28 @@
   --bg-card-hover: #FFFFFF;
   --bg-surface: #F1F5F9;
   --bg-surface-subtle: #F8FAFC;
-  
+
   --primary: #2563EB;
   --primary-rgb: 37, 99, 235;
   --primary-hover: #1D4ED8;
   --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  
+
   --secondary: #7C3AED;
   --secondary-light: #8B5CF6;
-  
+
   --accent-pink: #E11D48;
   --accent-green: #047857;
   --accent-green-bg: #ECFDF5;
   --accent-green-border: #A7F3D0;
-  
+
   --text-main: #0F172A;
   --text-heading: #0F172A;
   --text-muted: #475569;
   --text-sub: #64748B;
-  
+
   --border-glass: #E2E8F0;
   --border-focus: #3B82F6;
-  
+
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(226, 232, 240, 0.8);
   --shadow-card-hover: 0 20px 35px -8px rgba(37, 99, 235, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 0 0 1.5px rgba(37, 99, 235, 0.3);
@@ -133,7 +133,9 @@
 }
 
 /* Reset & Base with Strict Mobile Viewport Lock */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -149,6 +151,9 @@ html {
   touch-action: pan-y;
   -webkit-text-size-adjust: 100%;
   overscroll-behavior-x: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -166,7 +171,11 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-img, video, canvas, svg, iframe {
+img,
+video,
+canvas,
+svg,
+iframe {
   max-width: 100%;
 }
 
@@ -254,6 +263,7 @@ img, video, canvas, svg, iframe {
 [data-theme="dark"] .glow-1 {
   background: radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%);
 }
+
 [data-theme="dark"] .glow-2 {
   background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%);
 }
@@ -269,7 +279,11 @@ img, video, canvas, svg, iframe {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
   font-family: var(--font-heading);
   color: var(--text-heading);
   font-weight: 700;
@@ -341,6 +355,7 @@ h1, h2, h3, h4, h5 {
   color: #FFFFFF;
   border-color: var(--border-glass);
 }
+
 [data-theme="dark"] .btn-glass:hover {
   background: rgba(255, 255, 255, 0.12);
 }
@@ -380,6 +395,8 @@ h1, h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  max-width: 1440px;
+  width: 100%;
 }
 
 .brand-logo {
@@ -391,6 +408,8 @@ h1, h2, h3, h4, h5 {
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--text-heading);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -404,12 +423,15 @@ h1, h2, h3, h4, h5 {
   color: #FFFFFF;
   font-size: 1rem;
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  flex-shrink: 0;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.8rem;
+  gap: clamp(0.7rem, 1.25vw, 1.4rem);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -417,6 +439,11 @@ h1, h2, h3, h4, h5 {
   text-decoration: none;
   font-size: 0.92rem;
   font-weight: 600;
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
   transition: var(--transition);
 }
 
@@ -426,12 +453,20 @@ h1, h2, h3, h4, h5 {
 
 .highlight-link {
   color: var(--primary);
+  white-space: nowrap !important;
+}
+
+.nav-cta {
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.65rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .theme-toggle {
@@ -479,19 +514,37 @@ h1, h2, h3, h4, h5 {
 }
 
 @keyframes ambientFloat1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 30px) scale(1.15); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(40px, 30px) scale(1.15);
+  }
 }
 
 @keyframes ambientFloat2 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-35px, -25px) scale(1.12); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(-35px, -25px) scale(1.12);
+  }
 }
 
 @keyframes heroKenBurns {
-  0% { transform: scale(1.03) translate(0, 0); }
-  50% { transform: scale(1.08) translate(-1.5%, -1%); }
-  100% { transform: scale(1.04) translate(1.5%, 0.5%); }
+  0% {
+    transform: scale(1.03) translate(0, 0);
+  }
+
+  50% {
+    transform: scale(1.08) translate(-1.5%, -1%);
+  }
+
+  100% {
+    transform: scale(1.04) translate(1.5%, 0.5%);
+  }
 }
 
 .badge-status {
@@ -519,8 +572,17 @@ h1, h2, h3, h4, h5 {
 }
 
 @keyframes pulseDot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.5; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 0.5;
+  }
 }
 
 .hero-title {
@@ -667,8 +729,13 @@ h1, h2, h3, h4, h5 {
 }
 
 @keyframes marquee-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Minimalist 3D Glass Logo Bubble (Icon Only) */
@@ -727,10 +794,24 @@ h1, h2, h3, h4, h5 {
   color: var(--primary);
 }
 
-/* Section Common */
+/* Section Common — Hardware Optimized for Ultra-Smooth Scrolling */
 .section {
   padding: 6.5rem 0;
   position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
+}
+
+/* GPU Hardware Acceleration for Interactive Elements */
+.project-card,
+.service-card,
+.process-step,
+.metric-card,
+.testimonial-card,
+.btn,
+.tilt-card-wrapper {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .section-header {
@@ -1364,7 +1445,8 @@ h1, h2, h3, h4, h5 {
   pointer-events: none;
 }
 
-.custom-check i, .custom-check .lucide {
+.custom-check i,
+.custom-check .lucide {
   font-size: 0.8rem;
   display: flex;
   align-items: center;
@@ -1461,7 +1543,7 @@ h1, h2, h3, h4, h5 {
   flex-shrink: 0;
 }
 
-.speed-content > div:nth-child(2) {
+.speed-content>div:nth-child(2) {
   flex-grow: 1;
 }
 
@@ -1514,7 +1596,8 @@ h1, h2, h3, h4, h5 {
   color: var(--text-heading);
 }
 
-.summary-title-wrap i, .summary-title-wrap .lucide {
+.summary-title-wrap i,
+.summary-title-wrap .lucide {
   color: var(--primary);
 }
 
@@ -1578,7 +1661,8 @@ h1, h2, h3, h4, h5 {
   margin-top: 0.5rem;
 }
 
-.timeline-val i, .timeline-val .lucide {
+.timeline-val i,
+.timeline-val .lucide {
   color: var(--primary);
   width: 14px;
   height: 14px;
@@ -1612,7 +1696,8 @@ h1, h2, h3, h4, h5 {
   gap: 0.65rem;
 }
 
-.breakdown-list li i, .breakdown-list li .lucide {
+.breakdown-list li i,
+.breakdown-list li .lucide {
   color: var(--accent-green);
   width: 16px;
   height: 16px;
@@ -1631,7 +1716,8 @@ h1, h2, h3, h4, h5 {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
-.btn-apply-spec i, .btn-apply-spec .lucide {
+.btn-apply-spec i,
+.btn-apply-spec .lucide {
   width: 16px;
   height: 16px;
 }
@@ -1648,7 +1734,8 @@ h1, h2, h3, h4, h5 {
   gap: 0.4rem;
 }
 
-.summary-note i, .summary-note .lucide {
+.summary-note i,
+.summary-note .lucide {
   width: 13px;
   height: 13px;
 }
@@ -2417,24 +2504,31 @@ h1, h2, h3, h4, h5 {
   .hero-scene-indicator {
     display: none !important;
   }
+
   .hero-title {
     font-size: 2.8rem;
   }
+
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .estimator-container {
     grid-template-columns: 1fr;
   }
+
   .estimator-summary-card {
     position: static;
   }
+
   .process-steps {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .testimonials-grid {
     grid-template-columns: 1fr;
   }
@@ -2444,18 +2538,22 @@ h1, h2, h3, h4, h5 {
   .hero-scene-indicator {
     display: none !important;
   }
+
   .container {
     padding: 0 1.15rem;
   }
+
   .navbar {
     padding-top: max(2.6rem, calc(env(safe-area-inset-top, 0px) + 1.25rem));
     padding-bottom: 0.85rem;
   }
+
   .brand-logo {
     white-space: nowrap;
     font-size: 1.15rem;
     gap: 0.55rem;
   }
+
   .logo-icon {
     width: 36px;
     height: 36px;
@@ -2463,20 +2561,24 @@ h1, h2, h3, h4, h5 {
     border-radius: 9px;
     flex-shrink: 0;
   }
+
   .logo-text {
     white-space: nowrap;
     font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: -0.01em;
   }
+
   .nav-actions {
     gap: 0.45rem;
   }
+
   .theme-toggle {
     width: 38px;
     height: 38px;
     font-size: 0.95rem;
   }
+
   #langToggle {
     padding: 0 10px !important;
     font-size: 0.76rem !important;
@@ -2487,6 +2589,7 @@ h1, h2, h3, h4, h5 {
     padding-top: calc(10.2rem + env(safe-area-inset-top, 0px));
     padding-bottom: 3.5rem;
   }
+
   .hero-badge {
     font-size: 0.75rem;
     padding: 5px 12px;
@@ -2494,23 +2597,27 @@ h1, h2, h3, h4, h5 {
     max-width: 95%;
     line-height: 1.4;
   }
+
   .hero-title {
     font-size: 1.85rem;
     line-height: 1.3;
     margin-top: 0.6rem;
     margin-bottom: 1rem;
   }
+
   .hero-subtitle {
     font-size: 0.92rem;
     line-height: 1.65;
     margin-bottom: 1.85rem;
     padding: 0 0.35rem;
   }
+
   .hero-actions {
     flex-direction: column;
     gap: 0.8rem;
     margin-bottom: 2.2rem;
   }
+
   .hero-actions .btn {
     width: 100%;
     min-height: 48px;
@@ -2525,10 +2632,12 @@ h1, h2, h3, h4, h5 {
     max-width: 440px;
     margin: 0 auto;
   }
+
   .metric-card {
     padding: 0.85rem 0.65rem;
     border-radius: 12px;
   }
+
   .metric-num,
   .metric-val {
     font-size: 1.45rem;
@@ -2536,6 +2645,7 @@ h1, h2, h3, h4, h5 {
     margin-bottom: 2px;
     line-height: 1.15;
   }
+
   .metric-label {
     font-size: 0.74rem;
     line-height: 1.25;
@@ -2545,13 +2655,16 @@ h1, h2, h3, h4, h5 {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+
   .project-info {
     padding: 1.35rem 1.15rem;
   }
+
   .project-title {
     font-size: 1.22rem;
     line-height: 1.35;
   }
+
   .options-grid,
   .features-checklist,
   .timeline-speed-selector,
@@ -2565,19 +2678,23 @@ h1, h2, h3, h4, h5 {
   .page-header {
     padding: 100px 0 24px !important;
   }
+
   .page-header .hero-title {
     font-size: 1.75rem !important;
     line-height: 1.3 !important;
     word-break: keep-all;
     overflow-wrap: break-word;
   }
+
   .page-header .hero-subtitle {
     font-size: 0.88rem !important;
     padding: 0 0.25rem !important;
   }
+
   .estimator-group {
     padding: 1.4rem 1.1rem;
   }
+
   /* Feature checkbox card — stack icon + text row, then price+check row */
   .feature-checkbox {
     flex-wrap: nowrap;
@@ -2585,25 +2702,30 @@ h1, h2, h3, h4, h5 {
     padding: 0.9rem 1rem;
     align-items: center;
   }
+
   .feature-icon-box {
     width: 38px;
     height: 38px;
     flex-shrink: 0;
   }
+
   .feature-info {
     flex: 1;
     min-width: 0;
   }
+
   .feature-label {
     font-size: 0.87rem;
     white-space: normal;
     line-height: 1.35;
   }
+
   .feature-desc {
     font-size: 0.74rem;
     white-space: normal;
     line-height: 1.35;
   }
+
   .feature-tag {
     font-size: 0.75rem;
     padding: 3px 7px;
@@ -2611,39 +2733,49 @@ h1, h2, h3, h4, h5 {
     flex-shrink: 0;
     margin-right: 0.25rem;
   }
+
   .custom-check {
     flex-shrink: 0;
   }
+
   /* Speed option cards on mobile */
   .speed-content {
     padding: 1rem;
     gap: 0.75rem;
   }
+
   .speed-title {
     font-size: 0.88rem;
   }
+
   .speed-desc {
     font-size: 0.78rem;
   }
+
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2.2rem;
   }
+
   .footer-col {
     width: 100%;
   }
+
   .footer-desc {
     max-width: 100%;
   }
+
   .footer-links {
     gap: 0.75rem;
   }
+
   .footer-bottom {
     flex-direction: column;
     gap: 1.25rem;
     text-align: center;
     align-items: center;
   }
+
   .footer-bottom-links {
     width: 100%;
     display: flex;
@@ -2658,6 +2790,7 @@ h1, h2, h3, h4, h5 {
     height: 38px;
     font-size: 1.2rem;
   }
+
   .nav-links {
     position: fixed;
     top: calc(80px + env(safe-area-inset-top, 0px));
@@ -2674,11 +2807,13 @@ h1, h2, h3, h4, h5 {
     box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.25);
     z-index: 999;
   }
+
   .nav-links.active,
   .nav-links.show {
     transform: translateY(0);
     visibility: visible;
   }
+
   .nav-cta {
     width: 100%;
     text-align: center;
@@ -2690,66 +2825,81 @@ h1, h2, h3, h4, h5 {
     padding-top: max(2.75rem, calc(env(safe-area-inset-top, 0px) + 1.35rem));
     padding-bottom: 0.8rem;
   }
+
   .brand-logo {
     font-size: 1.12rem;
     gap: 0.5rem;
   }
+
   .logo-icon {
     width: 36px;
     height: 36px;
     font-size: 0.92rem;
   }
+
   .logo-text {
     font-size: 1.02rem;
   }
+
   .nav-actions {
     gap: 0.4rem;
   }
+
   .theme-toggle {
     width: 36px;
     height: 36px;
     font-size: 0.92rem;
   }
+
   #langToggle {
     padding: 0 9px !important;
     font-size: 0.74rem !important;
     height: 36px;
   }
+
   .mobile-toggle {
     width: 36px;
     height: 36px;
     font-size: 1.15rem;
   }
+
   .nav-links {
     top: calc(84px + env(safe-area-inset-top, 0px));
   }
+
   .hero-section {
     padding-top: calc(10.6rem + env(safe-area-inset-top, 0px));
     padding-bottom: 3rem;
   }
+
   .hero-title {
     font-size: 1.68rem;
     line-height: 1.32;
     margin-top: 0.5rem;
     margin-bottom: 0.95rem;
   }
+
   .hero-subtitle {
     font-size: 0.88rem;
     line-height: 1.6;
     margin-bottom: 1.7rem;
   }
+
   .hero-actions {
     gap: 0.8rem;
     margin-bottom: 2rem;
   }
+
   .metrics-grid {
     gap: 0.45rem;
     max-width: 100%;
   }
+
   .metric-card {
     padding: 0.7rem 0.45rem;
     border-radius: 10px;
   }
+
   .metric-num,
   .metric-val {
     font-size: 1.25rem;
@@ -2757,10 +2907,12 @@ h1, h2, h3, h4, h5 {
     margin-bottom: 1px;
     line-height: 1.1;
   }
+
   .metric-label {
     font-size: 0.68rem;
     line-height: 1.2;
   }
+
   .btn-lg {
     padding: 0.85rem 1.5rem;
     font-size: 0.92rem;
@@ -2770,40 +2922,49 @@ h1, h2, h3, h4, h5 {
   .page-header {
     padding: 90px 0 20px !important;
   }
+
   .page-header .hero-title {
     font-size: 1.55rem !important;
     line-height: 1.3 !important;
   }
+
   .estimator-group {
     padding: 1.1rem 0.9rem;
     border-radius: 14px;
   }
+
   .feature-checkbox {
     padding: 0.8rem 0.85rem;
     gap: 0.65rem;
   }
+
   .feature-icon-box {
     width: 34px;
     height: 34px;
     font-size: 0.9rem;
     border-radius: 8px;
   }
+
   .feature-tag {
     font-size: 0.72rem;
     padding: 2px 6px;
   }
+
   .custom-check {
     width: 22px;
     height: 22px;
     border-radius: 6px;
   }
+
   .estimator-summary-card {
     padding: 1.2rem 1rem;
     border-radius: 14px;
   }
+
   .price-val {
     font-size: 2rem;
   }
+
   .btn-apply-spec {
     padding: 0.9rem 1.2rem;
     font-size: 0.95rem;
@@ -2867,6 +3028,7 @@ h1, h2, h3, h4, h5 {
   box-shadow: var(--shadow-sm);
   z-index: 10;
 }
+
 .login-theme-toggle:hover {
   border-color: var(--primary);
   color: var(--primary);
@@ -2945,6 +3107,7 @@ h1, h2, h3, h4, h5 {
   margin-bottom: 1.5rem;
   animation: shake 0.4s ease;
 }
+
 .login-error.show {
   display: flex;
 }
@@ -2997,6 +3160,7 @@ h1, h2, h3, h4, h5 {
   font-size: 0.95rem;
   transition: var(--transition);
 }
+
 .login-toggle-pw:hover {
   color: var(--text-main);
 }
@@ -3084,13 +3248,25 @@ h1, h2, h3, h4, h5 {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-6px);
+  }
+
+  75% {
+    transform: translateX(6px);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================================================
@@ -3238,6 +3414,130 @@ h1, h2, h3, h4, h5 {
   font-weight: 700;
 }
 
+.case-study-live-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #059669 0%, #0284C7 100%);
+  color: #ffffff !important;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.case-study-live-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(5, 150, 105, 0.5);
+  filter: brightness(1.08);
+}
+
+.case-study-live-btn i {
+  transition: transform 0.2s ease;
+}
+
+.case-study-live-btn:hover i {
+  transform: translate(2px, -2px);
+}
+
+.case-study-live-card {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.12) 0%, rgba(2, 132, 199, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.live-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.live-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #10B981;
+}
+
+.live-indicator-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: livePulse 1.8s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.live-card-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  word-break: break-all;
+}
+
+.live-card-url a {
+  color: #38BDF8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.live-card-url a:hover {
+  text-decoration: underline;
+  color: #7DD3FC;
+}
+
+.live-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #10B981;
+  color: #070B14 !important;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.live-card-cta:hover {
+  background: #34D399;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
 .case-study-body {
   padding: 24px 28px 30px;
   display: flex;
@@ -3377,5 +3677,1433 @@ h1, h2, h3, h4, h5 {
   }
 }
 
+/* ==========================================================================
+   FUTURISTIC VISUALS & INTERACTIVE MICRO-EXPERIENCE
+   ========================================================================== */
+
+/* 3D Tilt Card & Spotlight Glow */
+.tilt-card-wrapper {
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.tilt-card-spotlight {
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.project-card-tilt {
+  height: 100%;
+}
+
+.project-card-tilt .project-card {
+  height: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card-tilt {
+  height: 100%;
+}
+
+.service-card-tilt .service-card {
+  height: 100%;
+}
+
+.metric-card-tilt {
+  height: 100%;
+}
+
+.metric-card-tilt .metric-card {
+  height: 100%;
+}
+
+/* ==========================================================================
+   LUCKY VAULT / GACHA REEL SYSTEM (CS:GO / CASINO STYLE REEL)
+   ========================================================================== */
+
+.gacha-nav-link {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  color: #F59E0B !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.gacha-nav-badge {
+  background: linear-gradient(135deg, #F59E0B, #EF4444);
+  color: #FFFFFF;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: pulseGlow 1.8s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px 3px rgba(245, 158, 11, 0.6);
+  }
+}
+
+/* ==========================================================================
+   LUCKY VAULT / GACHA — ULTRA-PREMIUM REDESIGN
+   ========================================================================== */
+
+/* Keyframes */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes modalReveal {
+  from {
+    transform: scale(0.6) translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Page Container */
+.gacha-page-container {
+  position: relative;
+  min-height: 100vh;
+  padding-top: 100px;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 30% 15%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 75%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #060A14 0%, #0B1120 40%, #0D1424 100%);
+}
 
 
+
+/* Background Ambient Glows (Lightweight) */
+.gacha-bg-glow {
+  display: none;
+}
+
+/* ============== HEADER ============== */
+.gacha-header {
+  position: relative;
+  z-index: 1;
+  padding: 40px 0 28px;
+}
+
+.gacha-header-badge {
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #F59E0B !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.gacha-hero-title {
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+  font-size: clamp(2rem, 3.8vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  white-space: nowrap;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gacha-spin-icon {
+  margin-right: 6px;
+}
+
+/* Stats Strip */
+.gacha-status-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  background: #0d1527;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  flex-wrap: wrap;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.status-item .label {
+  color: var(--text-muted);
+}
+
+.status-item .value-badge {
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.btn-add-spin {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-spin:hover {
+  background: #F59E0B;
+  color: #0F172A;
+}
+
+.btn-rates {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-rates:hover {
+  color: var(--text-heading);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   REEL SECTION — CINEMATIC SLOT MACHINE
+   ========================================================================== */
+
+.gacha-reel-section {
+  position: relative;
+  z-index: 2;
+  margin: 36px auto;
+  display: flex;
+  justify-content: center;
+}
+
+.gacha-reel-frame {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: 280px;
+  margin: 0 auto;
+  border-radius: 18px;
+  background: #0B1120;
+  border: 2px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+/* Clean Center Pointer (Arrow indicators, no laser lines) */
+.gacha-center-pointer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.gacha-center-pointer.top-pointer {
+  top: 0;
+}
+
+.gacha-center-pointer.bottom-pointer {
+  bottom: 0;
+}
+
+.pointer-head {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+
+.top-pointer .pointer-head {
+  border-top: 13px solid #F59E0B;
+}
+
+.bottom-pointer .pointer-head {
+  border-bottom: 13px solid #F59E0B;
+}
+
+/* Edge Vignette Gradients */
+.reel-vignette {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.vignette-left {
+  left: 0;
+  background: linear-gradient(to right, #0B1120 0%, rgba(11, 17, 32, 0) 100%);
+}
+
+.vignette-right {
+  right: 0;
+  background: linear-gradient(to left, #0B1120 0%, rgba(11, 17, 32, 0) 100%);
+}
+
+/* Viewport & Track */
+.gacha-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.gacha-track {
+  display: flex;
+  align-items: center;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ==========================================================================
+   GACHA CARDS — HIGH PERFORMANCE DESIGN
+   ========================================================================== */
+
+.gacha-card {
+  height: 230px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 12px;
+  position: relative;
+  background: #131A2D;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Holographic shimmer disabled for zero lag */
+.gacha-card-glow {
+  display: none;
+}
+
+.card-selected {
+  transform: scale(1.06);
+  border-color: #F59E0B !important;
+  box-shadow:
+    0 0 30px rgba(245, 158, 11, 0.5),
+    0 0 60px rgba(245, 158, 11, 0.2),
+    inset 0 0 20px rgba(245, 158, 11, 0.1) !important;
+}
+
+/* Rarity Variations — Bottom Accent & Radial Top Glow */
+.rarity-legendary {
+  border-bottom: 3px solid #F59E0B;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(30, 40, 65, 0.85) 0%, rgba(18, 24, 42, 0.9) 100%);
+}
+
+.rarity-legendary .card-icon-box {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.05) 70%);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+}
+
+.rarity-epic {
+  border-bottom: 3px solid #A855F7;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(30, 40, 65, 0.85) 0%, rgba(18, 24, 42, 0.9) 100%);
+}
+
+.rarity-epic .card-icon-box {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0.05) 70%);
+  color: #C084FC;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.2);
+}
+
+.rarity-rare {
+  border-bottom: 3px solid #06B6D4;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.05) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(30, 40, 65, 0.85) 0%, rgba(18, 24, 42, 0.9) 100%);
+}
+
+.rarity-rare .card-icon-box {
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(6, 182, 212, 0.05) 70%);
+  color: #38BDF8;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.2);
+}
+
+/* Card Top Bar */
+.card-top-bar {
+  position: relative;
+  z-index: 2;
+}
+
+/* Card Elements */
+.gacha-rarity-pill {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+.rarity-gold {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08));
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.rarity-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.08));
+  color: #C084FC;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+.rarity-cyan {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.08));
+  color: #38BDF8;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+}
+
+.card-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 6px 0;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.card-info {
+  text-align: center;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.card-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-heading);
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 38px;
+}
+
+.card-category {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.card-value-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #10B981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04));
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   CONTROLS & NEON SPIN BUTTON
+   ========================================================================== */
+
+.gacha-controls {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.btn-spin-huge {
+  background: linear-gradient(135deg, #F59E0B 0%, #EAB308 50%, #D97706 100%);
+  color: #0F172A;
+  font-weight: 800;
+  font-size: 1.2rem;
+  padding: 18px 52px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.5),
+    0 0 20px rgba(245, 158, 11, 0.3);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-spin-huge:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+}
+
+.btn-spin-huge:active:not(:disabled) {
+  transform: translateY(1px);
+  animation: none;
+}
+
+.btn-spin-huge:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+  animation: none;
+}
+
+.btn-spin-huge.is-spinning {
+  background: linear-gradient(135deg, #475569, #334155);
+  color: #94A3B8;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: none;
+}
+
+.spin-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   PRIZES SHOWCASE GRID — PREMIUM CARDS
+   ========================================================================== */
+
+.gacha-prizes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.prize-showcase-card {
+  background:
+    linear-gradient(160deg, rgba(20, 28, 50, 0.8) 0%, rgba(12, 18, 35, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 22px;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.prize-showcase-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.border-legendary {
+  border-left: 4px solid #F59E0B;
+}
+
+.border-legendary:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.12);
+}
+
+.border-epic {
+  border-left: 4px solid #A855F7;
+}
+
+.border-epic:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(168, 85, 247, 0.12);
+}
+
+.border-rare {
+  border-left: 4px solid #06B6D4;
+}
+
+.border-rare:hover {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.12);
+}
+
+.showcase-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.showcase-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.showcase-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.showcase-value {
+  font-size: 0.82rem;
+  color: #10B981;
+  font-weight: 700;
+}
+
+.showcase-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.showcase-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   WINNER MODAL — ULTRA-PREMIUM VIP GACHA CELEBRATION
+   ========================================================================== */
+
+.gacha-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.gacha-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 18, 0.88);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.25s ease;
+}
+
+.gacha-win-modal {
+  position: relative;
+  z-index: 10;
+  max-width: 580px;
+  width: 100%;
+  background: #0B1120;
+  border-radius: 28px;
+  padding: 34px 28px 24px;
+  text-align: center;
+  overflow: hidden;
+  animation: modalReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 24px 70px -10px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Rarity-Adaptive Modal Themes */
+.modal-rarity-legendary {
+  border: 2px solid rgba(245, 158, 11, 0.45);
+  box-shadow:
+    0 24px 70px -10px rgba(0, 0, 0, 0.95),
+    0 0 50px -10px rgba(245, 158, 11, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.modal-rarity-legendary .win-ambient-glow {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+}
+
+.modal-rarity-legendary .win-hero-ring-inner {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.08) 80%);
+  border-color: #F59E0B;
+  color: #FBBF24;
+  box-shadow: 0 0 28px rgba(245, 158, 11, 0.35);
+}
+
+.modal-rarity-legendary .win-hero-ring-outer {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.modal-rarity-epic {
+  border: 2px solid rgba(168, 85, 247, 0.45);
+  box-shadow:
+    0 24px 70px -10px rgba(0, 0, 0, 0.95),
+    0 0 50px -10px rgba(168, 85, 247, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.modal-rarity-epic .win-ambient-glow {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+}
+
+.modal-rarity-epic .win-hero-ring-inner {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0.08) 80%);
+  border-color: #A855F7;
+  color: #C084FC;
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.35);
+}
+
+.modal-rarity-epic .win-hero-ring-outer {
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.modal-rarity-rare {
+  border: 2px solid rgba(6, 182, 212, 0.45);
+  box-shadow:
+    0 24px 70px -10px rgba(0, 0, 0, 0.95),
+    0 0 50px -10px rgba(6, 182, 212, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.modal-rarity-rare .win-ambient-glow {
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+}
+
+.modal-rarity-rare .win-hero-ring-inner {
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(6, 182, 212, 0.08) 80%);
+  border-color: #06B6D4;
+  color: #38BDF8;
+  box-shadow: 0 0 28px rgba(6, 182, 212, 0.35);
+}
+
+.modal-rarity-rare .win-hero-ring-outer {
+  border-color: rgba(6, 182, 212, 0.35);
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 20;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg);
+}
+
+/* Static ambient aura behind pedestal */
+.win-ambient-glow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 360px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.modal-inner-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Header Strip */
+.win-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 4px;
+}
+
+.win-congrats-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #F59E0B;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.08em;
+}
+
+/* Centerpiece Hero Display */
+.win-hero-stage {
+  margin: 4px auto 16px;
+}
+
+.win-hero-pedestal {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win-hero-ring-outer {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(245, 158, 11, 0.35);
+  pointer-events: none;
+}
+
+.win-hero-ring-inner {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #F59E0B;
+  font-size: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.win-hero-image {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.win-hero-icon {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* Info Section */
+.win-info-section {
+  margin-bottom: 20px;
+}
+
+.win-category-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.win-prize-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  color: #FFFFFF;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.win-prize-desc {
+  font-size: 0.88rem;
+  color: #94A3B8;
+  margin: 0 auto;
+  max-width: 480px;
+  line-height: 1.55;
+}
+
+/* Value Card (Savings Highlight) */
+.win-value-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 16px;
+  padding: 14px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.val-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.val-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.val-card-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #E2E8F0;
+  display: block;
+}
+
+.val-card-sub {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  display: block;
+  margin-top: 2px;
+}
+
+.val-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.val-card-right .val-amount {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #10B981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+}
+
+.val-free-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* VIP Voucher Ticket Box */
+.win-voucher-ticket {
+  background: #070B14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  text-align: left;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.ticket-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ticket-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticket-status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #10B981;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dot-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.ticket-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px dashed rgba(245, 158, 11, 0.4);
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.code-text {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #F59E0B;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  user-select: all;
+}
+
+.btn-ticket-copy {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #0F172A;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-ticket-copy:hover {
+  background: #FBBF24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+.btn-ticket-copy.copied {
+  background: #10B981;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.ticket-hint {
+  margin-top: 10px;
+  font-size: 0.74rem;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Action CTA Buttons */
+.win-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.btn-win-primary {
+  background: linear-gradient(135deg, #F59E0B 0%, #EAB308 50%, #D97706 100%);
+  color: #0F172A !important;
+  border-radius: 14px;
+  padding: 13px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-win-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(245, 158, 11, 0.6);
+}
+
+.btn-win-primary:hover .btn-win-arrow {
+  transform: translateX(4px);
+}
+
+.btn-win-content {
+  text-align: left;
+}
+
+.btn-main-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+.btn-sub-label {
+  font-size: 0.72rem;
+  opacity: 0.85;
+  font-weight: 600;
+  display: block;
+  margin-top: 3px;
+}
+
+.btn-win-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-win-line {
+  background: #06C755;
+  color: #FFFFFF !important;
+  border-radius: 14px;
+  padding: 13px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(6, 199, 85, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-win-line:hover {
+  background: #05b34c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(6, 199, 85, 0.45);
+}
+
+.line-brand-icon {
+  font-size: 1.25rem;
+}
+
+/* Footer Spin Again */
+.win-modal-footer {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.btn-spin-again {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 22px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+}
+
+.btn-spin-again:hover {
+  color: var(--text-heading);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   DROP RATES MODAL — POLISHED GLASS
+   ========================================================================== */
+
+.gacha-rates-modal {
+  position: relative;
+  z-index: 10;
+  max-width: 500px;
+  width: 100%;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0C1222, #0B1120);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 32px 28px;
+  animation: modalReveal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.rates-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.25s ease;
+}
+
+.rate-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rate-row .tier-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.rate-row .tier-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.rate-row .tier-rate {
+  font-size: 1.25rem;
+  font-weight: 800;
+  min-width: 50px;
+  text-align: right;
+}
+
+.rate-row.gold-tier {
+  border-left: 3px solid rgba(245, 158, 11, 0.5);
+}
+
+.rate-row.purple-tier {
+  border-left: 3px solid rgba(168, 85, 247, 0.5);
+}
+
+.rate-row.cyan-tier {
+  border-left: 3px solid rgba(6, 182, 212, 0.5);
+}
+
+.rate-row.gold-tier .tier-rate {
+  color: #F59E0B;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.rate-row.purple-tier .tier-rate {
+  color: #A855F7;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.rate-row.cyan-tier .tier-rate {
+  color: #06B6D4;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+.tier-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 5px;
+  display: inline-block;
+  width: fit-content;
+  letter-spacing: 0.05em;
+}
+
+.tier-badge.gold {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.tier-badge.purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #A855F7;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.tier-badge.cyan {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06B6D4;
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+/* ==========================================================================
+   RESPONSIVE — MOBILE & TABLET
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .gacha-page-container {
+    padding-top: 80px;
+  }
+
+  .gacha-reel-frame {
+    height: 250px;
+    border-radius: 14px;
+  }
+
+  .gacha-card {
+    height: 205px;
+  }
+
+  .card-icon-box {
+    width: 46px;
+    height: 46px;
+    font-size: 1.2rem;
+  }
+
+  .btn-spin-huge {
+    font-size: 1rem;
+    padding: 16px 32px;
+    width: 100%;
+    max-width: 340px;
+    justify-content: center;
+  }
+
+  .reel-vignette {
+    width: 70px;
+  }
+
+  .gacha-win-modal {
+    padding: 28px 18px 22px;
+    border-radius: 20px;
+    max-width: 95vw;
+  }
+
+  .win-header-strip {
+    margin-bottom: 14px;
+  }
+
+  .win-hero-pedestal {
+    width: 86px;
+    height: 86px;
+  }
+
+  .win-hero-ring-inner {
+    width: 78px;
+    height: 78px;
+    font-size: 2rem;
+  }
+
+  .win-hero-image {
+    width: 54px;
+    height: 54px;
+  }
+
+  .win-prize-title {
+    font-size: 1.25rem;
+  }
+
+  .win-value-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .val-card-left {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ticket-code-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .code-text {
+    font-size: 1.1rem;
+  }
+
+  .btn-ticket-copy {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .gacha-prizes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gacha-status-strip {
+    gap: 10px;
+    padding: 8px 14px;
+  }
+}
