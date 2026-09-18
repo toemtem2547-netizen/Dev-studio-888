@@ -5145,8 +5145,12 @@ h5 {
   font-size: 1.25rem;
 }
 
-/* Footer Spin Again */
+/* Footer Spin Again & Close Button */
 .win-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-top: 8px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -5161,7 +5165,7 @@ h5 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 22px;
+  padding: 8px 18px;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
 }
@@ -5170,6 +5174,28 @@ h5 {
   color: var(--text-heading);
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-modal-close-action {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #F87171;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+}
+
+.btn-modal-close-action:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+  border-color: #EF4444;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -5987,13 +6013,22 @@ h5 {
   }
 
   .win-modal-footer {
-    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 3px;
     padding-top: 4px;
   }
 
   .btn-spin-again {
     font-size: 0.68rem;
     padding: 4px 12px;
+  }
+
+  .btn-modal-close-action {
+    font-size: 0.68rem;
+    padding: 4px 14px;
   }
 
   /* Drop Rates Modal on Mobile */

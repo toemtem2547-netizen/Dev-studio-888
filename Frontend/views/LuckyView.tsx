@@ -619,15 +619,6 @@ export default function LuckyView() {
             <div className="gacha-modal-backdrop" onClick={() => setShowModal(false)}></div>
 
             <div className={`gacha-win-modal modal-rarity-${winningPrize.rarity}`}>
-              {/* Close Button */}
-              <button
-                className="modal-close-btn"
-                onClick={() => setShowModal(false)}
-                aria-label="Close"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-
               {/* Ambient radial glow */}
               <div className="win-ambient-glow"></div>
 
@@ -750,7 +741,7 @@ export default function LuckyView() {
                   </a>
                 </div>
 
-                {/* Footer Spin Again */}
+                {/* Footer Spin Again & Close Button */}
                 <div className="win-modal-footer">
                   <button
                     className="btn-spin-again"
@@ -762,6 +753,12 @@ export default function LuckyView() {
                     }}
                   >
                     <i className="fa-solid fa-rotate-right"></i> สุ่มใหม่อีกครั้ง {spinsLeft > 0 ? `(${spinsLeft} สิทธิ์คงเหลือ)` : ''}
+                  </button>
+                  <button
+                    className="btn-modal-close-action"
+                    onClick={() => setShowModal(false)}
+                  >
+                    <i className="fa-solid fa-xmark"></i> ปิดหน้านี้
                   </button>
                 </div>
               </div>
