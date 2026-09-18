@@ -76,6 +76,28 @@ export default function HomeView() {
               </div>
             </TiltCard>
           </div>
+
+          {/* Lucky Vault Mobile / Fast Action CTA Button */}
+          <div className="hero-lucky-action">
+            <Link
+              href="/lucky"
+              className="btn-hero-lucky"
+              onClick={() => soundFx.playClick()}
+              title={t.heroLuckyTitle}
+            >
+              <span className="lucky-icon-glow">
+                <i className="fa-solid fa-dice-d20"></i>
+              </span>
+              <div className="lucky-btn-text">
+                <div className="lucky-btn-title">
+                  <span>{t.heroLuckyTitle}</span>
+                  <span className="lucky-free-pill">FREE</span>
+                </div>
+                <span className="lucky-btn-sub">{t.heroLuckySub}</span>
+              </div>
+              <i className="fa-solid fa-chevron-right lucky-btn-arrow"></i>
+            </Link>
+          </div>
         </div>
       </section>
 
