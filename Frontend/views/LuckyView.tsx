@@ -11,15 +11,36 @@ import { PerkPrize, LuckyConfig, DEFAULT_LUCKY_CONFIG } from '@/types';
 
 export const PRIZES: PerkPrize[] = DEFAULT_LUCKY_CONFIG.prizes;
 
-const CARD_WIDTH = 200; // px
-const CARD_MARGIN = 12; // px per side -> pitch = 224px
-const CARD_PITCH = CARD_WIDTH + (CARD_MARGIN * 2);
+const CARD_WIDTH_DESKTOP = 200;
+const CARD_MARGIN_DESKTOP = 12;
 const TOTAL_REEL_ITEMS = 65;
 
 export default function LuckyView() {
   const router = useRouter();
   const { luckyConfig: ctxConfig } = useSettings();
   const [liveConfig, setLiveConfig] = useState<LuckyConfig | null>(null);
+
+  // Dynamic card pitch for responsive mobile reel
+  const [cardDims, setCardDims] = useState<{ width: number; margin: number }>({
+    width: CARD_WIDTH_DESKTOP,
+    margin: CARD_MARGIN_DESKTOP,
+  });
+
+  useEffect(() => {
+    const updateDims = () => {
+      if (typeof window === 'undefined') return;
+      if (window.innerWidth <= 480) {
+        setCardDims({ width: 150, margin: 8 });
+      } else if (window.innerWidth <= 768) {
+        setCardDims({ width: 175, margin: 10 });
+      } else {
+        setCardDims({ width: CARD_WIDTH_DESKTOP, margin: CARD_MARGIN_DESKTOP });
+      }
+    };
+    updateDims();
+    window.addEventListener('resize', updateDims);
+    return () => window.removeEventListener('resize', updateDims);
+  }, []);
 
   // Fetch live config from API so admin changes take effect immediately
   useEffect(() => {
@@ -100,6 +121,17 @@ export default function LuckyView() {
     }
   }, [currentPrizes, dropRates.legendary, dropRates.epic, dropRates.rare]);
 
+  // Keep winning card centered if window is resized or phone rotates
+  useEffect(() => {
+    if (!spinning && winningPrize && containerRef.current) {
+      const pitch = cardDims.width + (cardDims.margin * 2);
+      const containerWidth = containerRef.current.offsetWidth;
+      const centered = -(targetIndex * pitch + pitch / 2 - containerWidth / 2);
+      setTransitionStyle('none');
+      setOffset(centered);
+    }
+  }, [cardDims, spinning, winningPrize, targetIndex]);
+
   // Trigger spin with guaranteed smooth reel sliding on EVERY spin
   const handleSpin = () => {
     if (spinning) return;
@@ -127,9 +159,10 @@ export default function LuckyView() {
     setTimeout(() => {
       setSpinning(true);
 
+      const currentPitch = cardDims.width + (cardDims.margin * 2);
       const containerWidth = containerRef.current ? containerRef.current.offsetWidth : 800;
-      const randomJitter = (Math.random() - 0.5) * 22; // subtle realistic stop variance
-      const finalOffset = -(winIdx * CARD_PITCH + CARD_PITCH / 2 - containerWidth / 2 + randomJitter);
+      const randomJitter = (Math.random() - 0.5) * (cardDims.width * 0.08); // subtle realistic stop variance
+      const finalOffset = -(winIdx * currentPitch + currentPitch / 2 - containerWidth / 2 + randomJitter);
 
       // Dynamic duration configured in admin dashboard
       const spinDuration = activeConfig.spinDuration || 3800;
@@ -155,6 +188,13 @@ export default function LuckyView() {
         setWinningPrize(targetPrize);
         setShowModal(true);
         soundFx.playWinJackpot();
+
+        // Native mobile haptic feedback if supported
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try {
+            navigator.vibrate([70, 30, 70, 30, 140]);
+          } catch (_) { }
+        }
 
         // Deduct spin
         setSpinsLeft(prev => {
@@ -383,7 +423,7 @@ export default function LuckyView() {
                       <div
                         key={`${prize.id}-${idx}`}
                         className={`gacha-card rarity-${prize.rarity} ${isCenterPick && !spinning && winningPrize ? 'card-selected' : ''}`}
-                        style={{ width: `${CARD_WIDTH}px`, margin: `0 ${CARD_MARGIN}px` }}
+                        style={{ width: `${cardDims.width}px`, margin: `0 ${cardDims.margin}px` }}
                       >
                         <div className="gacha-card-glow"></div>
 

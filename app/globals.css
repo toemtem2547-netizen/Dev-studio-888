@@ -5011,99 +5011,416 @@ h5 {
    RESPONSIVE — MOBILE & TABLET
    ========================================================================== */
 
+/* ==========================================================================
+   RESPONSIVE — TABLET & MOBILE (LUCKY VAULT)
+   ========================================================================== */
+
 @media (max-width: 768px) {
   .gacha-page-container {
-    padding-top: 80px;
+    padding-top: 84px;
+  }
+
+  .gacha-hero-title {
+    white-space: normal !important;
+    font-size: clamp(1.6rem, 5.5vw, 2.4rem) !important;
+    line-height: 1.35 !important;
+    padding: 0 12px;
+  }
+
+  .gacha-header {
+    padding: 28px 0 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.92rem !important;
+    padding: 0 16px;
+    line-height: 1.6;
+  }
+
+  .gacha-reel-section {
+    margin: 24px auto;
+    padding: 0 12px;
   }
 
   .gacha-reel-frame {
-    height: 250px;
+    height: 235px;
+    border-radius: 16px;
+  }
+
+  .gacha-card {
+    height: 195px;
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .card-icon-box {
+    width: 44px;
+    height: 44px;
+    font-size: 1.15rem;
+    margin: 4px 0;
+  }
+
+  .card-title {
+    font-size: 0.78rem;
+    height: 32px;
+    line-height: 1.3;
+  }
+
+  .card-value-tag {
+    font-size: 0.68rem;
+    padding: 3px 6px;
+  }
+
+  .reel-vignette {
+    width: 50px;
+  }
+
+  .top-pointer .pointer-head {
+    border-top: 10px solid #F59E0B;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+
+  .bottom-pointer .pointer-head {
+    border-bottom: 10px solid #F59E0B;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+
+  .btn-spin-huge {
+    font-size: 1.05rem;
+    padding: 16px 36px;
+    width: 100%;
+    max-width: 360px;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .spin-hint {
+    font-size: 0.8rem;
+    padding: 0 14px;
+  }
+
+  .gacha-prizes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE PHONES (<= 600px & <= 480px)
+   ========================================================================== */
+
+@media (max-width: 600px) {
+  .gacha-page-container {
+    padding-top: 76px;
+  }
+
+  .gacha-header-badge {
+    font-size: 0.72rem;
+    padding: 4px 12px;
+  }
+
+  .gacha-hero-title {
+    font-size: clamp(1.4rem, 6.2vw, 1.95rem) !important;
+    line-height: 1.32 !important;
+  }
+
+  .gacha-status-strip {
+    flex-direction: column;
+    width: calc(100% - 32px);
+    max-width: 340px;
+    margin: 20px auto 0;
+    padding: 10px 16px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+
+  .status-item {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.84rem;
+  }
+
+  .btn-rates {
+    width: 100%;
+    justify-content: center;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+
+  .gacha-reel-frame {
+    height: 220px;
     border-radius: 14px;
   }
 
   .gacha-card {
-    height: 205px;
+    height: 180px;
+    padding: 10px 8px;
+    border-radius: 11px;
   }
 
   .card-icon-box {
-    width: 46px;
-    height: 46px;
-    font-size: 1.2rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.05rem;
+  }
+
+  .card-title {
+    font-size: 0.72rem;
+    height: 28px;
+  }
+
+  .card-category {
+    font-size: 0.58rem;
+  }
+
+  .card-value-tag {
+    font-size: 0.64rem;
+    padding: 3px 5px;
+  }
+
+  .gacha-rarity-pill {
+    font-size: 0.56rem;
+    padding: 2px 6px;
+  }
+
+  .reel-vignette {
+    width: 36px;
   }
 
   .btn-spin-huge {
     font-size: 1rem;
-    padding: 16px 32px;
-    width: 100%;
-    max-width: 340px;
-    justify-content: center;
+    padding: 15px 24px;
+    max-width: 320px;
   }
 
-  .reel-vignette {
-    width: 70px;
+  /* Winner Modal on Mobile */
+  .gacha-modal-overlay {
+    padding: 10px;
+    align-items: center;
   }
 
   .gacha-win-modal {
-    padding: 28px 18px 22px;
-    border-radius: 20px;
-    max-width: 95vw;
+    padding: 24px 16px 20px;
+    border-radius: 22px;
+    max-width: 100%;
+    width: 100%;
+    max-height: 90vh;
+    max-height: 90dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gacha-win-modal::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .gacha-win-modal::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.35);
+    border-radius: 4px;
+  }
+
+  .modal-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.88rem;
   }
 
   .win-header-strip {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+    padding-right: 32px;
+  }
+
+  .win-congrats-pill {
+    font-size: 0.68rem;
+    padding: 4px 10px;
+  }
+
+  .win-hero-stage {
+    margin: 2px auto 12px;
   }
 
   .win-hero-pedestal {
-    width: 86px;
-    height: 86px;
+    width: 78px;
+    height: 78px;
   }
 
   .win-hero-ring-inner {
-    width: 78px;
-    height: 78px;
-    font-size: 2rem;
+    width: 72px;
+    height: 72px;
+    font-size: 1.85rem;
   }
 
   .win-hero-image {
-    width: 54px;
-    height: 54px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .win-info-section {
+    margin-bottom: 14px;
+  }
+
+  .win-category-tag {
+    font-size: 0.65rem;
+    margin-bottom: 4px;
   }
 
   .win-prize-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    line-height: 1.35;
+    margin-bottom: 6px;
   }
 
+  .win-prize-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  /* Savings Value Card */
   .win-value-card {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 14px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .val-card-left {
-    justify-content: center;
-    text-align: center;
+    text-align: left;
+    gap: 10px;
+  }
+
+  .val-card-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .val-card-label {
+    font-size: 0.76rem;
+  }
+
+  .val-card-sub {
+    font-size: 0.65rem;
+  }
+
+  .val-card-right .val-amount {
+    font-size: 1.2rem;
+  }
+
+  /* Voucher Ticket */
+  .win-voucher-ticket {
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+
+  .ticket-title {
+    font-size: 0.72rem;
+  }
+
+  .ticket-status-dot {
+    font-size: 0.68rem;
   }
 
   .ticket-code-row {
-    flex-direction: column;
+    padding: 8px 12px;
+    flex-direction: row;
     gap: 8px;
   }
 
   .code-text {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
   }
 
   .btn-ticket-copy {
-    width: 100%;
-    justify-content: center;
+    padding: 7px 14px;
+    font-size: 0.78rem;
   }
 
+  .ticket-hint {
+    font-size: 0.7rem;
+    margin-top: 8px;
+  }
+
+  /* Action Buttons */
+  .win-action-buttons {
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+
+  .btn-win-primary {
+    padding: 12px 16px;
+    border-radius: 13px;
+  }
+
+  .btn-main-label {
+    font-size: 0.88rem;
+  }
+
+  .btn-sub-label {
+    font-size: 0.68rem;
+  }
+
+  .btn-win-line {
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    border-radius: 13px;
+  }
+
+  .btn-spin-again {
+    font-size: 0.8rem;
+    padding: 7px 20px;
+  }
+
+  /* Prize Showcase Grid */
   .gacha-prizes-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .gacha-status-strip {
-    gap: 10px;
-    padding: 8px 14px;
+  .prize-showcase-card {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .showcase-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+  }
+
+  .showcase-title {
+    font-size: 0.94rem;
+  }
+
+  .showcase-desc {
+    font-size: 0.8rem;
+  }
+
+  /* Drop Rates Modal on Mobile */
+  .gacha-rates-modal {
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+
+  .rate-row {
+    padding: 10px 12px;
+  }
+
+  .rate-row .tier-desc {
+    font-size: 0.72rem;
+  }
+
+  .rate-row .tier-rate {
+    font-size: 1.1rem;
   }
 }
