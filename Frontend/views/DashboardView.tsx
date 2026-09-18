@@ -2463,7 +2463,7 @@ export default function DashboardView() {
                               รางวัลระดับสูงสุด (VIP Perks)
                             </h4>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
-                              สปีด 0.4s, AI Copilot, LINE OA Auto Alert, Voucher ส่วนลด ฿25,000
+                              สปีด 0.4s, AI Copilot, LINE OA Auto Alert, Voucher ส่วนลด ฿5,000
                             </p>
                           </div>
 

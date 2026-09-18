@@ -433,7 +433,7 @@ export default function LuckyView() {
               </h1>
               <p className="hero-subtitle">
                 มอบของขวัญสำหรับลูกค้าใหม่และพาร์ทเนอร์ สุ่มรับสิทธิ์ติดตั้งระบบเสริมระดับพรีเมียม
-                มูลค่าสูงสุด <span style={{ color: '#F59E0B', fontWeight: 700 }}>฿25,000</span> ฟรีทันที ไม่มีค่าใช้จ่ายแอบแฝง!
+                มูลค่าสูงสุด <span style={{ color: '#F59E0B', fontWeight: 700 }}>฿5,000</span> ฟรีทันที ไม่มีค่าใช้จ่ายแอบแฝง!
               </p>
 
               {/* Quick Stats Bar */}

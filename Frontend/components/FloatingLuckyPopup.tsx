@@ -84,7 +84,7 @@ export function FloatingLuckyPopup() {
             <span>สิทธิ์ฟรีพร้อมหมุน</span>
           </div>
           <div className="nudge-headline">
-            สุ่มฟรี <span className="nudge-gold-text">มูลค่า ฿25,000</span>
+            สุ่มฟรี <span className="nudge-gold-text">มูลค่า ฿5,000</span>
           </div>
           <div className="nudge-subtext">
             <span>แตะเพื่อเปิดหีบสมบัติ</span>
