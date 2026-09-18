@@ -6,25 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from '@/Frontend/context/ThemeContext';
 import { useLanguage } from '@/Frontend/context/LanguageContext';
 import { useSettings } from '@/Frontend/context/SettingsContext';
-import { soundFx } from '@/Frontend/utils/soundEffects';
-
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { lang, t, toggleLang } = useLanguage();
   const { site } = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const [soundOn, setSoundOn] = useState(false);
-
-  useEffect(() => {
-    setSoundOn(soundFx.isEnabled());
-  }, []);
-
-  const handleToggleSound = () => {
-    const next = soundFx.toggle();
-    setSoundOn(next);
-  };
 
   // Format brand name
   const renderBrandName = () => {
@@ -108,6 +95,16 @@ export const Navbar: React.FC = () => {
           >
             {t.navContact}
           </Link>
+
+          {/* Admin link inside drawer for mobile */}
+          <Link
+            href="/login"
+            className="nav-link mobile-only-link"
+            style={{ whiteSpace: 'nowrap', opacity: 0.85 }}
+            onClick={() => setMobileOpen(false)}
+          >
+            <i className="fa-solid fa-user-gear"></i> <span>เข้าสู่ระบบแอดมิน (Admin Portal)</span>
+          </Link>
         </div>
 
         {/* Action Controls */}
@@ -123,22 +120,6 @@ export const Navbar: React.FC = () => {
           >
             <i className="fa-solid fa-globe" style={{ marginRight: '4px' }}></i>
             <span>{t.langLabel}</span>
-          </button>
-
-          {/* Futuristic Sound FX Toggle */}
-          <button
-            className={`theme-toggle ${soundOn ? 'sound-active' : ''}`}
-            id="soundToggle"
-            title={soundOn ? 'ปิดเสียงเอฟเฟกต์ (Mute SFX)' : 'เปิดเสียงเอฟเฟกต์สุดล้ำ (Enable Sci-Fi SFX)'}
-            aria-label="Toggle Sound Effects"
-            onClick={handleToggleSound}
-            style={soundOn ? { color: '#10B981', borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.15)' } : {}}
-          >
-            {soundOn ? (
-              <i className="fa-solid fa-volume-high"></i>
-            ) : (
-              <i className="fa-solid fa-volume-xmark" style={{ opacity: 0.55 }}></i>
-            )}
           </button>
 
           {/* Theme Toggle */}
